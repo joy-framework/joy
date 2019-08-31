@@ -48,12 +48,17 @@
       "")))
 
 
-(defn log [options]
+
+(defn log-string [options]
   (let [{:level level :msg msg :attrs attrs :ts ts} options
-        ts (or ts (timestamp))
-        line (string ts " " (message level msg attrs))]
-    (print line)
-    line))
+        ts (or ts (timestamp))]
+    (string ts " " (message level msg attrs))))
+
+
+(defn log [options]
+  (let [log-line (log-string options)]
+    (print log-line)
+    log-line))
 
 
 (defn middleware [handler]
