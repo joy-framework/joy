@@ -48,4 +48,4 @@
   (test "middleware"
     (= {:status 200 :body ""}
        ((logger/middleware (fn [request] {:status 200 :body ""}))
-        {:request-method :get :uri "/hello" :params {}}))))
+        {:request-method "GET" :uri "/hello" :params {}}))))
