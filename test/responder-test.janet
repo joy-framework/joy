@@ -1,6 +1,5 @@
 (import tester :prefix "" :exit true)
 (import "src/joy/responder" :as responder)
-(import json)
 
 (deftest
   (test "get responder"
