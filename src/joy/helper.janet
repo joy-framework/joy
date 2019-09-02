@@ -33,3 +33,9 @@
           (put table-t k v)))
       (table/to-struct table-t))
     {}))
+
+
+(defmacro rescue [& body]
+  ~(try
+     [nil ,(splice body)]
+     ([err] [err nil])))
