@@ -16,5 +16,5 @@ Joy will be a full stack web framework written in [janet](https://github.com/jan
 
 (def app (joy/app routes))
 
-(joy/server app {:port 3000})
+(joy/serve app {:port 3000})
 ```
