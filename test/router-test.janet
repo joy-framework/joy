@@ -1,5 +1,6 @@
 (import tester :prefix "" :exit true)
 (import "src/joy/router" :as router)
+(import "src/joy/helper" :prefix "")
 
 (deftest
   (test "fills in a param in the url"
@@ -40,7 +41,7 @@
   (test "get handler from routes"
     (let [routes [[:get "/"]
                   [:get "/accounts" (fn [request] {:status 200 :body ""})]
-                  [:get "/accounts/:id" (fn [request] {:status 200 :body (router/get-in request [:params :id])})]
+                  [:get "/accounts/:id" (fn [request] {:status 200 :body (get-in request [:params :id])})]
                   [:post "/accounts"]]]
       (= {:status 200 :body "1"}
        ((router/handler routes) {:method :get :uri "/accounts/1"})))))
