@@ -50,3 +50,28 @@
           request (merge request {:params (map-keys (fn [val] (-> (string/replace ":" "" val) (keyword))) route-params)})]
       (when (function? route-fn)
         (route-fn request)))))
+
+
+(defn depth [val idx]
+  (if (indexed? val)
+    (depth (first val) (inc idx))
+    idx))
+
+
+(defn flatten-wrapped-routes [x]
+  (if (> (depth x 0) 1)
+    (mapcat flatten-wrapped-routes x)
+    [x]))
+
+
+(defn middleware [& args]
+  (let [middleware-fns (filter function? args)
+        routes (filter indexed? args)
+        middleware-fn (apply comp middleware-fns)]
+    (map (fn [[method url handler]]
+           [method url (middleware-fn handler)])
+      routes)))
+
+
+(defn routes [& indexed-routes]
+  (flatten-wrapped-routes indexed-routes))

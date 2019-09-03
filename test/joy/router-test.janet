@@ -30,6 +30,9 @@
   (test "gets multiple params out of a url"
     (= {":id" "1" ":todo-id" "2"} (router/route-params "/accounts/:id/todos/:todo-id" "/accounts/1/todos/2")))
 
+  (test "route-params with one segment"
+    (= {} (router/route-params "/" "/")))
+
   (test "get handler from routes"
     (let [routes [[:get "/"]
                   [:get "/accounts" (fn [request] {:status 200 :body ""})]
@@ -44,4 +47,24 @@
                   [:get "/accounts/:id" (fn [request] {:status 200 :body (get-in request [:params :id])})]
                   [:post "/accounts"]]]
       (= {:status 200 :body "1"}
-       ((router/handler routes) {:method :get :uri "/accounts/1"})))))
+       ((router/handler routes) {:method :get :uri "/accounts/1"}))))
+
+  (test "middleware"
+    (let [mw (fn [handler]
+               (fn [request] (handler (put request :a 1))))
+          routes (router/routes
+                   (router/middleware mw
+                     [:get "/" (fn [request] {:status 200 :body (get request :a)})]))]
+      (= {:status 200 :body 1}
+        ((router/handler routes) {:method :get :uri "/"}))))
+
+  (test "two middleware fns"
+    (let [mw (fn [handler]
+               (fn [request] (handler (put request :a 1))))
+          mw2 (fn [handler]
+                (fn [request] (handler (put request :b 2))))
+          routes (router/routes
+                   (router/middleware mw mw2
+                     [:get "/" (fn [request] {:status 200 :body (+ (get request :b) (get request :a))})]))]
+      (= {:status 200 :body 3}
+        ((router/handler routes) {:method :get :uri "/"})))))
