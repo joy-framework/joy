@@ -5,8 +5,7 @@ Joy will be a full stack web framework written in [janet](https://github.com/jan
 **This project is in early development so expect major changes**
 
 ```clojure
-(ns app
-  (:require [joy]))
+(import joy)
 
 (defn home [request]
   (joy/respond :text
