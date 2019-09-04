@@ -10,13 +10,18 @@
 
 
 (defn attributes [val]
-  (if (dictionary? val)
+  (if (and (dictionary? val)
+        (nil? (get val :raw)))
     (string " "
       (string/join
         (map (fn [[k v]] (string k "=" `"` v `"`))
           (pairs val))
         " "))
     ""))
+
+
+(defn raw [val]
+  {:raw val})
 
 
 (defn render [& args]
@@ -30,6 +35,8 @@
                    (string? attr-or-content) (escape attr-or-content)
                    (indexed? attr-or-content) (render attr-or-content)
                    (indexed? content) (render content)
+                   (dictionary? attr-or-content) (get attr-or-content :raw "")
+                   (dictionary? content) (get content :raw "")
                    :else "")
                  "</" (string el) ">"))
              ""))

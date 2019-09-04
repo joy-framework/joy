@@ -36,4 +36,8 @@
   (test "html/render with an escaped nested node with attributes and content"
     (= `<div class="class"><span id="id">&lt;span&gt;</span></div>`
        (html/render [:div {:class "class"}
-                      [:span {:id "id"} "<span>"]]))))
+                      [:span {:id "id"} "<span>"]])))
+
+  (test "html/render with a raw node"
+    (= "<div><br /></div>"
+       (html/render [:div (html/raw "<br />")]))))
