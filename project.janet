@@ -3,7 +3,8 @@
   :description "A full stack janet web framework"
   :dependencies [{:repo "https://github.com/janet-lang/json.git" :tag "fc59d46f06501569c21d18fff3df15e1494bf144"}
                  {:repo "https://github.com/janet-lang/circlet" :tag "980edbf6dee2021d02a717e03da3a6b7594d51f7"}
-                 {:repo "https://github.com/joy-framework/tester" :tag "c14aff3591cb0aed74cba9b54d853cf0bf539ecb"}]
+                 {:repo "https://github.com/joy-framework/tester" :tag "c14aff3591cb0aed74cba9b54d853cf0bf539ecb"}
+                 {:repo "https://github.com/janet-lang/sqlite3" :tag "5e0ad6749a95a08818369d8467c346889496503d"}]
   :author "Sean Walker"
   :license "MIT"
   :url "https://github.com/joy-framework/joy"
