@@ -48,7 +48,8 @@
 (defn render [& args]
   (string/join
     (map (fn [val]
-           (if (indexed? val)
+           (cond
+             (indexed? val)
              (let [el (string (first val))
                    attributes (attributes (get val 1))
                    rest (drop (if (= "" attributes) 1 2) val)]
@@ -67,6 +68,12 @@
 
                      "")
                    "</" el ">")))
+
+             (true?
+              (and (dictionary? val)
+                (not (nil? (get val :raw)))))
+             (get val :raw "")
+
              ""))
       args)
     ""))
