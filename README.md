@@ -11,9 +11,10 @@ Joy will be a full stack web framework written in [janet](https://github.com/jan
   (joy/respond :text
     "Have some joy with janet 😇"))
 
-(def routes [[:get "/" home]])
+(def routes
+  (joy/routes [:get "/" home]))
 
 (def app (joy/app routes))
 
-(joy/serve app {:port 3000})
+(joy/serve app 8000)
 ```
