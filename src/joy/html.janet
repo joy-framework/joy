@@ -1,3 +1,10 @@
+(defn void-element? [name]
+  (let [elements [:area :base :br :col :embed
+                  :hr :img :input :keygen :link
+                  :meta :param :source :track :wbr]]
+    (some (partial = name) elements)))
+
+
 (defn escape [string-arg]
   (let [struct-chars [["&" "&amp;"]
                       ["<" "&lt;"]
@@ -28,17 +35,24 @@
   (string/join
     (map (fn [val]
            (if (indexed? val)
-             (let [[el attr-or-content content] val]
-               (string "<" (string el) (attributes attr-or-content) ">"
-                 (cond
-                   (string? content) (escape content)
-                   (string? attr-or-content) (escape attr-or-content)
-                   (indexed? attr-or-content) (render attr-or-content)
-                   (indexed? content) (render content)
-                   (dictionary? attr-or-content) (get attr-or-content :raw "")
-                   (dictionary? content) (get content :raw "")
-                   :else "")
-                 "</" (string el) ">"))
+             (let [el (string (first val))
+                   attributes (attributes (get val 1))
+                   rest (drop (if (= "" attributes) 1 2) val)]
+               (if (void-element? (first val))
+                 (string "<" el attributes " />")
+                 (string "<" el attributes ">"
+                   (cond
+                     (true? (and (one? (length rest))
+                             (string? (first rest)))) (escape (first rest))
+
+                     (true? (and (one? (length rest))
+                             (dictionary? (first rest)))) (get (first rest) :raw "")
+
+                     (true? (and (indexed? rest)
+                              (> (length rest) 0))) (apply render rest)
+
+                     "")
+                   "</" el ">")))
              ""))
       args)
     ""))

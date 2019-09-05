@@ -40,4 +40,17 @@
 
   (test "html/render with a raw node"
     (= "<div><br /></div>"
-       (html/render [:div (html/raw "<br />")]))))
+       (html/render [:div (html/raw "<br />")])))
+
+  (test "html/render with realistic input"
+    (= `<html lang="en"><head><title>title</title></head><body><h1>h1</h1></body></html>`
+       (html/render
+        [:html {:lang "en"}
+         [:head
+          [:title "title"]]
+         [:body
+          [:h1 "h1"]]])))
+
+  (test "html/render with img element"
+    (= `<img src="joy.jpg" />`
+       (html/render [:img {:src "joy.jpg"}]))))
