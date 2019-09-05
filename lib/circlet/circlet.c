@@ -72,6 +72,16 @@ static Janet mg2janetstr(struct mg_str str) {
     return janet_stringv((const uint8_t *) str.p, str.len);
 }
 
+/* Turn a string value into c string */
+static const char *getstring(Janet x, const char *dflt) {
+    if (janet_checktype(x, JANET_STRING)) {
+        const uint8_t *bytes = janet_unwrap_string(x);
+        return (const char *)bytes;
+    } else {
+        return dflt;
+    }
+}
+
 static Janet build_http_request(struct mg_connection *c, struct http_message *hm) {
     JanetTable *payload = janet_table(10);
     janet_table_put(payload, janet_ckeywordv("body"), mg2janetstr(hm->body));
@@ -93,8 +103,10 @@ static Janet build_http_request(struct mg_connection *c, struct http_message *hm
     return janet_wrap_table(payload);
 }
 
-/* Send an HTTP reply. */
-static void send_http(struct mg_connection *c, Janet res) {
+/* Send an HTTP reply. This should try not to panic, as at this point we
+ * are outside of the janet interpreter. Instead, send a 500 response with
+ * some formatted error message. */
+static void send_http(struct mg_connection *c, Janet res, void *ev_data) {
     switch (janet_type(res)) {
         default:
             mg_send_head(c, 500, 0, "");
@@ -105,6 +117,40 @@ static void send_http(struct mg_connection *c, Janet res) {
                 const JanetKV *kvs;
                 int32_t kvlen, kvcap;
                 janet_dictionary_view(res, &kvs, &kvlen, &kvcap);
+
+                /* Get response kind and check for special handling methods. */
+                Janet kind = janet_dictionary_get(kvs, kvcap, janet_ckeywordv("kind"));
+                if (janet_checktype(kind, JANET_KEYWORD)) {
+                    const uint8_t *kindstr = janet_unwrap_keyword(kind);
+
+                    /* Check for serving static files */
+                    if (!janet_cstrcmp(kindstr, "static")) {
+                        /* Construct static serve options */
+                        struct mg_serve_http_opts opts;
+                        memset(&opts, 0, sizeof(opts));
+                        Janet root = janet_dictionary_get(kvs, kvcap, janet_ckeywordv("root"));
+                        opts.document_root = getstring(root, NULL);
+                        mg_serve_http(c, (struct http_message *) ev_data, opts);
+                        return;
+                    }
+
+                    /* Check for serving single file */
+                    if (!janet_cstrcmp(kindstr, "file")) {
+                        Janet filev = janet_dictionary_get(kvs, kvcap, janet_ckeywordv("file"));
+                        Janet mimev = janet_dictionary_get(kvs, kvcap, janet_ckeywordv("mime"));
+                        const char *mime = getstring(mimev, "text/plain");
+                        const char *filepath;
+                        if (!janet_checktype(filev, JANET_STRING)) {
+                            mg_send_head(c, 500, 0, "expected string :file option to serve a file");
+                            break;
+                        }
+                        filepath = getstring(filev, "");
+                        mg_http_serve_file(c, (struct http_message *)ev_data, filepath, mg_mk_str(mime), mg_mk_str(""));
+                        return;
+                    }
+                }
+
+                /* Serve a generic HTTP response */
 
                 Janet status = janet_dictionary_get(kvs, kvcap, janet_ckeywordv("status"));
                 Janet headers = janet_dictionary_get(kvs, kvcap, janet_ckeywordv("headers"));
@@ -178,7 +224,7 @@ static void http_handler(struct mg_connection *c, int ev, void *p) {
         janet_stacktrace(fiber, out);
         return;
     }
-    send_http(c, out);
+    send_http(c, out, p);
 }
 
 static Janet cfun_manager(int32_t argc, Janet *argv) {
@@ -197,6 +243,9 @@ static void do_bind(int32_t argc, Janet *argv, struct mg_connection **connout,
     const uint8_t *port = janet_getstring(argv, 1);
     JanetFunction *onConnection = janet_getfunction(argv, 2);
     struct mg_connection *conn = mg_bind(mgr, (const char *)port, handler);
+    if (NULL == conn) {
+        janet_panicf("could not bind to %s", port);
+    }
     JanetFiber *fiber = janet_fiber(onConnection, 64, 0, NULL);
     ConnectionWrapper *cw = janet_abstract(&Connection_jt, sizeof(ConnectionWrapper));
     cw->conn = conn;
@@ -224,6 +273,6 @@ static const JanetReg cfuns[] = {
     {NULL, NULL, NULL}
 };
 
-JANET_MODULE_ENTRY (JanetTable *env) {
+JANET_MODULE_ENTRY(JanetTable *env) {
     janet_cfuns(env, "circlet", cfuns);
 }
