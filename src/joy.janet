@@ -17,6 +17,7 @@
 (def get-in helper/get-in)
 (def html html/render)
 (def raw-html html/raw)
+(def doctype html/doctype)
 (def json-encode json/encode)
 (def json-decode json/decode)
 (def serve circlet/server)
