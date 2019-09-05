@@ -1,3 +1,5 @@
+# router.janet
+
 (import ./helper :prefix "")
 
 
@@ -10,9 +12,8 @@
 
 (defn route-matches? [array-route1 dictionary-request]
   (let [[route-method route-url] array-route1
-        {:method method
-         :uri uri} dictionary-request]
-    (true? (and (= method route-method)
+        {:method method :uri uri} dictionary-request]
+    (true? (and (= (string/ascii-lower method) (string/ascii-lower route-method))
              (= route-url uri)))))
 
 
