@@ -65,11 +65,11 @@
   (fn [request]
     (let [start (os/clock)
           {:uri uri :protocol proto
-           :request-method method :params params} request
+           :method method :params params} request
           request-log (log {:level "info"
                             :msg (string "Started " (string/ascii-upper method) " " uri)
                             :ts (timestamp)
-                            :attrs [:protocol proto :request-method (string/ascii-upper method) :url uri :params params]})
+                            :attrs [:protocol proto :method (string/ascii-upper method) :url uri :params params]})
           response (handler request)
           end (os/clock)
           duration (string/format "%.3fms" (* 1000 (- end start)))
@@ -77,5 +77,5 @@
           response-log (log {:ts (timestamp)
                              :level "info"
                              :msg (string/join ["Finished" (string/ascii-upper method) uri] " ")
-                             :attrs [:protocol proto :request-method method :url uri :status status :duration duration]})]
+                             :attrs [:protocol proto :method method :url uri :status status :duration duration]})]
        response)))

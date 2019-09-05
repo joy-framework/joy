@@ -11,21 +11,21 @@
        (logger/message "info" "Started GET /")))
 
   (test "message creates a logfmt string from a mixed type struct"
-    (= `at=info msg="Started GET /" request-method=GET duration=10`
-       (logger/message "info" "Started GET /" [:request-method "GET" :duration 10])))
+    (= `at=info msg="Started GET /" method=GET duration=10`
+       (logger/message "info" "Started GET /" [:method "GET" :duration 10])))
 
   (test "message creates a logfmt string from a struct with an empty struct"
-    (= `at=info msg="Started GET /" request-method=GET duration=10 params={}`
-       (logger/message "info" "Started GET /" [:request-method "GET" :duration 10 :params {}])))
+    (= `at=info msg="Started GET /" method=GET duration=10 params={}`
+       (logger/message "info" "Started GET /" [:method "GET" :duration 10 :params {}])))
 
   (test "message with a nil value"
-    (= `at=info msg="Started GET /" request-method=GET params={}`
-       (logger/message "info" "Started GET /" [:request-method "GET" :duration nil :params {}])))
+    (= `at=info msg="Started GET /" method=GET params={}`
+       (logger/message "info" "Started GET /" [:method "GET" :duration nil :params {}])))
 
   (test "log"
     (let [ts (logger/timestamp)]
-      (= (string ts ` at=info msg="Started GET /" request-method=GET`)
-         (logger/log {:ts ts :level "info" :msg "Started GET /" :attrs [:request-method "GET"]}))))
+      (= (string ts ` at=info msg="Started GET /" method=GET`)
+         (logger/log {:ts ts :level "info" :msg "Started GET /" :attrs [:method "GET"]}))))
 
   (test "serialize with struct"
     (= `{"a":1}` (logger/serialize {:a 1})))
@@ -48,4 +48,4 @@
   (test "middleware"
     (= {:status 200 :body ""}
        ((logger/middleware (fn [request] {:status 200 :body ""}))
-        {:request-method "GET" :uri "/hello" :params {}}))))
+        {:method "GET" :uri "/hello" :params {}}))))
