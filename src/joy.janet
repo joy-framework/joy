@@ -12,6 +12,7 @@
 (def logger logger/middleware)
 (def log logger/log)
 (def respond responder/respond)
+(def redirect responder/redirect)
 (def rescue helper/rescue)
 (def select-keys helper/select-keys)
 (def get-in helper/get-in)
