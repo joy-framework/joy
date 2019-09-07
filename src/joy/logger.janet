@@ -72,7 +72,7 @@
                             :attrs [:protocol proto :method (string/ascii-upper method) :url uri :params params]})
           response (handler request)
           end (os/clock)
-          duration (string/format "%.3fms" (* 1000 (- end start)))
+          duration (string/format "%.2fms" (* 1000 (- end start)))
           {:status status} response
           response-log (log {:ts (timestamp)
                              :level "info"
