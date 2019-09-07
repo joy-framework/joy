@@ -13,6 +13,13 @@
     (table/to-struct acc)))
 
 
+(defn map-vals [f struct-m]
+  (let [acc @{}]
+    (loop [[k v] :in (pairs struct-m)]
+      (put acc k (f v)))
+    (table/to-struct acc)))
+
+
 (defn get-in [dictionary-m indexed-keys]
   (when (and (dictionary? dictionary-m)
           (indexed? indexed-keys))
