@@ -25,3 +25,41 @@
 (def app router/handler)
 (def routes router/routes)
 (def middleware router/middleware)
+
+(defmacro with-db-connection [binding & body]
+  (with-syms [$rows]
+   ~(let [,(first binding) (,sqlite3/open ,(get binding 1))
+          ,$rows ,(splice body)]
+      (,sqlite3/close ,(first binding))
+      ,$rows)))
+
+(defn query [db sql &opt args]
+  (let [sql (string sql ";")]
+    (sqlite3/eval db sql args)))
+
+(defn execute [db sql &opt args]
+  (default args {})
+  (let [sql (string sql ";")]
+    (print sql)
+    (sqlite3/eval db sql args)
+    (sqlite3/last-insert-rowid db)))
+
+(defn insert-columns [dictionary-d]
+  (->> (keys dictionary-d)
+       (map string)))
+
+(defn insert [keyword-table dictionary-params]
+  (with-db-connection [db "dev.sqlite3"]
+    (let [columns (-> (insert-columns dictionary-params)
+                      (string/join ","))
+          vals (as-> (insert-columns dictionary-params) %
+                     (map (fn [val] (string ":" val)) %)
+                     (string/join % ","))
+          table-name (string keyword-table)
+          id (execute db
+              (string "insert into " table-name "(" columns ") values (" vals ")")
+              dictionary-params)
+          row (first
+               (query db (string "select * from " table-name " where id = :id") {:id id}))]
+      (helper/map-keys keyword row))))
+
