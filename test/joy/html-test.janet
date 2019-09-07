@@ -3,12 +3,6 @@
 
 
 (deftest
-  (test "html/attributes with a dictionary"
-    (= ` id="id" class="class"` (html/attributes {:class "class" :id "id"})))
-
-  (test "html/attributes without a dictionary"
-    (= "" (html/attributes nil)))
-
   (test "empty div"
     (= "<div></div>" (html/render [:div])))
 
@@ -17,6 +11,15 @@
 
   (test "non-empty div without attributes"
     (= `<div>hello world</div>` (html/render [:div "hello world"])))
+
+  (test "one nested element no attributes"
+    (= `<div><span>hello world</span></div>` (html/render [:div [:span "hello world"]])))
+
+  (test "two nested elements no attributes"
+    (= `<div><span>hello world</span><span>2</span></div>`
+       (html/render [:div
+                     [[:span "hello world"]
+                      [:span "2"]]])))
 
   (test "non-empty div with attributes"
     (= `<div class="class">hello world</div>` (html/render [:div {:class "class"} "hello world"])))
@@ -42,6 +45,10 @@
     (= "<div><br /></div>"
        (html/render [:div (html/raw "<br />")])))
 
+  (test "html/render with img element"
+    (= `<img src="joy.jpg" />`
+       (html/render [:img {:src "joy.jpg"}])))
+
   (test "html/render with realistic input"
     (= `<html lang="en"><head><title>title</title></head><body><h1>h1</h1></body></html>`
        (html/render
@@ -51,6 +58,22 @@
          [:body
           [:h1 "h1"]]])))
 
-  (test "html/render with img element"
-    (= `<img src="joy.jpg" />`
-       (html/render [:img {:src "joy.jpg"}]))))
+  (test "html/render with doctype"
+    (= `<!DOCTYPE HTML><html lang="en"><head><title>title</title></head><body><h1>h1</h1></body></html>`
+       (html/render
+        (html/doctype :html5)
+        [:html {:lang "en"}
+         [:head
+          [:title "title"]]
+         [:body
+          [:h1 "h1"]]])))
+
+  (test "html/render with doctype and no attributes in :html"
+    (= `<!DOCTYPE HTML><html><head><title>title</title></head><body><h1>h1</h1></body></html>`
+       (html/render
+        (html/doctype :html5)
+        [:html
+         [:head
+          [:title "title"]]
+         [:body
+          [:h1 "h1"]]]))))
