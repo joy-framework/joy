@@ -15,4 +15,4 @@
     (while true
       (set req (yield (handler req)))))
   (circlet/bind-http mgr interface evloop)
-  (while true (circlet/poll mgr 2000)))
+  (while true (circlet/poll mgr 1)))
