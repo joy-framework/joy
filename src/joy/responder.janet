@@ -13,20 +13,19 @@
 
 
 (defn redirect [url]
-  {:status 302
-   :body ""
-   :headers {"Location" url}})
+  @{:status 302
+    :headers @{"Location" url}})
 
 
 (defn respond [ct body & options]
   (default options [])
   (let [options (apply table options)
-        {:status status
-         :headers headers} options
+        @{:status status
+          :headers headers} options
         headers (merge @{"Content-Type" (content-type ct)} (or headers @{}))]
-    {:status (or status 200)
-     :headers (table/to-struct headers)
-     :body body}))
+    @{:status (or status 200)
+      :headers headers
+      :body body}))
 
 
 (defn html [& args])
