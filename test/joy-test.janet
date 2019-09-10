@@ -66,8 +66,8 @@
 (deftest
   (test "joy get env variable with a single keyword"
     (do
-      (os/setenv "PORT" "1234")
-      (= "1234" (env :port))))
+      (os/setenv "JANET_ENV" "development")
+      (= "development" (env :janet-env))))
 
   (test "test everything"
     (= {:status 200 :headers {"Content-Type" "text/html" "Set-Cookie" "id=id; SameSite=Strict; HttpOnly"} :body `<!DOCTYPE HTML><html lang="en"><head><title>joy test 1</title></head><body><h1 style="text-align: center">you've found joy!</h1></body></html>`}
