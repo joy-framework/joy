@@ -36,3 +36,14 @@
   ~(try
      [nil ,(splice body)]
      ([err] [err nil])))
+
+
+(defn dissoc [struct-map & tuple-keys]
+  (if (and (dictionary? struct-map)
+        (indexed? tuple-keys))
+    (do
+      (var table-t (apply table (kvs struct-map)))
+      (loop [[k _] :pairs struct-map]
+        (put table-t k nil))
+      (freeze table-t))
+    {}))

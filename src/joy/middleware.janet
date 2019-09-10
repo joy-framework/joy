@@ -1,5 +1,7 @@
-(import "src/joy/helper" :as helper)
-(import "src/joy/http" :as http)
+(import ./helper :as helper)
+(import ./http :as http)
+(import ./logger :as logger)
+
 
 (defn set-layout [handler layout]
   (fn [request]
@@ -61,3 +63,15 @@
       (if (= (string/ascii-lower method) "post")
         (handler (put request :body (http/parse-body body)))
         (handler request)))))
+
+
+(defn server-error [handler &opt options]
+  (default options {:ignore-keys [:password :confirm-password]})
+  (fn [request]
+    (try
+      (handler request)
+      ([err]
+       (let [{:body body :params params} request
+             body (apply helper/dissoc body (get options :ignore-keys))]
+         (logger/log {:msg err :attrs [:body body :params params] :level "error"}))
+       @{:status 500 :body "Oops 500" :headers @{"Content-Type" "text/plain"}}))))

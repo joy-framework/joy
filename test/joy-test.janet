@@ -57,6 +57,7 @@
    [:post "/accounts" create]))
 
 (def app (-> (app routes)
+             (server-error)
              (set-layout layout)
              (set-cookie)
              (static-files)
