@@ -48,7 +48,6 @@
       "")))
 
 
-
 (defn log-string [options]
   (let [{:level level :msg msg :attrs attrs :ts ts} options
         ts (or ts (timestamp))]
