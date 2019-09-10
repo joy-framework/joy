@@ -4,6 +4,7 @@
 (import ./joy/helper :as helper)
 (import ./joy/html :as html)
 (import ./joy/router :as router)
+(import ./joy/middleware :as middleware)
 (import "lib/circlet" :as circlet)
 (import json)
 (import sqlite3)
@@ -24,6 +25,10 @@
 (def app router/handler)
 (def routes router/routes)
 (def middleware router/middleware)
+(def static-files middleware/static-files)
+(def body-parser middleware/body-parser)
+(def set-cookie middleware/set-cookie)
+(def set-layout middleware/set-layout)
 
 (defmacro with-db-connection [binding & body]
   (with-syms [$rows]
@@ -34,12 +39,12 @@
 
 (defn query [db sql &opt args]
   (let [sql (string sql ";")]
-    (sqlite3/eval db sql args)))
+    (->> (sqlite3/eval db sql (or args {}))
+         (map (partial helper/map-keys keyword)))))
 
 (defn execute [db sql &opt args]
   (default args {})
   (let [sql (string sql ";")]
-    (print sql)
     (sqlite3/eval db sql args)
     (sqlite3/last-insert-rowid db)))
 
@@ -59,6 +64,6 @@
               (string "insert into " table-name "(" columns ") values (" vals ")")
               dictionary-params)
           row (first
-               (query db (string "select * from " table-name " where id = :id") {:id id}))]
+               (query db (string "select * from " table-name " where rowid = :id") {:id id}))]
       (helper/map-keys keyword row))))
 

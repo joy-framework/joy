@@ -1,34 +1,39 @@
 (import tester :prefix "" :exit true)
-(import "src/joy" :as joy)
-(import "src/joy/helper" :as helper)
-(import "src/joy/middleware" :as middleware)
+(import "src/joy" :prefix "")
 
 (defn layout [response]
   (let [{:body body} response]
-    (joy/respond :html
-      (joy/html
-       (joy/doctype :html5)
+    (respond :html
+      (html
+       (doctype :html5)
        [:html {:lang "en"}
         [:head
          [:title "joy test 1"]]
         [:body body]]))))
 
 (defn home [request]
-  [:h1 {:style "text-align: center"} "hello world"])
+  [:h1 {:style "text-align: center"} "you've found joy!"])
 
 (defn hello [request]
-  [:h1 (string "hello " (helper/get-in request [:params :name]))])
+  [:h1 (string "hello " (get-in request [:params :name]))])
 
 (defn accounts [request]
-  (let [rows (joy/query "select * from account where name = :name" {:name "sean"})]
-    [:div
-     (map
-      (fn [{:name name :email email :password password}]
-        [:div
-         [:span {:style "margin-right: 10px"} name]
-         [:span {:style "margin-right: 10px"} email]
-         [:span {:style "margin-right: 10px"} password]])
-      rows)]))
+  (let [rows (with-db-connection [db "dev.sqlite3"]
+                (query db "select * from account"))]
+    [:table
+     [:thead
+      [:tr
+       [:th "name"]
+       [:th "email"]
+       [:th "password"]]]
+     [:tbody
+      (map
+       (fn [{:name name :email email :password password}]
+         [:tr
+          [:td name]
+          [:td email]
+          [:td password]])
+       rows)]]))
 
 (defn new [request]
   [:form {:action "/accounts" :method "POST"}
@@ -39,28 +44,32 @@
 
 (defn create [request]
   (let [{:body body} request]
-    (joy/insert :account body)
-    (joy/redirect "/accounts")))
+    (with-db-connection [db "dev.sqlite3"]
+      (insert :account body))
+    (redirect "/accounts")))
 
 (def routes
-  (joy/routes
+  (routes
    [:get "/" home]
    [:get "/hello/:name" hello]
    [:get "/accounts" accounts]
    [:get "/accounts/new" new]
    [:post "/accounts" create]))
 
-(def app (-> (joy/app routes)
-             (middleware/set-layout layout)
-             (middleware/static-files)
-             (joy/logger)))
+(def app (-> (app routes)
+             (set-layout layout)
+             (set-cookie)
+             (static-files)
+             (body-parser)
+             (logger)))
 
 (deftest
   (test "joy get env variable with a single keyword"
     (do
       (os/setenv "PORT" "1234")
-      (= "1234" (joy/env :port))))
+      (= "1234" (env :port))))
 
   (test "test everything"
-    (= {:status 200 :headers {"Content-Type" "text/html"} :body `<!DOCTYPE HTML><html lang="en"><head><title>joy test 1</title></head><body><h1 style="text-align: center">hello world</h1></body></html>`}
-       (app {:method "GET" :uri "/"}))))
+    (= {:status 200 :headers {"Content-Type" "text/html" "Set-Cookie" "id=id; SameSite=Strict; HttpOnly"} :body `<!DOCTYPE HTML><html lang="en"><head><title>joy test 1</title></head><body><h1 style="text-align: center">you've found joy!</h1></body></html>`}
+       (freeze
+        (app {:method "GET" :uri "/"})))))
