@@ -15,7 +15,6 @@
 (def redirect responder/redirect)
 (def rescue helper/rescue)
 (def select-keys helper/select-keys)
-(def get-in helper/get-in)
 (def html html/render)
 (def raw-html html/raw)
 (def doctype html/doctype)

@@ -20,16 +20,6 @@
     (table/to-struct acc)))
 
 
-(defn get-in [dictionary-m indexed-keys]
-  (when (and (dictionary? dictionary-m)
-          (indexed? indexed-keys))
-    (let [val (get dictionary-m (first indexed-keys))
-          indexed-keys (drop 1 indexed-keys)]
-      (if (empty? indexed-keys)
-        val
-        (get-in val indexed-keys)))))
-
-
 (defn select-keys [struct-map tuple-keys]
   (if (and (dictionary? struct-map)
         (indexed? tuple-keys))
