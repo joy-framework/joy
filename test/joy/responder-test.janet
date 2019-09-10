@@ -6,17 +6,20 @@
     (= {:status 200
         :body "response"
         :headers {"Content-Type" "text/plain"}}
-       (responder/respond :text "response")))
+       (freeze
+        (responder/respond :text "response"))))
 
   (test "404"
     (= {:status 404
         :body "response"
         :headers {"Content-Type" "text/plain"}}
-       (responder/respond :text "response"
-          :status 404)))
+       (freeze
+        (responder/respond :text "response"
+           :status 404))))
 
   (test "json"
     (= {:status 200
         :body {:a 1}
         :headers {"Content-Type" "application/json"}}
-       (responder/respond :json {:a 1}))))
+       (freeze
+         (responder/respond :json {:a 1})))))
