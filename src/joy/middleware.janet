@@ -1,5 +1,5 @@
 (import "src/joy/helper" :as helper)
-
+(import "src/joy/http" :as http)
 
 (defn set-layout [handler layout]
   (fn [request]
@@ -21,29 +21,43 @@
              :root (or root "public")}))))))
 
 
-(defn decode-string [s]
-  (let [escape-chars {"%20" " " "%3C" "<" "%3E" ">" "%23" `#` "%25" "%"
-                      "%7B" "{" "%7D" "}" "%7C" "|" "%5C" `\` "%5E" "^"
-                      "%7E" "~" "%5B" "[" "%5D" "]" "%60" "`" "%3B" `;`
-                      "%2F" "/" "%3F" "?" "%3A" ":" "%40" "@" "%3D" "="
-                      "%26" "&" "%24" "$"}]
-    (var output s)
-    (loop [[k v] :in (pairs escape-chars)]
-      (set output (string/replace-all k v output)))
-    output))
+(defn uuid-string []
+  (let [rando (math/random)
+        _ (os/shell (string "uuid=$(uuidgen); echo $uuid > " rando ".txt"))
+        f (file/open (string rando ".txt") :r)
+        uuid (string/trimr (file/read f :all))]
+    (file/close f)
+    (os/rm (string rando ".txt"))
+    uuid))
 
 
-(defn parse-body [string-s]
-  (->> (string/split "&" string-s)
-       (map (fn [val] (string/split "=" val)))
-       (flatten)
-       (apply table)
-       (helper/map-keys keyword)
-       (helper/map-vals decode-string)))
+(defn set-cookie [handler &opt cookie-name cookie-value options]
+  (default options {"SameSite" "Strict"
+                    "HttpOnly" ""})
+  (default cookie-name "id")
+  (default cookie-value "id")
+  (fn [request]
+    (let [response (handler request)]
+      (put-in response
+        [:headers "Set-Cookie"]
+        (http/cookie-string cookie-name cookie-value options)))))
+
+
+(defn default-headers [handler &opt options]
+  (default options {"X-Frame-Options" "SAMEORIGIN"
+                    "X-XSS-Protection" "1; mode=block"
+                    "X-Content-Type-Options" "nosniff"
+                    "X-Download-Options" "noopen"
+                    "X-Permitted-Cross-Domain-Policies" "none"
+                    "Referrer-Policy" "strict-origin-when-cross-origin"})
+  (fn [request]
+    (let [response (handler request)]
+      (update response :headers merge options))))
 
 
 (defn body-parser [handler]
   (fn [request]
-    (let [{:body body} request
-          body ()]
-      (handler (put request :body body)))))
+    (let [{:method method :body body} request]
+      (if (= (string/ascii-lower method) "post")
+        (handler (put request :body (http/parse-body body)))
+        (handler request)))))
