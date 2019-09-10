@@ -56,7 +56,7 @@
           request (merge request {:params (map-keys (fn [val] (-> (string/replace ":" "" val) (keyword))) route-params)})]
       (if (function? route-fn)
         (route-fn request)
-        {:status 404}))))
+        @{:status 404}))))
 
 
 (defn depth [val idx]
