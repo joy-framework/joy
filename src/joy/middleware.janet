@@ -3,11 +3,10 @@
 
 (defn set-layout [handler layout]
   (fn [request]
-    (let [response (handler request)]
-      (if (or (indexed? response)
-              (and (dictionary? response)
-                   (= 200 (get response :status))))
-        (layout {:status 200 :body response})
+    (let [response (handler request)
+          response (if (indexed? response) @{:status 200 :body response} response)]
+      (if (= 200 (get response :status))
+        (layout response)
         response))))
 
 
