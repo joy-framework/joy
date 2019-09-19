@@ -29,6 +29,7 @@
 (def body-parser middleware/body-parser)
 (def set-cookie middleware/set-cookie)
 (def set-layout middleware/set-layout)
+(def server-error middleware/server-error)
 
 (defmacro with-db-connection [binding & body]
   (with-syms [$rows]
