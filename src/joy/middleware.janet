@@ -1,6 +1,7 @@
 (import ./helper :as helper)
 (import ./http :as http)
 (import ./logger :as logger)
+(import uuid)
 
 
 (defn set-layout [handler layout]
@@ -23,16 +24,6 @@
              :root (or root "public")}))))))
 
 
-(defn uuid-string []
-  (let [rando (math/random)
-        _ (os/shell (string "uuid=$(uuidgen); echo $uuid > " rando ".txt"))
-        f (file/open (string rando ".txt") :r)
-        uuid (string/trimr (file/read f :all))]
-    (file/close f)
-    (os/rm (string rando ".txt"))
-    uuid))
-
-
 (defn set-cookie [handler &opt cookie-name cookie-value options]
   (default options {"SameSite" "Strict"
                     "HttpOnly" ""})
@@ -43,6 +34,13 @@
       (put-in response
         [:headers "Set-Cookie"]
         (http/cookie-string cookie-name cookie-value options)))))
+
+
+(defn sessions [handler]
+  (fn [request]
+    (let [response (handler request)]
+      (put-in response [:headers "Set-Cookie"]
+        (http/cookie-string "id" (uuid/generate))))))
 
 
 (defn default-headers [handler &opt options]
