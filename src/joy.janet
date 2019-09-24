@@ -30,6 +30,7 @@
 (def set-cookie middleware/set-cookie)
 (def set-layout middleware/set-layout)
 (def server-error middleware/server-error)
+(def set-db middleware/set-db)
 
 (defmacro with-db-connection [binding & body]
   (with-syms [$rows]

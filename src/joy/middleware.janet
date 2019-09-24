@@ -2,6 +2,7 @@
 (import ./http :as http)
 (import ./logger :as logger)
 (import uuid)
+(import sqlite3)
 
 
 (defn set-layout [handler layout]
@@ -11,6 +12,20 @@
       (if (= 200 (get response :status))
         (layout response)
         response))))
+
+
+(defmacro with-db-connection [binding & body]
+  (with-syms [$rows]
+   ~(let [,(first binding) (,sqlite3/open ,(get binding 1))
+          ,$rows ,(splice body)]
+      (,sqlite3/close ,(first binding))
+      ,$rows)))
+
+
+(defn set-db [handler conn]
+  (fn [request]
+    (with-db-connection [db conn]
+      (handler (put request :db db)))))
 
 
 (defn static-files [handler &opt root]

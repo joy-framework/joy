@@ -19,8 +19,8 @@
   [:h1 (string "hello " (get-in request [:params :name]))])
 
 (defn accounts [request]
-  (let [rows (with-db-connection [db "dev.sqlite3"]
-                (query db "select * from account"))]
+  (let [{:db db} request
+        rows (query db "select * from account")]
     [:table
      [:thead
       [:tr
@@ -44,9 +44,8 @@
    [:input {:type "submit" :value "Create"}]])
 
 (defn create [request]
-  (let [{:body body} request]
-    (with-db-connection [db "dev.sqlite3"]
-      (insert :account body))
+  (let [{:body body :db db} request]
+    (insert db :account body)
     (redirect "/accounts")))
 
 (def routes
@@ -58,6 +57,7 @@
    [:post "/accounts" create]))
 
 (def app (-> (app routes)
+             (set-db "dev.sqlite3")
              (server-error)
              (set-layout layout)
              (set-cookie)
