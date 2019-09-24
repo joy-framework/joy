@@ -8,7 +8,8 @@
        (doctype :html5)
        [:html {:lang "en"}
         [:head
-         [:title "joy test 1"]]
+         [:title "joy test 1"]
+         [:meta {:charset "utf-8"}]]
         [:body body]]))))
 
 (defn home [request]

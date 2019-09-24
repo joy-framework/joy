@@ -1,7 +1,7 @@
 # responder.janet
 
 (defn content-type [k]
-  (let [content-types {:html "text/html"
+  (let [content-types {:html "text/html; charset=utf-8"
                        :json "application/json"
                        :text "text/plain"
                        :xml "text/xml"}]
