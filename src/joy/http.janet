@@ -54,7 +54,7 @@
 (defn parse-body [string-s]
   (when (string? string-s)
     (->> (string/split "&" string-s)
-         (map (fn [val] (string/split "=" val)))
+         (map |(string/split "=" $))
          (flatten)
          (apply table)
          (helper/map-keys keyword)
