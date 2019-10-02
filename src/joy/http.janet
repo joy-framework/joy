@@ -24,7 +24,7 @@
                  "A" 10 "B" 11
                  "C" 12 "D" 13
                  "E" 14 "F" 15}]
-    (let [arr (map string/from-bytes (string/bytes (drop 1 str)))
+    (let [arr (partition 1 (drop 1 str))
           a (get mapping (get arr 0))
           b (get mapping (get arr 1))
           output (+ b (* a 16))]
