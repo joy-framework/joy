@@ -1,5 +1,5 @@
 # html.janet
-# parts of the code shamelessly stolen from https://github.com/brandonchartier/html 
+# parts of the code shamelessly stolen from https://github.com/brandonchartier/html
 
 (defn escape [string-arg]
   (let [struct-chars [["&" "&amp;"]
@@ -85,6 +85,7 @@
       (indexed? child) (reduce child-reducer "" children)
       (keyword? child) (create children)
       (string? child) (escape child)
+      (number? child) (string child)
       (nil? child) ""
       (empty? child) ""
       :else children)))
@@ -120,12 +121,14 @@
 
 (defn create
   [element]
-  (if (every? (map indexed? element))
-    (string/join (map create element) "")
-    (let [[name attrs] element]
-      (if (dictionary? attrs)
-        (create-element create name attrs (drop 2 element))
-        (create-element create name {} (drop 1 element))))))
+  (if (not (nil? element))
+    (if (every? (map indexed? element))
+      (string/join (map create element) "")
+      (let [[name attrs] element]
+        (if (dictionary? attrs)
+          (create-element create name attrs (drop 2 element))
+          (create-element create name {} (drop 1 element)))))
+    ""))
 
 
 (defn render [& args]
