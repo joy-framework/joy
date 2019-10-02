@@ -73,7 +73,8 @@
 (defn body-parser [handler]
   (fn [request]
     (let [{:method method :body body} request]
-      (if (= (string/ascii-lower method) "post")
+      (if (and (= (string/ascii-lower method) "post")
+               (not (nil? body)))
         (handler (put request :body (http/parse-body body)))
         (handler request)))))
 
