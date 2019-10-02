@@ -55,18 +55,15 @@
   (->> (keys dictionary-d)
        (map string)))
 
-(defn insert [keyword-table dictionary-params]
-  (with-db-connection [db "dev.sqlite3"]
-    (let [columns (-> (insert-columns dictionary-params)
-                      (string/join ","))
-          vals (as-> (insert-columns dictionary-params) %
-                     (map (fn [val] (string ":" val)) %)
-                     (string/join % ","))
-          table-name (string keyword-table)
-          id (execute db
-              (string "insert into " table-name "(" columns ") values (" vals ")")
-              dictionary-params)
-          row (first
-               (query db (string "select * from " table-name " where rowid = :id") {:id id}))]
-      (helper/map-keys keyword row))))
+(defn insert [db table-name dictionary-params]
+  (let [columns (-> (insert-columns dictionary-params)
+                    (string/join ","))
+        vals (as-> (insert-columns dictionary-params) %
+                   (map (fn [val] (string ":" val)) %)
+                   (string/join % ","))
+        id (execute db
+            (string "insert into " table-name "(" columns ") values (" vals ")")
+            dictionary-params)]
+    (first
+     (query db (string "select * from " table-name " where rowid = :id") {:id id}))))
 
