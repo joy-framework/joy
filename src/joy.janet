@@ -9,7 +9,7 @@
 (import json)
 (import sqlite3)
 
-(def env env/env)
+(def env env/get-env)
 (def logger logger/middleware)
 (def log logger/log)
 (def respond responder/respond)
