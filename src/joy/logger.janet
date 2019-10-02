@@ -59,6 +59,7 @@
     (print log-line)
     log-line))
 
+
 (defn middleware [handler]
   (fn [request]
     (let [start (os/clock)
