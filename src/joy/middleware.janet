@@ -1,8 +1,11 @@
 (import ./helper :as helper)
 (import ./http :as http)
 (import ./logger :as logger)
+(import ./env :as env)
 (import uuid)
 (import sqlite3)
+(import cipher)
+(import json)
 
 
 (defn set-layout [handler layout]
@@ -51,11 +54,44 @@
         (http/cookie-string cookie-name cookie-value options)))))
 
 
-(defn sessions [handler]
-  (fn [request]
-    (let [response (handler request)]
-      (put-in response [:headers "Set-Cookie"]
-        (http/cookie-string "id" (uuid/generate))))))
+(defn decode-session [str encryption-key]
+  (when (not (nil? str))
+    (let [json-decoded (json/decode str)
+          decoded (string/join (map string/from-bytes json-decoded)
+                    "")
+          decrypted (cipher/decrypt encryption-key decoded)]
+      (when (not (nil? decrypted))
+        (json/decode decrypted)))))
+
+
+(defn encode-session [val encryption-key]
+  (when (not (nil? val))
+    (let [plaintext (string (json/encode val))
+          encrypted (cipher/encrypt encryption-key plaintext)
+          encoded (string/bytes encrypted)
+          json-encoded (string (json/encode encoded))]
+      json-encoded)))
+
+
+(defn session [handler]
+  (let [encryption-key (string/join
+                          (->> (env/get-env :encryption-key)
+                               (json/decode)
+                               (map string/from-bytes))
+                          "")]
+    (fn [request]
+      (let [decoded-session (-> (get-in request [:headers "Cookie"])
+                                (http/parse-cookie)
+                                (get "id")
+                                (decode-session encryption-key))
+            request (put request :session decoded-session)
+            response (handler request)
+            session-value (get response :session)]
+        (if (nil? session-value)
+          response
+          (put-in response [:headers "Set-Cookie"]
+            (http/cookie-string "id" (encode-session session-value encryption-key)
+              {"SameSite" "Strict" "HttpOnly" ""})))))))
 
 
 (defn default-headers [handler &opt options]

@@ -31,6 +31,7 @@
 (def set-layout middleware/set-layout)
 (def server-error middleware/server-error)
 (def set-db middleware/set-db)
+(def session middleware/session)
 
 (defmacro with-db-connection [binding & body]
   (with-syms [$rows]

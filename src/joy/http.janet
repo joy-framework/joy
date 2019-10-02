@@ -59,3 +59,22 @@
          (apply table)
          (helper/map-keys keyword)
          (helper/map-vals escape-hex))))
+
+
+(defn cookie-pair [str]
+  (let [[k v] (string/split "=" str)]
+    (if (nil? v)
+      [k true]
+      [k v])))
+
+
+(defn parse-cookie [str]
+  (if (and (string? str)
+        (not (empty? str)))
+    (->> (string/split ";" str)
+         (map string/trim)
+         (filter |(not (empty? $)))
+         (map cookie-pair)
+         (flatten)
+         (apply table))
+    @{}))
