@@ -2,8 +2,8 @@
 (import ./http :as http)
 (import ./logger :as logger)
 (import ./env :as env)
+(import ./db :as db)
 (import uuid)
-(import sqlite3)
 (import cipher)
 (import json)
 
@@ -17,17 +17,9 @@
         response))))
 
 
-(defmacro with-db-connection [binding & body]
-  (with-syms [$rows]
-   ~(let [,(first binding) (,sqlite3/open ,(get binding 1))
-          ,$rows ,(splice body)]
-      (,sqlite3/close ,(first binding))
-      ,$rows)))
-
-
 (defn set-db [handler conn]
   (fn [request]
-    (with-db-connection [db conn]
+    (db/with-connection [db conn]
       (handler (put request :db db)))))
 
 
