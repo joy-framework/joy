@@ -59,7 +59,6 @@
     (print log-line)
     log-line))
 
-
 (defn middleware [handler]
   (fn [request]
     (let [start (os/clock)
@@ -69,12 +68,12 @@
                             :msg (string "Started " (string/ascii-upper method) " " uri)
                             :ts (timestamp)
                             :attrs [:protocol proto :method (string/ascii-upper method) :url uri :params params]})
-          response (handler request)
+          response (handler (apply table (kvs request)))
           end (os/clock)
           duration (string/format "%.0fms" (* 1000 (- end start)))
           {:status status} response
           response-log (log {:ts (timestamp)
                              :level "info"
-                             :msg (string/join ["Finished" (string/ascii-upper method) uri] " ")
+                             :msg (string "Finished" " " (string/ascii-upper method) " " uri)
                              :attrs [:protocol proto :method method :url uri :status status :duration duration]})]
        response)))

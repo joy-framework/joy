@@ -1,5 +1,6 @@
 (import tester :prefix "" :exit true)
 (import "src/joy" :prefix "")
+(import uuid)
 
 (defn layout [response]
   (let [{:body body} response]
@@ -8,8 +9,9 @@
        (doctype :html5)
        [:html {:lang "en"}
         [:head
-         [:title "joy test 1"]
-         [:meta {:charset "utf-8"}]]
+         [:meta {:charset "utf-8"}]
+         [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
+         [:title "joy test 1"]]
         [:body body]]))))
 
 (defn home [request]
@@ -19,22 +21,29 @@
   [:h1 (string "hello " (get-in request [:params :name]))])
 
 (defn accounts [request]
-  (let [{:db db} request
+  (let [{:db db :session session} request
         rows (query db "select * from account")]
     [:table
      [:thead
       [:tr
+       [:th "id"]
        [:th "name"]
        [:th "email"]
-       [:th "password"]]]
+       [:th "password"]
+       (when (not (nil? session))
+         [:th "session"])]]
      [:tbody
       (map
-       (fn [{:name name :email email :password password}]
+       (fn [{:id id :name name :email email :password password}]
          [:tr
+          [:td id]
           [:td name]
           [:td email]
-          [:td password]])
+          [:td password]
+          (when (not (nil? session))
+            [:td "check"])])
        rows)]]))
+
 
 (defn new [request]
   [:form {:action "/accounts" :method "POST"}
@@ -43,10 +52,28 @@
    [:input {:type "password" :name "password"}]
    [:input {:type "submit" :value "Create"}]])
 
+
 (defn create [request]
-  (let [{:body body :db db} request]
-    (insert db :account body)
-    (redirect "/accounts")))
+  (let [{:body body :db db} request
+        row (insert db :account body)]
+    (-> (redirect "/accounts")
+        (put :session {:id (get row :id)}))))
+
+
+(defn tests [request]
+  (let [{:db db} request
+        rows (query db "select * from tst")]
+    [:table
+     [:thead
+      [:tr
+       [:th "value"]]]
+     [:tbody
+      (map
+       (fn [{:value value}]
+         [:tr
+          [:td value]])
+       rows)]]))
+
 
 (def routes
   (routes
@@ -54,13 +81,14 @@
    [:get "/hello/:name" hello]
    [:get "/accounts" accounts]
    [:get "/accounts/new" new]
-   [:post "/accounts" create]))
+   [:post "/accounts" create]
+   [:get "/tests" tests]))
 
 (def app (-> (app routes)
-             (set-db "dev.sqlite3")
+             (set-db "test.sqlite3")
              (server-error)
              (set-layout layout)
-             (set-cookie)
+             (session)
              (static-files)
              (body-parser)
              (logger)))
@@ -72,6 +100,6 @@
       (= "development" (env :janet-env))))
 
   (test "test everything"
-    (= {:status 200 :headers {"Content-Type" "text/html" "Set-Cookie" "id=id; SameSite=Strict; HttpOnly"} :body `<!DOCTYPE HTML><html lang="en"><head><title>joy test 1</title></head><body><h1 style="text-align: center">you've found joy!</h1></body></html>`}
+    (= {:status 200 :headers {"Content-Type" "text/html; charset=utf-8"} :body `<!DOCTYPE HTML><html lang="en"><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1" name="viewport" /><title>joy test 1</title></head><body><h1 style="text-align: center">you've found joy!</h1></body></html>`}
        (freeze
         (app {:method "GET" :uri "/"})))))
