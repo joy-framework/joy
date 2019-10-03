@@ -72,10 +72,13 @@
                                (map string/from-bytes))
                           "")]
     (fn [request]
-      (let [decoded-session (-> (get-in request [:headers "Cookie"])
-                                (http/parse-cookie)
-                                (get "id")
-                                (decode-session encryption-key))
+      (let [decoded-session (try
+                              (-> (get-in request [:headers "Cookie"])
+                                  (http/parse-cookie)
+                                  (get "id")
+                                  (decode-session encryption-key))
+                              ([err]
+                               (logger/log {:msg err :attrs [:action "decode-session" :uri (get request :uri) :method (get request :method)] :level "error"})))
             request (put request :session decoded-session)
             response (handler request)
             session-value (get response :session)]
