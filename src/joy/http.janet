@@ -44,6 +44,15 @@
       "")))
 
 
+(defn url-decode
+  "Handles + signs in application/x-www-form-urlencoded forms"
+  [s]
+  (let [url-encoded? (replacer "+" " ")]
+    (string/join
+      (peg/match url-encoded? s)
+      "")))
+
+
 (defn parse-body [string-s]
   (when (string? string-s)
     (->> (string/split "&" string-s)
@@ -51,6 +60,7 @@
          (flatten)
          (apply table)
          (helper/map-keys keyword)
+         (helper/map-vals url-decode)
          (helper/map-vals escape-hex))))
 
 
