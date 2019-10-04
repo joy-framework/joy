@@ -1,6 +1,5 @@
 (import tester :prefix "" :exit true)
 (import "src/joy" :prefix "")
-(import uuid)
 
 (defn layout [response]
   (let [{:body body} response]
