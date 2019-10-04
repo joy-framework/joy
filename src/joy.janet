@@ -36,8 +36,3 @@
 (def execute db/execute)
 (def insert db/insert)
 (def with-db-connection db/with-connection)
-
-# create base64 encoding c lib called codec, add other encodings later
-# base64 encode encryption key
-# base64 encode encrypted cookie value
-# use samesite lax for CSRF
