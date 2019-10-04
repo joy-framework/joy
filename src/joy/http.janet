@@ -1,4 +1,4 @@
-(import "src/joy/helper" :as helper)
+(import ./helper :as helper)
 
 
 (defn cookie-string [name value options]
