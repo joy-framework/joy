@@ -17,7 +17,7 @@
   :source @["lib/circlet/circlet.c" "lib/circlet/mongoose.c"])
 
 (declare-source
-  :source @["lib" "src/joy"])
+  :source @["lib" "src/joy" "src/joy.janet"])
 
 (phony "update-mongoose" []
       (shell "curl https://raw.githubusercontent.com/cesanta/mongoose/master/mongoose.c > lib/circlet/mongoose.c")
