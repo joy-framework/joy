@@ -6,7 +6,7 @@
 (import ./joy/router :as router)
 (import ./joy/middleware :as middleware)
 (import ./joy/db :as db)
-(import "lib/circlet" :as circlet)
+(import circlet)
 (import json)
 
 (def env env/get-env)
