@@ -6,6 +6,7 @@
 (import uuid)
 (import cipher)
 (import json)
+(import codec)
 
 
 (defn set-layout [handler layout]
@@ -48,29 +49,23 @@
 
 (defn decode-session [str encryption-key]
   (when (not (nil? str))
-    (let [json-decoded (json/decode str)
-          decoded (string/join (map string/from-bytes json-decoded)
-                    "")
-          decrypted (cipher/decrypt encryption-key decoded)]
+    (let [decrypted (->> (codec/decode str)
+                         (cipher/decrypt encryption-key))]
       (when (not (nil? decrypted))
         (json/decode decrypted)))))
 
 
 (defn encode-session [val encryption-key]
   (when (not (nil? val))
-    (let [plaintext (string (json/encode val))
-          encrypted (cipher/encrypt encryption-key plaintext)
-          encoded (string/bytes encrypted)
-          json-encoded (string (json/encode encoded))]
-      json-encoded)))
+    (->> (json/encode val)
+         (string)
+         (cipher/encrypt encryption-key)
+         (codec/encode))))
 
 
 (defn session [handler]
-  (let [encryption-key (string/join
-                          (->> (env/get-env :encryption-key)
-                               (json/decode)
-                               (map string/from-bytes))
-                          "")]
+  (let [encryption-key (codec/decode
+                        (env/get-env :encryption-key))]
     (fn [request]
       (let [decoded-session (try
                               (-> (get-in request [:headers "Cookie"])
