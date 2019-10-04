@@ -16,19 +16,12 @@
   `Changes a % hex string to \x encoded hex.
   Ex. %F0 -> \xF0`
   [str]
-  (let [mapping {"0" 0 "1" 1
-                 "2" 2 "3" 3
-                 "4" 4 "5" 5
-                 "6" 6 "7" 7
-                 "8" 8 "9" 9
-                 "A" 10 "B" 11
-                 "C" 12 "D" 13
-                 "E" 14 "F" 15}]
-    (let [arr (partition 1 (drop 1 str))
-          a (get mapping (get arr 0))
-          b (get mapping (get arr 1))
-          output (+ b (* a 16))]
-      (string/from-bytes output))))
+  (let [mapping {"A" 10 "B" 11 "C" 12 "D" 13 "E" 14 "F" 15}
+        arr (partition 1 (drop 1 str))
+        a (get mapping (get arr 0) (scan-number (get arr 0)))
+        b (get mapping (get arr 1) (scan-number (get arr 1)))
+        output (+ b (* a 16))]
+    (string/from-bytes output)))
 
 
 (defn replacer
