@@ -18,8 +18,7 @@
   [str]
   (let [mapping {"A" 10 "B" 11 "C" 12 "D" 13 "E" 14 "F" 15}
         arr (partition 1 (drop 1 str))
-        a (get mapping (get arr 0) (scan-number (get arr 0)))
-        b (get mapping (get arr 1) (scan-number (get arr 1)))
+        [a b] (map |(get mapping $ (scan-number $)) arr)
         output (+ b (* a 16))]
     (string/from-bytes output)))
 
