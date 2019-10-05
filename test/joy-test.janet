@@ -59,19 +59,11 @@
         (put :session {:id (get row :id)}))))
 
 
-(defn tests [request]
-  (let [{:db db} request
-        rows (query db "select * from tst")]
-    [:table
-     [:thead
-      [:tr
-       [:th "value"]]]
-     [:tbody
-      (map
-       (fn [{:value value}]
-         [:tr
-          [:td value]])
-       rows)]]))
+(defn delete [request]
+  (let [{:db db :params params} request
+        id (get params :id)
+        row (delete db :account {:id id})]
+    (redirect "/accounts")))
 
 
 (def routes
@@ -81,7 +73,7 @@
    [:get "/accounts" accounts]
    [:get "/accounts/new" new]
    [:post "/accounts" create]
-   [:get "/tests" tests]))
+   [:delete "/accounts/:id" delete]))
 
 (def app (-> (app routes)
              (set-db "test.sqlite3")
