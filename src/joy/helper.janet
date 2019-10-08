@@ -1,3 +1,5 @@
+# helper.janet
+
 (defn kebab-case [val]
   (string/replace-all "_" "-" val))
 
@@ -47,3 +49,7 @@
         (put table-t k nil))
       (freeze table-t))
     {}))
+
+
+(defn join-string [sep str]
+  (string/join str sep))
