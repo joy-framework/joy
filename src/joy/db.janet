@@ -33,10 +33,10 @@
 
 
 (defn fetch [db table-name path & args]
-  (let [sql (sql/fetch table-name path args)
-        params (sql/fetch-params table-name path args)
-        rows (query db sql params)]
-    (first rows)))
+  (let [sql (sql/fetch table-name path (merge (or args {}) {:limit 1}))
+        params (sql/fetch-params path)]
+    (->> (query db sql params)
+         (first))))
 
 
 (defn fetch-all [db table-name path & args]
@@ -45,46 +45,42 @@
     (query db sql params)))
 
 
+(defn from [db table-name params & args]
+  (let [sql (sql/from table-name params)]
+    (query db sql params)))
+
+
 (defn insert [db table-name params]
-  (->> (execute db (sql/insert table-name params) params)
+  (->> (execute db (sql/insert table-name params))
        (last-inserted db table-name)))
 
 
-# (defn update [db table-name id params])
-#   (execute db (sql/update table-name id params))
-#   (fetch db table-name id)
+(defn insert-all [db table-name arr]
+  (let [_ (execute db (sql/insert-all table-name arr) (sql/insert-all-params arr))]
+    (query db (string "select * from " (helper/snake-case table-name) " order by rowid limit " (length params)))))
 
 
-# (comment)
-#   (insert db :account {:name "name"})
-#   (insert-all db :account {:name "name"})
-#
-#   (update db :account 1 {:name "updated name"})
-#   (update-all db :account {:name "name"} {:name "new name"})
-#
-#   (upsert db :account 1 {:name "updated or inserted name"})
-#   (upsert-all db :account {:name "name"} {:name "updated or inserted name"})
-#
-#   (delete db :account 1)
-#   (delete-all db :account {:name "name"})
-#
-#   (fetch db :account) # => select * from account;
-#   (fetch db :account 1) # => select * from account where id = ?
-# (fetch db :account 1 :todos 2) # => select * from todo where account_id = :account-id and todo = :todo-id
-#
-# (q db '[:select *])
-#         :from account
-#         :where id = ?id and name = ?name
-#       {:id 1} # => select * from acount where id = :id and name = :name
-#
-#
-# (defn where-clause [dictionary-params])
-#   (let [ks (keys dictionary-params)])
-#     (map |(string $ " = :" $)) ks
-#
-#
-# (defn delete [db table-name params])
-#   (let [rows (query db (string "select * from " table-name " where " (where-clause params)))])
-#     (execute db)
-#       (string "delete from " table-name " where " (where-clause params))
-#     (first rows)
+(defn update [db table-name id params]
+  (execute db (sql/update table-name params) (merge params {:id id}))
+  (fetch db [table-name id]))
+
+
+(defn update-all [db table-name where-params set-params]
+  (let [rows (from db table-name where-params)
+        sql (sql/update-all table-name where-params set-params)
+        params (sql/update-all-params where-params set-params)]
+    (execute db sql params)
+    (from db table-name (map |(table :id (get $ :id))
+                          rows))))
+
+
+(defn delete [db table-name id]
+  (let [row (fetch db [table-name id])]
+    (execute db (sql/delete table-name id) {:id id})
+    row))
+
+
+(defn delete-all [db table-name params &opt where-params]
+  (let [rows (from db table-name params)]
+    (execute db (sql/delete-all table-name (or where-params params)) (or where-params params))
+    rows))
