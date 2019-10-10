@@ -10,21 +10,29 @@
 (import json)
 
 (def env env/get-env)
+
 (def logger logger/middleware)
 (def log logger/log)
+
 (def respond responder/respond)
 (def redirect responder/redirect)
+
 (def rescue helper/rescue)
 (def select-keys helper/select-keys)
+
 (def html html/render)
 (def raw-html html/raw)
 (def doctype html/doctype)
+
 (def json-encode json/encode)
 (def json-decode json/decode)
+
 (def serve circlet/server)
+
 (def app router/handler)
 (def routes router/routes)
 (def middleware router/middleware)
+
 (def static-files middleware/static-files)
 (def body-parser middleware/body-parser)
 (def set-cookie middleware/set-cookie)
@@ -32,7 +40,16 @@
 (def server-error middleware/server-error)
 (def set-db middleware/set-db)
 (def session middleware/session)
+(def extra-methods middleware/extra-methods)
+
 (def query db/query)
 (def execute db/execute)
+(def fetch db/fetch)
+(def from db/from)
 (def insert db/insert)
+(def insert-all db/insert-all)
+(def update db/update)
+(def update-all db/update-all)
+(def delete db/delete)
+(def delete-all db/delete-all)
 (def with-db-connection db/with-connection)
