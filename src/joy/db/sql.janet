@@ -23,10 +23,10 @@
 
 
 (defn fetch-options
-  "Takes a tuple of kvs and returns order by, limit and offset sql bits"
+  "Takes a dictionary and returns order by, limit and offset sql bits"
   [args]
-  (when (not (empty? args))
-    (let [{:order order :limit limit :offset offset} (apply table args)
+  (when (not (nil? args))
+    (let [{:order order :limit limit :offset offset} args
           order-by (when (not (nil? order)) (string "order by " order))
           limit (when (not (nil? limit)) (string "limit " limit))
           offset (when (not (nil? offset)) (string "offset " offset))]
@@ -38,7 +38,6 @@
 (defn from
   "Takes a table name and where clause params and optional order/limit/offset options and returns a select sql string"
   [table-name params &opt args]
-  (default args [])
   (->> [(string "select * from " (helper/snake-case table-name) " where " (where-clause params))
         (fetch-options args)]
        (filter |(not (nil? $)))
@@ -84,21 +83,20 @@
 (defn fetch-params
   "Returns a table for a where clause of a 'fetch' sql string"
   [path]
-  (->> (partition 2 path)
-       (filter |(= 2 (length $)))
-       (mapcat |(array (keyword (first $) ".id") (last $)))
-       (apply table)))
+  (filter |(not (keyword? $)) path))
 
 
 (defn fetch
   "Takes a path and generates join statements along with a where clause. Think 'get-in' for sqlite."
-  [path & args]
+  [path &opt args]
   (let [keywords (filter keyword? path)
-        ids (filter |(not (keyword? $)) path)
+        ids (fetch-params path)
         where (when (not (empty? ids))
                 (string "where "
-                  (->> (fetch-params path)
-                       (where-clause))))]
+                  (->> (partition 2 path)
+                       (filter |(= 2 (length $)))
+                       (map |(string (first $) ".id = ?"))
+                       (helper/join-string " and "))))]
     (->> ["select * from"
           (last keywords)
           (fetch-joins keywords)

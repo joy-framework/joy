@@ -32,9 +32,10 @@
       (query db sql params))))
 
 
-(defn fetch [db table-name path & args]
-  (let [sql (sql/fetch table-name path (merge (or args {}) {:limit 1}))
-        params (sql/fetch-params path)]
+(defn fetch [db path & args]
+  (let [args (apply table args)
+        sql (sql/fetch path (merge args {:limit 1}))
+        params (filter |(not (keyword? $)) path)]
     (->> (query db sql params)
          (first))))
 
@@ -46,23 +47,27 @@
 
 
 (defn from [db table-name params & args]
-  (let [sql (sql/from table-name params)]
+  (let [sql (sql/from table-name params args)]
     (query db sql params)))
 
 
 (defn insert [db table-name params]
-  (->> (execute db (sql/insert table-name params))
-       (last-inserted db table-name)))
+  (let [sql (sql/insert table-name params)]
+    (->> (execute db sql params)
+         (last-inserted db table-name))))
 
 
 (defn insert-all [db table-name arr]
-  (let [_ (execute db (sql/insert-all table-name arr) (sql/insert-all-params arr))]
+  (let [sql (sql/insert-all table-name arr)
+        params (sql/insert-all-params arr)]
+    (execute db sql params)
     (query db (string "select * from " (helper/snake-case table-name) " order by rowid limit " (length params)))))
 
 
 (defn update [db table-name id params]
-  (execute db (sql/update table-name params) (merge params {:id id}))
-  (fetch db [table-name id]))
+  (let [sql (sql/update table-name params)]
+    (execute db sql (merge params {:id id}))
+    (fetch db [table-name id])))
 
 
 (defn update-all [db table-name where-params set-params]
@@ -75,12 +80,16 @@
 
 
 (defn delete [db table-name id]
-  (let [row (fetch db [table-name id])]
-    (execute db (sql/delete table-name id) {:id id})
+  (let [row (fetch db [table-name id])
+        sql (sql/delete table-name id)
+        params {:id id}]
+    (execute db sql params)
     row))
 
 
 (defn delete-all [db table-name params &opt where-params]
-  (let [rows (from db table-name params)]
-    (execute db (sql/delete-all table-name (or where-params params)) (or where-params params))
+  (let [rows (from db table-name params)
+        params (or where-params params)
+        sql (sql/delete-all table-name params)]
+    (execute db sql params)
     rows))
