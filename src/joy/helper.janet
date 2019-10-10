@@ -51,5 +51,5 @@
     {}))
 
 
-(defn join-string [sep str]
-  (string/join str sep))
+(defmacro join-string [sep str]
+  ~(string/join ,str ,sep))
