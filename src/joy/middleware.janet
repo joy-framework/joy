@@ -115,3 +115,13 @@
              body (apply helper/dissoc body (get options :ignore-keys))]
          (logger/log {:msg err :attrs [:body body :params params] :level "error"}))
        @{:status 500 :body "Oops 500" :headers @{"Content-Type" "text/plain"}}))))
+
+
+(defn extra-methods [handler]
+  (fn [request]
+    (let [{:method method :body body} request
+          body (if (dictionary? body) body @{})
+          extra-method (get body :_method method)]
+      (-> (put request :method extra-method)
+          (put :original-method method)
+          (handler)))))
