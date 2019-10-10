@@ -84,31 +84,31 @@
 
   (test "from with options test"
     (= "select * from account where name = :name order by rowid desc limit 3"
-       (sql/from :account {:name "name"} [:order "rowid desc" :limit 3])))
+       (sql/from :account {:name "name"} {:order "rowid desc" :limit 3})))
 
   (test "fetch-options test with limit"
     (= "limit 10"
-       (sql/fetch-options [:limit 10])))
+       (sql/fetch-options {:limit 10})))
 
   (test "fetch-options test with limit and offset"
     (= "limit 10 offset 2"
-       (sql/fetch-options [:limit 10 :offset 2])))
+       (sql/fetch-options {:limit 10 :offset 2})))
 
   (test "fetch-options test with limit offset and order!"
     (= "order by name desc limit 10 offset 2"
-       (sql/fetch-options [:limit 10 :offset 2 :order "name desc"])))
+       (sql/fetch-options {:limit 10 :offset 2 :order "name desc"})))
 
   (test "fetch-options test with limit offset and order asc"
     (= "order by name limit 10 offset 2"
-       (sql/fetch-options [:limit 10 :offset 2 :order "name"])))
+       (sql/fetch-options {:limit 10 :offset 2 :order "name"})))
 
   (test "fetch-options test with limit offset and order by two args"
     (= "order by name, id desc limit 10 offset 2"
-       (sql/fetch-options [:limit 10 :offset 2 :order "name, id desc"])))
+       (sql/fetch-options {:limit 10 :offset 2 :order "name, id desc"})))
 
   (test "fetch-options test with limit offset and order by with keyword"
     (= "order by name limit 10 offset 2"
-       (sql/fetch-options [:limit 10 :offset 2 :order :name])))
+       (sql/fetch-options {:limit 10 :offset 2 :order :name})))
 
   (test "clone-inside with one arg"
     (= [:a]
@@ -139,43 +139,42 @@
        (sql/fetch [:account])))
 
   (test "fetch test with one table and one id"
-    (= "select * from account where account.id = :account.id"
+    (= "select * from account where account.id = ?"
        (sql/fetch [:account 1])))
 
   (test "fetch test with two tables and one id"
-    (= "select * from todo join account on account.id = todo.account_id where account.id = :account.id"
+    (= "select * from todo join account on account.id = todo.account_id where account.id = ?"
        (sql/fetch [:account 1 :todo])))
 
   (test "fetch test with two tables and two ids"
-    (= "select * from todo join account on account.id = todo.account_id where account.id = :account.id and todo.id = :todo.id"
+    (= "select * from todo join account on account.id = todo.account_id where account.id = ? and todo.id = ?"
        (sql/fetch [:account 1 :todo 2])))
 
   (test "fetch test with two tables and two ids"
-    (= "select * from todo join account on account.id = todo.account_id where account.id = :account.id and todo.id = :todo.id"
+    (= "select * from todo join account on account.id = todo.account_id where account.id = ? and todo.id = ?"
        (sql/fetch [:account 1 :todo 2])))
 
   (test "fetch test with three tables and two ids"
-    (= "select * from comment join todo on todo.id = comment.todo_id join account on account.id = todo.account_id where account.id = :account.id and todo.id = :todo.id"
+    (= "select * from comment join todo on todo.id = comment.todo_id join account on account.id = todo.account_id where account.id = ? and todo.id = ?"
        (sql/fetch [:account 1 :todo 2 :comment])))
+
+  (test "fetch-params test with three tables and two ids"
+    (= [1 2]
+       (freeze (sql/fetch-params [:account 1 :todo 2 :comment]))))
+
+  (test "fetch-params test with two tables and one id"
+    (= [1]
+       (freeze (sql/fetch-params [:account 1 :todo]))))
+
+  (test "fetch-params test with no ids"
+    (= []
+       (freeze (sql/fetch-params [:account]))))
+
 
   (test "fetch test with one table and options"
     (= "select * from account limit 10"
-       (sql/fetch [:account]
-         :limit 10)))
+       (sql/fetch [:account] {:limit 10})))
 
   (test "fetch test with one table and limit and offset options"
     (= "select * from account limit 10 offset 2"
-       (sql/fetch [:account]
-         :limit 10 :offset 2)))
-
-  (test "fetch-params test"
-    (= {:account.id 1}
-       (freeze (sql/fetch-params [:account 1]))))
-
-  (test "fetch-params test with two tables and one id"
-    (= {:account.id 1}
-       (freeze (sql/fetch-params [:account 1 :todo]))))
-
-  (test "fetch-params test with two tables and two ids"
-    (= {:account.id 1 :todo.id 2}
-       (freeze (sql/fetch-params [:account 1 :todo 2])))))
+       (sql/fetch [:account] {:limit 10 :offset 2}))))

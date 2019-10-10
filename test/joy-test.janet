@@ -1,11 +1,11 @@
 (import tester :prefix "" :exit true)
-(import "src/joy" :prefix "")
+(import "src/joy" :as joy)
 
 (defn layout [response]
   (let [{:body body} response]
-    (respond :html
-      (html
-       (doctype :html5)
+    (joy/respond :html
+      (joy/html
+       (joy/doctype :html5)
        [:html {:lang "en"}
         [:head
          [:meta {:charset "utf-8"}]
@@ -14,14 +14,14 @@
         [:body body]]))))
 
 (defn home [request]
-  [:h1 {:style "text-align: center"} "you've found joy!"])
+  [:h1 {:style "text-align: center"} "You've found joy!"])
 
 (defn hello [request]
   [:h1 (string "hello " (get-in request [:params :name]))])
 
 (defn accounts [request]
   (let [{:db db :session session} request
-        rows (query db "select * from account")]
+        rows (joy/query db "select * from account")]
     [:table
      [:thead
       [:tr
@@ -30,7 +30,7 @@
        [:th "email"]
        [:th "password"]
        (when (not (nil? session))
-         [:th "session"])]]
+        [:th ""])]]
      [:tbody
       (map
        (fn [{:id id :name name :email email :password password}]
@@ -40,12 +40,15 @@
           [:td email]
           [:td password]
           (when (not (nil? session))
-            [:td "check"])])
+            [:td
+             [:form {:action (string "/accounts/" id) :method :post}
+              [:input {:type "hidden" :name "_method" :value "delete"}]
+              [:input {:type "submit" :value "Delete"}]]])])
        rows)]]))
 
 
 (defn new [request]
-  [:form {:action "/accounts" :method "POST"}
+  [:form {:action "/accounts" :method :post}
    [:input {:type "text" :name "name"}]
    [:input {:type "email" :name "email"}]
    [:input {:type "password" :name "password"}]
@@ -54,20 +57,20 @@
 
 (defn create [request]
   (let [{:body body :db db} request
-        row (insert db :account body)]
-    (-> (redirect "/accounts")
+        row (joy/insert db :account body)]
+    (-> (joy/redirect "/accounts")
         (put :session {:id (get row :id)}))))
 
 
 (defn delete [request]
   (let [{:db db :params params} request
         id (get params :id)
-        row (delete db :account {:id id})]
-    (redirect "/accounts")))
+        row (joy/delete db :account id)]
+    (joy/redirect "/accounts")))
 
 
 (def routes
-  (routes
+  (joy/routes
    [:get "/" home]
    [:get "/hello/:name" hello]
    [:get "/accounts" accounts]
@@ -75,22 +78,28 @@
    [:post "/accounts" create]
    [:delete "/accounts/:id" delete]))
 
-(def app (-> (app routes)
-             (set-db "test.sqlite3")
-             (server-error)
-             (set-layout layout)
-             (session)
-             (static-files)
-             (body-parser)
-             (logger)))
+
+(def app (-> (joy/app routes)
+             (joy/set-db "test.sqlite3")
+             (joy/server-error)
+             (joy/set-layout layout)
+             (joy/session)
+             (joy/logger)
+             (joy/static-files)
+             (joy/extra-methods)
+             (joy/body-parser)))
+
+
+#(joy/serve app 8000)
+
 
 (deftest
   (test "joy get env variable with a single keyword"
     (do
       (os/setenv "JANET_ENV" "development")
-      (= "development" (env :janet-env))))
+      (= "development" (joy/env :janet-env))))
 
   (test "test everything"
-    (= {:status 200 :headers {"Content-Type" "text/html; charset=utf-8"} :body `<!DOCTYPE HTML><html lang="en"><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1" name="viewport" /><title>joy test 1</title></head><body><h1 style="text-align: center">you've found joy!</h1></body></html>`}
+    (= {:status 200 :headers {"Content-Type" "text/html; charset=utf-8"} :body `<!DOCTYPE HTML><html lang="en"><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1" name="viewport" /><title>joy test 1</title></head><body><h1 style="text-align: center">You've found joy!</h1></body></html>`}
        (freeze
-        (app {:method "GET" :uri "/"})))))
+         (app @{:method :get :uri "/"})))))
