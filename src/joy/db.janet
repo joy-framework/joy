@@ -35,14 +35,14 @@
 (defn fetch [db path & args]
   (let [args (apply table args)
         sql (sql/fetch path (merge args {:limit 1}))
-        params (filter |(not (keyword? $)) path)]
+        params (sql/fetch-params path)]
     (->> (query db sql params)
          (first))))
 
 
-(defn fetch-all [db table-name path & args]
-  (let [sql (sql/fetch table-name path args)
-        params (sql/fetch-params table-name path args)]
+(defn fetch-all [db path & args]
+  (let [sql (sql/fetch path (apply table args))
+        params (sql/fetch-params path)]
     (query db sql params)))
 
 

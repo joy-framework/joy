@@ -8,6 +8,7 @@
 (import ./joy/db :as db)
 (import circlet)
 (import json)
+(import sqlite3)
 
 (def env env/get-env)
 
@@ -45,6 +46,7 @@
 (def query db/query)
 (def execute db/execute)
 (def fetch db/fetch)
+(def fetch-all db/fetch-all)
 (def from db/from)
 (def insert db/insert)
 (def insert-all db/insert-all)
@@ -52,4 +54,10 @@
 (def update-all db/update-all)
 (def delete db/delete)
 (def delete-all db/delete-all)
-(def with-db-connection db/with-connection)
+
+(defmacro with-db-connection [binding & body]
+  (with-syms [$rows]
+   ~(let [,(first binding) (,sqlite3/open ,(get binding 1))
+          ,$rows ,(splice body)]
+      (,sqlite3/close ,(first binding))
+      ,$rows)))
