@@ -46,8 +46,10 @@
     (query db sql params)))
 
 
-(defn from [db table-name params & args]
-  (let [sql (sql/from table-name params args)]
+(defn from [db table-name & args]
+  (let [opts (apply table args)
+        sql (sql/from table-name opts)
+        params (get opts :where {})]
     (query db sql params)))
 
 

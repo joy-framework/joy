@@ -79,12 +79,12 @@
        (sql/where-clause {:id 1 :name 'null})))
 
   (test "from test"
-    (= "select * from account where name = :name"
-       (sql/from :account {:name "name"})))
+    (= "select * from account where name = :name "
+       (sql/from :account {:where {:name "name"}})))
 
   (test "from with options test"
     (= "select * from account where name = :name order by rowid desc limit 3"
-       (sql/from :account {:name "name"} {:order "rowid desc" :limit 3})))
+       (sql/from :account {:where {:name "name"} :order "rowid desc" :limit 3})))
 
   (test "fetch-options test with limit"
     (= "limit 10"

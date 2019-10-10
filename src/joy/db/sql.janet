@@ -37,11 +37,14 @@
 
 (defn from
   "Takes a table name and where clause params and optional order/limit/offset options and returns a select sql string"
-  [table-name params &opt args]
-  (->> [(string "select * from " (helper/snake-case table-name) " where " (where-clause params))
-        (fetch-options args)]
-       (filter |(not (nil? $)))
-       (helper/join-string " ")))
+  [table-name &opt args]
+  (let [where-params (get args :where)
+        where (when (not (nil? where-params)) (string "where " (where-clause where-params)))]
+    (->> [(string "select * from " (helper/snake-case table-name))
+          where
+          (fetch-options args)]
+         (filter |(not (nil? $)))
+         (helper/join-string " "))))
 
 
 (defn drop-last [arr]
