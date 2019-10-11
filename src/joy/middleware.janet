@@ -3,6 +3,8 @@
 (import ./logger :as logger)
 (import ./env :as env)
 (import ./db :as db)
+(import ./responder :as responder)
+(import ./html :as html)
 (import uuid)
 (import cipher)
 (import json)
@@ -105,6 +107,31 @@
         (handler request)))))
 
 
+(defn dev-error-page [request err]
+  (html/render
+    (html/doctype :html5)
+    [:html {:lang "en"}
+     [:head
+      [:meta {:charset "utf-8"}]
+      [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
+      [:title (string "Error at " (get request :uri))]
+      [:link {:href "/css/pylon.css" :rel "stylesheet"}]]
+     [:body
+      [:div
+       [:strong (string "Error at " (get request :uri))]
+       [:div err]]
+      [:div
+       [:h3 "Request Info"]
+       (let [{:params params :body body} request]
+        [:vstack
+          [:hstack
+           [:strong "Url Parameters"]
+           [:span (if nil? params) "" (json/encode params)]]
+          [:hstack
+           [:strong "Request Body"]
+           [:span (if (nil? body) "" (json/encode body))]]])]]]))
+
+
 (defn server-error [handler &opt options]
   (default options {:ignore-keys [:password :confirm-password]})
   (fn [request]
@@ -114,7 +141,14 @@
        (let [{:body body :params params} request
              body (apply helper/dissoc body (get options :ignore-keys))]
          (logger/log {:msg err :attrs [:body body :params params] :level "error"}))
-       @{:status 500 :body "Oops 500" :headers @{"Content-Type" "text/plain"}}))))
+       (if (= "development" (env/get-env :joy-env))
+         (responder/respond :html
+           (dev-error-page request err)
+           :status 500)
+
+         @{:status 500
+           :body "Internal Server Error"
+           :headers @{"Content-Type" "text/plain"}})))))
 
 
 (defn extra-methods [handler]
