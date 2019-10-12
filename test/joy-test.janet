@@ -84,8 +84,8 @@
              (joy/server-error)
              (joy/set-layout layout)
              (joy/session)
-             (joy/logger)
              (joy/static-files)
+             (joy/logger)
              (joy/extra-methods)
              (joy/body-parser)))
 
