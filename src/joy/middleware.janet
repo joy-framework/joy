@@ -114,22 +114,16 @@
      [:head
       [:meta {:charset "utf-8"}]
       [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
-      [:title (string "Error at " (get request :uri))]
-      [:link {:href "/css/pylon.css" :rel "stylesheet"}]]
-     [:body
-      [:div
-       [:strong (string "Error at " (get request :uri))]
-       [:div err]]
-      [:div
-       [:h3 "Request Info"]
-       (let [{:params params :body body} request]
-        [:vstack
-          [:hstack
-           [:strong "Url Parameters"]
-           [:span (if nil? params) "" (json/encode params)]]
-          [:hstack
-           [:strong "Request Body"]
-           [:span (if (nil? body) "" (json/encode body))]]])]]]))
+      [:title (string "Error at " (get request :uri))]]
+     [:body {:style "margin: 0; font-family: sans-serif;"}
+      [:div {:style "background-color: #FF4136; padding: 20px"}
+       [:strong {:style "color: hsla(3, 100%, 25%, 1.0)"} (string "Error at " (get request :uri))]
+       [:div {:style "color: hsla(3, 100%, 25%, 1.0)"} err]]
+      [:div {:style "padding: 20px"}
+       [:strong "Request Information"]
+       [:pre
+        [:code
+         (string/format "%p" request)]]]]]))
 
 
 (defn server-error [handler &opt options]
