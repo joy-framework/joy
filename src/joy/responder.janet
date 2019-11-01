@@ -26,6 +26,3 @@
     @{:status (or status 200)
       :headers headers
       :body body}))
-
-
-(defn html [& args])
