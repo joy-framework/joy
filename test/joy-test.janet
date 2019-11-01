@@ -1,11 +1,11 @@
 (import tester :prefix "" :exit true)
-(import "src/joy" :as joy)
+(import "src/joy" :prefix "")
 
 (defn layout [response]
   (let [{:body body} response]
-    (joy/respond :html
-      (joy/html
-       (joy/doctype :html5)
+    (respond :html
+      (html
+       (doctype :html5)
        [:html {:lang "en"}
         [:head
          [:meta {:charset "utf-8"}]
@@ -21,7 +21,7 @@
 
 (defn accounts [request]
   (let [{:db db :session session} request
-        rows (joy/query db "select * from account")]
+        rows (query db "select * from account")]
     [:table
      [:thead
       [:tr
@@ -57,47 +57,60 @@
 
 (defn create [request]
   (let [{:body body :db db} request
-        row (joy/insert db :account body)]
-    (-> (joy/redirect "/accounts")
+        row (insert db :account body)]
+    (-> (redirect "/accounts")
         (put :session {:id (get row :id)}))))
+
+
+(defn edit [request])
+
+
+(defn patch [request])
 
 
 (defn delete [request]
   (let [{:db db :params params} request
         id (get params :id)
-        row (joy/delete db :account id)]
-    (joy/redirect "/accounts")))
+        row (delete db :account id)]
+    (redirect "/accounts")))
+
+
+(defn error-test [request]
+  (error "test error"))
 
 
 (def routes
-  (joy/routes
+  (routes
    [:get "/" home]
+   [:get "/error-test" error-test]
    [:get "/hello/:name" hello]
    [:get "/accounts" accounts]
    [:get "/accounts/new" new]
    [:post "/accounts" create]
+   [:get "/accounts/:id/edit" edit]
+   [:patch "/accounts/:id" patch]
    [:delete "/accounts/:id" delete]))
 
 
-(def app (-> (joy/app routes)
-             (joy/set-db "test.sqlite3")
-             (joy/server-error)
-             (joy/set-layout layout)
-             (joy/session)
-             (joy/static-files)
-             (joy/logger)
-             (joy/extra-methods)
-             (joy/body-parser)))
+(def app (-> (app routes)
+             (set-db "test.sqlite3")
+             (server-error)
+             (set-layout layout)
+             (session)
+             (static-files)
+             (logger)
+             (extra-methods)
+             (body-parser)))
 
 
-#(joy/serve app 8000)
+#(serve app 8000)
 
 
 (deftest
   (test "joy get env variable with a single keyword"
     (do
       (os/setenv "JANET_ENV" "development")
-      (= "development" (joy/env :janet-env))))
+      (= "development" (env :janet-env))))
 
   (test "test everything"
     (= {:status 200 :headers {"Content-Type" "text/html; charset=utf-8"} :body `<!DOCTYPE HTML><html lang="en"><head><meta charset="utf-8" /><meta content="width=device-width, initial-scale=1" name="viewport" /><title>joy test 1</title></head><body><h1 style="text-align: center">You've found joy!</h1></body></html>`}
