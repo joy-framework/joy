@@ -66,3 +66,6 @@
 
 (def params validator/params)
 (def validates validator/validates)
+
+(defn pprint [s]
+  (print (string/format "%q" s)))
