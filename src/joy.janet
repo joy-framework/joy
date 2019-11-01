@@ -6,6 +6,7 @@
 (import ./joy/router :as router)
 (import ./joy/middleware :as middleware)
 (import ./joy/db :as db)
+(import ./joy/validator :as validator)
 (import circlet)
 (import json)
 (import sqlite3)
@@ -61,3 +62,6 @@
           ,$rows ,(splice body)]
       (,sqlite3/close ,(first binding))
       ,$rows)))
+
+(def params validator/params)
+(def validates validator/validates)
