@@ -13,6 +13,16 @@
     (empty? val)))
 
 
+(defn matches-peg? [peg val]
+  (peg/match peg val))
+
+
+(defn email? [val]
+  (let [result (peg/match '(any (+ (* ($) "@") 1)) val)]
+    (and (not (nil? result))
+      (not (empty? result)))))
+
+
 (defn invalid-keys [ks dict pred]
   (filter |(pred (get dict $))
     ks))
@@ -37,28 +47,34 @@
          :required required
          :message message
          :min-length min-length
-         :max-length max-length} validator
-        message (cond
-                  (true? required) "is required"
-                  (number? min-length) (string "needs to be more than " min-length " characters")
-                  (number? max-length) (string "needs to be less than " max-length " characters")
-                  :else "")
+         :max-length max-length
+         :email email
+         :matches matches} validator
+        msg (cond
+              (true? required) "is required"
+              (number? min-length) (string "needs to be more than " min-length " characters")
+              (number? max-length) (string "needs to be less than " max-length " characters")
+              (not (nil? email)) "needs to be an email"
+              (not (nil? matches)) (string "needs to match " (string/format "%q" matches))
+              :else "")
         predicate (cond
                     (true? required) blank?
                     (number? min-length) (partial min-length? min-length)
                     (number? max-length) (partial max-length? max-length)
+                    (not (nil? email)) (comp not email?)
+                    (not (nil? matches)) (partial (comp not matches-peg?) matches)
                     :else identity)]
     (let [invalid-ks (invalid-keys ks body predicate)]
       (if (empty? invalid-ks)
         body
-        (error (error-map invalid-ks message)))
+        (error (error-map invalid-ks (or message msg))))
       :else nil)))
 
 
 (defn params
-  `Takes a table name and a list of validator dictionaries
+  `Takes a list of validator dictionaries
    and returns a function that either raises an error or returns the body`
-  [table-name & args]
+  [& args]
   (fn [body]
-    (map |(validate $ (get body table-name)) args) # this raises if the validator isn't met
+    (map |(validate $ body) args) # this raises if the validator isn't met
     body))
