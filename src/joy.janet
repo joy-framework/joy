@@ -17,6 +17,7 @@
 (def log logger/log)
 
 (def respond responder/respond)
+(def render responder/respond)
 (def redirect responder/redirect)
 
 (def rescue helper/rescue)

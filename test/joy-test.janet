@@ -3,7 +3,7 @@
 
 (defn layout [response]
   (let [{:body body} response]
-    (respond :html
+    (render :html
       (html
        (doctype :html5)
        [:html {:lang "en"}
