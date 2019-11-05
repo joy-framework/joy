@@ -3,6 +3,9 @@
 (import ./helper :prefix "")
 
 
+(var route-table @{})
+
+
 (defn route-url [string-route struct-params]
   (var mut-string-route string-route)
   (loop [[k v] :in (pairs struct-params)]
@@ -80,5 +83,47 @@
       routes)))
 
 
-(defn routes [& indexed-routes]
-  (flatten-wrapped-routes indexed-routes))
+(defn handler-name [func]
+  (->> (string func)
+       (string/replace "<function " "")
+       (string/replace ">" "")))
+
+
+(defn route-name [route]
+  (or (get route 3)
+   (-> (get route 2)
+       (handler-name)
+       (keyword))))
+
+
+(defn routes [& args]
+  (let [flat-routes (flatten-wrapped-routes args)
+        route-map (->> flat-routes
+                       (mapcat |(tuple (route-name $) $))
+                       (apply table))]
+    (set route-table (merge route-table route-map))
+    flat-routes))
+
+
+(def url-encode identity)
+
+
+(defn query-string [m]
+  (when (dictionary? m)
+    (let [s (->> (pairs m)
+                 (map (fn [[k v]] (string (-> k string url-encode) "=" (url-encode v))))
+                 (join-string "&"))]
+      (when (not (empty? s))
+        (string "?" s)))))
+
+
+(defn url-for [route-keyword &opt params]
+  (default params {})
+  (let [route (get route-table route-keyword)
+        _ (when (nil? route) (error (string "Route " route-keyword " does not exist")))
+        url (route-url (get route 1) {})
+        query-params (get params :?)
+        qs (or (query-string query-params) "")
+        anchor (get params "#")
+        anchor (if (not (nil? anchor)) (string "#" anchor) "")]
+    (string url qs anchor)))

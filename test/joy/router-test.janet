@@ -2,6 +2,8 @@
 (import "src/joy/router" :as router)
 (import "src/joy/helper" :prefix "")
 
+(defn home [request])
+
 (deftest
   (test "fills in a param in the url"
     (= (router/route-url "/accounts/:id" {":id" "1"})
@@ -67,4 +69,20 @@
                    (router/middleware mw mw2
                      [:get "/" (fn [request] {:status 200 :body (+ (get request :b) (get request :a))})]))]
       (= {:status 200 :body 3}
-        ((router/handler routes) {:method :get :uri "/"})))))
+        ((router/handler routes) {:method :get :uri "/"}))))
+
+  (test "url-for with a function"
+    (let [routes (router/routes [:get "/" home])]
+      (= (router/url-for :home) "/")))
+
+  (test "url-for with a route name"
+    (let [routes (router/routes [:get "/" home :home2])]
+      (= (router/url-for :home2) "/")))
+
+  (test "url-for with a query string"
+    (let [routes (router/routes [:get "/test" home :qs])]
+      (= (router/url-for :qs {:? {"a" "1"}}) "/test?a=1")))
+
+  (test "url-for with an anchor string and a query string"
+    (let [routes (router/routes [:get "/anchor" home :anchor])]
+      (= (router/url-for :anchor {:? {"a" "1"} "#" "anchor"}) "/anchor?a=1#anchor"))))
