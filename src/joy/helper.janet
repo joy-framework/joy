@@ -53,3 +53,7 @@
 
 (defmacro join-string [sep str]
   ~(string/join ,str ,sep))
+
+
+(defn pprint [arg]
+  (print (string/format "%q" arg)))
