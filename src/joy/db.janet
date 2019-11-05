@@ -3,7 +3,16 @@
 (import ./db/sql :as sql)
 
 
-(defmacro with-connection [binding & body]
+(defmacro with-connection
+  `A macro that takes a binding array, ex: [conn "x.sqlite3"] and expressions and executes them in the context of the connection.
+
+   Example:
+
+   (import sqlite3)
+
+   (with-connection [db "dev.sqlite3"]
+     (sqlite3/eval db "select 1;" {}))`
+  [binding & body]
   (with-syms [$rows]
    ~(let [,(first binding) (,sqlite3/open ,(get binding 1))
           ,$rows ,(splice body)]
