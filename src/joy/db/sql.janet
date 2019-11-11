@@ -58,7 +58,8 @@
   [an-array]
   (let [first-val (first an-array)
         inner (drop 1 an-array)
-        last-val (last inner)
+        last-val (when (not (empty? inner))
+                   (last inner))
         inner (drop-last inner)
         cloned-inner (interleave inner inner)]
     (->> [first-val cloned-inner last-val]
