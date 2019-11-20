@@ -7,7 +7,7 @@
 (import ./joy/middleware :as middleware)
 (import ./joy/db :as db)
 (import ./joy/validator :as validator)
-(import circlet)
+(import halo)
 (import json)
 (import sqlite3)
 
@@ -30,7 +30,7 @@
 (def json-encode json/encode)
 (def json-decode json/decode)
 
-(def serve circlet/server)
+(def serve halo/server)
 
 (def app router/handler)
 (def routes router/routes)

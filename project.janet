@@ -7,7 +7,7 @@
                  {:repo "https://github.com/joy-framework/uuid" :tag "b9154db174b55cdaec8b562e64d254ada86d5710"}
                  {:repo "https://github.com/joy-framework/cipher" :tag "a9432889da39cba58c1bb2625f32d3acac3948c7"}
                  {:repo "https://github.com/joy-framework/codec" :tag "b02ad8c07885cfe0e83ec04d249570831cf3e070"}
-                 {:repo "https://github.com/janet-lang/circlet" :tag "cd44139b6751bc2bc47fb93c7786210510e774ec"}]
+                 {:repo "https://github.com/joy-framework/halo" :tag "99b2df9583646e86ea5a79316aeccf7c64925cbf"}]
   :author "Sean Walker"
   :license "MIT"
   :url "https://github.com/joy-framework/joy"
