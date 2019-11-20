@@ -69,7 +69,8 @@
 (defn first-child
   [children]
   (if (indexed? children)
-      (first children)
+      (when (not (empty? children))
+        (first children))
       children))
 
 
