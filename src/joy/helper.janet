@@ -34,10 +34,21 @@
     {}))
 
 
-(defmacro rescue [& body]
+(defmacro rescue [f &opt id]
   ~(try
-     [nil ,(splice body)]
-     ([err] [err nil])))
+     [nil ,f]
+     ([err]
+      (if (and (dictionary? err)
+            (or (true? (get err :id))
+              (= ,id (get err :id))))
+        [(get err :error) nil]
+        (error err)))))
+
+
+(defn raise [err &opt id]
+  (default id true)
+  (error {:error err :id id}))
+
 
 
 (defn dissoc [struct-map & tuple-keys]
