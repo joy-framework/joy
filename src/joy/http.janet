@@ -53,7 +53,8 @@
 
 
 (defn parse-body [string-s]
-  (when (string? string-s)
+  (when (and (string? string-s)
+          (not (empty? string-s)))
     (->> (string/split "&" string-s)
          (map |(string/split "=" $))
          (flatten)
@@ -80,3 +81,12 @@
          (flatten)
          (apply table))
     @{}))
+
+
+(defn parse-query-string [string-s]
+  (when (and (string? string-s)
+          (not (nil? (string/find "?" string-s))))
+    (->> (string/split "?" string-s)
+         (last)
+         (parse-body))))
+

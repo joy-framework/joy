@@ -100,6 +100,7 @@
              (static-files)
              (logger)
              (extra-methods)
+             (query-string)
              (body-parser)))
 
 

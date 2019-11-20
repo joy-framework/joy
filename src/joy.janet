@@ -44,6 +44,7 @@
 (def set-db middleware/set-db)
 (def session middleware/session)
 (def extra-methods middleware/extra-methods)
+(def query-string middleware/query-string)
 
 (def query db/query)
 (def execute db/execute)

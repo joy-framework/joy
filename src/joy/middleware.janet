@@ -153,3 +153,11 @@
       (-> (put request :method extra-method)
           (put :original-method method)
           (handler)))))
+
+
+(defn query-string [handler]
+  (fn [request]
+    (let [{:uri uri} request
+          query-string (http/parse-query-string uri)
+          request (put request :query-string query-string)]
+      (handler request))))

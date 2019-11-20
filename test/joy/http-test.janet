@@ -22,3 +22,23 @@
   (test "cookie-string with samesite and httponly"
     (= "name=value; SameSite=strict"
        (http/cookie-string "name" "value" {"SameSite" "strict" "HttpOnly" nil}))))
+
+
+(deftest
+  (test "parse-query-string with nil"
+    (nil? (http/parse-query-string nil)))
+
+  (test "parse-query-string with blank"
+    (nil? (http/parse-query-string "")))
+
+  (test "parse-query-string with a ? only"
+    (nil? (http/parse-query-string "?")))
+
+  (test "parse-query-string with a url without a ?"
+    (nil? (freeze
+           (http/parse-query-string "/hello-world/part/part1"))))
+
+  (test "parse-query-string with a real query string"
+    (= {:a "b" :c "2" :encoded "hello world"}
+       (freeze
+        (http/parse-query-string "/hello-world/part/part1?a=b&c=2&encoded=hello%20world")))))

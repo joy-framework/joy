@@ -15,9 +15,10 @@
 
 (defn route-matches? [array-route1 dictionary-request]
   (let [[route-method route-url] array-route1
-        {:method method :uri uri} dictionary-request]
+        {:method method :uri uri} dictionary-request
+        url (first (string/split "?" uri))]
     (true? (and (= (string/ascii-lower method) (string/ascii-lower route-method))
-             (= route-url uri)))))
+             (= route-url url)))))
 
 
 (defn route-params [string-route-url string-request-url]
@@ -37,14 +38,14 @@
 
 (defn find-route [indexed-routes dictionary-request]
   (let [{:uri uri :method method} dictionary-request]
-    (or (first
+    (or (get
           (filter (fn [indexed-route]
                     (let [[method url handler] indexed-route
                           url (route-url url
                                 (route-params url uri))
                           indexed-route [method url handler]]
                       (route-matches? indexed-route dictionary-request)))
-            indexed-routes))
+            indexed-routes) 0)
         [])))
 
 
