@@ -13,5 +13,8 @@
   :url "https://github.com/joy-framework/joy"
   :repo "git+https://github.com/joy-framework/joy")
 
+(declare-binscript
+  :main "joy")
+
 (declare-source
   :source @["src/joy" "src/joy.janet"])

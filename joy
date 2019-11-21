@@ -1,0 +1,32 @@
+#!/usr/bin/env janet
+
+(import joy)
+
+(def args (dyn :args))
+
+(def usage
+  "Usage"
+``` [action]
+
+  Actions:
+    help               - Print this usage information
+    new <project-name> - Create a new folder with the name of your project
+    serve              - Serves current site
+     [port=8000]       -- optional port
+     [host=127.0.0.1]  -- optional host
+    watch              - Watch files and rebuild if on change
+    version            - Print the current version
+```)
+
+(var action "new")
+(if (>= (length args) 2)
+  (set action (args 1)))
+
+(case action
+  "help" (print (args 0) usage)
+  "version" (print "0.2.0")
+  "serve" nil
+  "watch" nil
+  "new" nil
+  "db" nil
+  "gen" nil)
