@@ -85,4 +85,26 @@
 
   (test "url-for with an anchor string and a query string"
     (let [routes (router/routes [:get "/anchor" home :anchor])]
-      (= (router/url-for :anchor {:? {"a" "1"} "#" "anchor"}) "/anchor?a=1#anchor"))))
+      (= (router/url-for :anchor {:? {"a" "1"} "#" "anchor"}) "/anchor?a=1#anchor")))
+
+  (test "url-for with url params an anchor string and a query string"
+    (let [routes (router/routes [:get "/anchor/:id" home :anchor-id])]
+      (= (router/url-for :anchor-id {:id 1 :? {"a" "1"} "#" "anchor"}) "/anchor/1?a=1#anchor")))
+
+  (test "redirect-to with a function"
+    (let [routes (router/routes [:get "/" home])]
+      (= (freeze
+          (router/redirect-to :home))
+         {:status 302 :body "" :headers {"Location" "/"}})))
+
+  (test "redirect-to with a name and params"
+    (let [routes (router/routes [:get "/accounts/:id/edit" identity :with-params])]
+      (= (freeze
+          (router/redirect-to :with-params {:id 100}))
+         {:status 302 :body "" :headers {"Location" "/accounts/100/edit"}})))
+
+  (test "action-for with a name and params"
+    (let [routes (router/routes [:patch "/accounts/:id" identity :accounts/patch])]
+      (= (freeze
+          (router/action-for :accounts/patch {:id 100}))
+         {:_method :patch :method :post :action "/accounts/100"}))))

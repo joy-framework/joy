@@ -6,10 +6,17 @@
 (var route-table @{})
 
 
+(defn route-param [val]
+  (if (and (string? val)
+        (string/has-prefix? ":" val))
+    val
+    (string ":" val)))
+
+
 (defn route-url [string-route struct-params]
   (var mut-string-route string-route)
   (loop [[k v] :in (pairs struct-params)]
-    (set mut-string-route (string/replace k v mut-string-route)))
+    (set mut-string-route (string/replace (route-param k) (string v) mut-string-route)))
   mut-string-route)
 
 
@@ -122,9 +129,31 @@
   (default params {})
   (let [route (get route-table route-keyword)
         _ (when (nil? route) (error (string "Route " route-keyword " does not exist")))
-        url (route-url (get route 1) {})
+        route-params (->> (pairs params)
+                          (mapcat identity)
+                          (apply table))
+        route-params (-> (put route-params :? nil)
+                         (put "#" nil))
+        url (route-url (get route 1) route-params)
         query-params (get params :?)
         qs (or (query-string query-params) "")
         anchor (get params "#")
         anchor (if (not (nil? anchor)) (string "#" anchor) "")]
     (string url qs anchor)))
+
+
+(defn action-for [route-keyword &opt params]
+  (default params {})
+  (let [[method url] (get route-table route-keyword)
+        action (route-url url params)
+        _method method
+        method (if (not= :get method) :post :get)]
+    {:method method
+     :_method _method
+     :action action}))
+
+
+(defn redirect-to [route-keyword &opt params]
+  @{:status 302
+    :body ""
+    :headers {"Location" (url-for route-keyword (or params {}))}})
