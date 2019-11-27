@@ -1,5 +1,4 @@
-(import json)
-
+# src/joy/logger.janet
 
 (defn timestamp
   "Get the current date nicely formatted"
@@ -15,16 +14,6 @@
                    Y M D HH MM SS)))
 
 
-(defn serialize [val]
-  (string
-    (cond
-      (tuple? val) (json/encode val)
-      (struct? val) (json/encode val)
-      (array? val) (json/encode val)
-      (table? val) (json/encode val)
-      :else val)))
-
-
 (defn surround [s]
   (if (string/find " " s)
     (string `"` s `"`)
@@ -33,7 +22,9 @@
 
 (defn format-key-value-pairs [[k v]]
   (when (not (nil? v))
-    (let [val (serialize v)]
+    (let [val (if (string? v)
+                v
+                (string/format "%q" v))]
       (string k "=" (surround val)))))
 
 
