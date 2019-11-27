@@ -67,3 +67,14 @@
 
 (defn pprint [arg]
   (printf "%q\n" arg))
+
+
+(defmacro with-file
+  `A macro that takes a binding array, ex: [f "some-file.txt"] and a body of forms and executes them in the context of the binding.
+
+   Example:
+   (with-file [f "test.txt"]
+     (file/read f))`
+  [binding & body]
+  ~(with [,(first binding) (,file/open ,(get binding 1)) ,file/close]
+     ,(splice body)))
