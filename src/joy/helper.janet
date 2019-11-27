@@ -50,7 +50,6 @@
   (error {:error err :id id}))
 
 
-
 (defn dissoc [struct-map & tuple-keys]
   (if (and (dictionary? struct-map)
         (indexed? tuple-keys))
