@@ -68,5 +68,4 @@
 (def params validator/params)
 (def validates validator/validates)
 
-(defn pprint [s]
-  (printf "%q\n" s))
+(def pprint helper/pprint)
