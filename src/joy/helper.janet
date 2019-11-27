@@ -67,4 +67,4 @@
 
 
 (defn pprint [arg]
-  (print (string/format "%q" arg)))
+  (printf "%q\n" arg))
