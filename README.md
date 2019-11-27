@@ -52,7 +52,7 @@ This creates a new empty database named `my-joy-project.sqlite3`. Let's fill it 
 
 ### Create database tables
 
-Run this to create a new table with a few columns:
+Run this to create a new migration with a table with a few columns:
 
 ```sh
 joy create table account name:text email:text password:text
