@@ -16,5 +16,6 @@
 (defn create [name]
   (os/mkdir "db")
   (os/mkdir "db/migrations")
-  (with [f (file/open (string "db/migrations/" (timestamp) "-" name ".sql") :w)]
-    (file/write f "-- up\n\n-- down")))
+  (when (string? name)
+    (with [f (file/open (string "db/migrations/" (timestamp) "-" name ".sql") :w)]
+      (file/write f "-- up\n\n-- down"))))
