@@ -12,7 +12,7 @@
         SS (date :seconds)]
     (string/format "%d%.2d%.2d%.2d%.2d%.2d" Y M D HH MM SS)))
 
-    
+
 (defn create [name]
   (os/mkdir "db")
   (os/mkdir "db/migrations")
