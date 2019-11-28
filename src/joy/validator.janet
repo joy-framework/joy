@@ -1,4 +1,4 @@
-# validator.janet
+(import ./helper :as helper)
 
 (defn max-length? [len val]
   (> (length val) len))
@@ -67,8 +67,7 @@
     (let [invalid-ks (invalid-keys ks body predicate)]
       (if (empty? invalid-ks)
         body
-        (error (error-map invalid-ks (or message msg))))
-      :else nil)))
+        (helper/raise (error-map invalid-ks (or message msg)))))))
 
 
 (defn params

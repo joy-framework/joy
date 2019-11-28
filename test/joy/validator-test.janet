@@ -1,5 +1,6 @@
 (import tester :prefix "" :exit true)
 (import "src/joy/validator" :prefix "")
+(import "src/joy/helper" :as helper)
 
 (def account-params
   (params
@@ -22,45 +23,45 @@
        {:name "name" :email "test@example.com" :password "password"}))
 
   (test "params raises an error when a dictionary doesn't have all required keys"
-    (= (try
-         (account-params {:name ""})
-         ([err]
-          (freeze err)))
+    (= (-> (account-params {:name ""})
+           (helper/rescue)
+           (first)
+           (freeze))
        {:name "name is required" :email "email is required" :password "password is required"}))
 
   (test "params raises an error when min-length isn't met"
-    (= (try
-         (account-params {:name "name" :email "test@example.com" :password "shorty"})
-         ([err]
-          (freeze err)))
+    (= (-> (account-params {:name "name" :email "test@example.com" :password "shorty"})
+           (helper/rescue)
+           (first)
+           (freeze))
        {:password "password needs to be more than 8 characters"}))
 
   (test "params raises an error when max-length isn't met"
-    (= (try
-         (account-params {:name "this is too long" :email "test@example.com" :password "correct horse battery staple"})
-         ([err]
-          (freeze err)))
+    (= (-> (account-params {:name "this is too long" :email "test@example.com" :password "correct horse battery staple"})
+           (helper/rescue)
+           (first)
+           (freeze))
        {:name "name needs to be less than 10 characters"}))
 
   (test "params raises an error when a peg doesn't match"
-    (= (try
-         (account-params {:name "na" :email "test@example.com" :password "correct horse battery staple"})
-         ([err]
-          (freeze err)))
+    (= (-> (account-params {:name "na" :email "test@example.com" :password "correct horse battery staple"})
+           (helper/rescue)
+           (first)
+           (freeze))
        {:name "name needs to match (between 3 20 (range \"AZ\" \"az\" \"09\"))"}))
 
   (test "params raises an error with an invalid email"
-    (= (try
-         (account-params {:name "name" :email "not an email" :password "correct horse battery staple"})
-         ([err]
-          (freeze err)))
+    (= (-> (account-params {:name "name" :email "not an email" :password "correct horse battery staple"})
+           (helper/rescue)
+           (first)
+           (freeze))
        {:email "email needs to be an email"}))
 
   (let [account-params (params
                           (validates :name :required true :message "can't be blank"))]
     (test "params handles custom error messages"
-      (= (try
-           (account-params {:name ""})
-           ([err]
-            (freeze err)))
+      (= (-> (account-params {:name ""})
+             (helper/rescue)
+             (first)
+             (freeze))
          {:name "name can't be blank"}))))
