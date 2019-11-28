@@ -36,7 +36,7 @@
 
 (defn last-inserted [db table-name rowid]
   (let [params {:rowid rowid}
-        sql (sql/from table-name params)]
+        sql (sql/from table-name {:where params :limit 1})]
     (first
       (query db sql params))))
 
