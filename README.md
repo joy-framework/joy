@@ -71,7 +71,7 @@ This has created two files in your db/migrations folder that are waiting to get 
 Run this from your terminal
 
 ```sh
-joy migrate db
+joy migrate
 ```
 
 This will output what just happened to your database and create a new file `db/schema.sql` which is really just sqlite3's `.schema` output ... for now.
@@ -89,4 +89,4 @@ Those commands have created two new files: `src/routes/account.janet` and `src/r
 
 ## Why?
 
-I wanted something that felt like coast on clojure but took so little resources I could run dozens (if not hundreds) of websites on a single cheap [VPS]().
+I wanted something that felt like coast on clojure but took so little resources (memory + cpu) I could run dozens (if not hundreds) of websites on a single cheap [VPS]().
