@@ -20,7 +20,20 @@
 (def render responder/respond)
 (def redirect responder/redirect)
 
-(def rescue helper/rescue)
+(def action-for router/action-for)
+(def redirect-to router/redirect-to)
+
+(defmacro rescue [f &opt id]
+  ~(try
+     [nil ,f]
+     ([err]
+      (if (and (dictionary? err)
+            (or (true? (get err :id))
+              (= ,id (get err :id))))
+        [(get err :error) nil]
+        (error err)))))
+(def raise helper/raise)
+
 (def select-keys helper/select-keys)
 
 (def html html/render)
