@@ -19,7 +19,7 @@
 (defn hello [request]
   [:h1 (string "hello " (get-in request [:params :name]))])
 
-(defn accounts [request]
+(defn index [request]
   (let [{:db db :session session} request
         rows (query db "select * from account")]
     [:table
@@ -48,18 +48,37 @@
 
 
 (defn new [request]
-  [:form {:action "/accounts" :method :post}
-   [:input {:type "text" :name "name"}]
-   [:input {:type "email" :name "email"}]
-   [:input {:type "password" :name "password"}]
-   [:input {:type "submit" :value "Create"}]])
+  [:form (action-for :create)
+   [:div
+    [:label {:for "name"} "Name"]
+    [:br]
+    [:input {:type "text" :name "name"}]]
+   [:div
+    [:label {:for "email"} "Email"]
+    [:br]
+    [:input {:type "email" :name "email"}]]
+   [:div
+    [:label {:for "password"} "Password"]
+    [:br]
+    [:input {:type "password" :name "password"}]]
+   [:div
+    [:input {:type "submit" :value "Create"}]]])
+
+
+(def account-params
+  (params
+    (validates [:name :email :password] :required true)))
 
 
 (defn create [request]
   (let [{:body body :db db} request
-        row (insert db :account body)]
-    (-> (redirect "/accounts")
-        (put :session {:id (get row :id)}))))
+        [errors account] (->> (account-params body)
+                              (insert db :account)
+                              (rescue))]
+    (if (nil? errors)
+      (-> (redirect-to :index)
+          (put :session account))
+      (new (put request :errors errors)))))
 
 
 (defn edit [request])
@@ -68,11 +87,11 @@
 (defn patch [request])
 
 
-(defn delete [request]
+(defn destroy [request]
   (let [{:db db :params params} request
         id (get params :id)
         row (delete db :account id)]
-    (redirect "/accounts")))
+    (redirect-to :index)))
 
 
 (defn error-test [request]
@@ -84,12 +103,12 @@
    [:get "/" home]
    [:get "/error-test" error-test]
    [:get "/hello/:name" hello]
-   [:get "/accounts" accounts]
+   [:get "/accounts" index]
    [:get "/accounts/new" new]
    [:post "/accounts" create]
    [:get "/accounts/:id/edit" edit]
    [:patch "/accounts/:id" patch]
-   [:delete "/accounts/:id" delete]))
+   [:delete "/accounts/:id" destroy]))
 
 
 (def app (-> (app routes)
@@ -104,7 +123,10 @@
              (body-parser)))
 
 
-#(serve app 8000)
+# (with-db-connection [conn "test.sqlite3"])
+#   (execute conn "create table if not exists account (id integer primary key, name text not null unique, email text not null unique, password text not null, created_at integer not null default(strftime('%s', 'now')))")
+#
+# (serve app 8000)
 
 
 (deftest
