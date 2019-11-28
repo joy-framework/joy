@@ -59,7 +59,7 @@
           request-log (log {:level "info"
                             :msg (string "Started " (string/ascii-upper method) " " uri)
                             :ts (timestamp)
-                            :attrs [:protocol proto :method (string/ascii-upper method) :url uri :params params]})
+                            :attrs [:method (string/ascii-upper method) :url uri :params params]})
           response (handler (apply table (kvs request)))
           end (os/clock)
           duration (string/format "%.0fms" (* 1000 (- end start)))
@@ -67,5 +67,5 @@
           response-log (log {:ts (timestamp)
                              :level "info"
                              :msg (string "Finished" " " (string/ascii-upper method) " " uri)
-                             :attrs [:protocol proto :method method :url uri :status status :duration duration]})]
+                             :attrs [:method method :url uri :status status :duration duration]})]
        response)))
