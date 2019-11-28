@@ -58,12 +58,18 @@
 (def delete db/delete)
 (def delete-all db/delete-all)
 
-(defmacro with-db-connection [binding & body]
-  (with-syms [$rows]
-   ~(let [,(first binding) (,sqlite3/open ,(get binding 1))
-          ,$rows ,(splice body)]
-      (,sqlite3/close ,(first binding))
-      ,$rows)))
+(defmacro with-db-connection
+  `A macro that takes a binding array, ex: [conn "x.sqlite3"] and expressions and executes them in the context of the connection.
+
+   Example:
+
+   (import sqlite3)
+
+   (with-db-connection [conn "dev.sqlite3"]
+     (sqlite3/eval conn "select 1;" {}))`
+  [binding & body]
+  ~(with [,(first binding) (,sqlite3/open ,(get binding 1)) ,sqlite3/close]
+    ,(splice body)))
 
 (def params validator/params)
 (def validates validator/validates)
