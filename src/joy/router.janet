@@ -156,4 +156,4 @@
 (defn redirect-to [route-keyword &opt params]
   @{:status 302
     :body ""
-    :headers {"Location" (url-for route-keyword (or params {}))}})
+    :headers @{"Location" (url-for route-keyword (or params {}))}})
