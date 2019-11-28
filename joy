@@ -1,6 +1,6 @@
 #!/usr/bin/env janet
 
-(import joy)
+(import joy) 
 
 (def args (dyn :args))
 
@@ -9,24 +9,30 @@
 ``` [action]
 
   Actions:
-    help               - Print this usage information
-    new <project-name> - Create a new folder with the name of your project
-    serve              - Serves current site
-     [port=8000]       -- optional port
-     [host=127.0.0.1]  -- optional host
-    watch              - Watch files and rebuild if on change
-    version            - Print the current version
+    help                                     - Print this usage information
+    new <project-name>                       - Create a new folder with the name of your project
+    create <db|route|table|migration> <name> - Create a
+    migrate                                  - Migrates the database
+    rollback                                 - Rolls back the most recent migration
+    serve                                    - Serves current site
+     [port=8000]                               -- optional port
+     [host=127.0.0.1]                          -- optional host
+    watch                                    - Watch files and restart server on file change
+    version                                  - Print the current version
 ```)
 
-(var action "new")
-(if (>= (length args) 2)
-  (set action (args 1)))
+(def action (get args 1))
+(def options (drop 2 args))
 
-(case action
-  "help" (print (args 0) usage)
-  "version" (print "0.2.0")
-  "serve" nil
-  "watch" nil
-  "new" nil
-  "db" nil
-  "gen" nil)
+(if (or (nil? action)
+      (empty? action))
+  (print "joy" usage)
+  (case action
+    "create" (apply joy/create options)
+    "help" (print "joy" usage)
+    "new" nil
+    "migrate" (joy/migrate (joy/env :db-name))
+    "rollback" (joy/rollback (joy/env :db-name))
+    "serve" nil
+    "watch" nil
+    "version" (print "0.2.0")))
