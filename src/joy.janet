@@ -7,6 +7,8 @@
 (import ./joy/middleware :as middleware)
 (import ./joy/db :as db)
 (import ./joy/validator :as validator)
+(import ./joy/migrator :as migrator)
+(import ./joy/creator :as creator)
 (import halo)
 (import json)
 (import sqlite3)
@@ -88,3 +90,8 @@
 (def validates validator/validates)
 
 (def pprint helper/pprint)
+
+(def migrate migrator/migrate)
+(def rollback migrator/rollback)
+
+(def create creator/create)
