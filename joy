@@ -1,6 +1,6 @@
 #!/usr/bin/env janet
 
-(import joy) 
+(import joy)
 
 (def args (dyn :args))
 
@@ -11,7 +11,7 @@
   Actions:
     help                                     - Print this usage information
     new <project-name>                       - Create a new folder with the name of your project
-    create <db|route|table|migration> <name> - Create a
+    create <db|route|table|migration> <name> - Create a new thing
     migrate                                  - Migrates the database
     rollback                                 - Rolls back the most recent migration
     serve                                    - Serves current site
