@@ -11,9 +11,11 @@
     (string/format "%d%.2d%.2d%.2d%.2d%.2d" Y M D HH MM SS)))
 
 
-(defn create [name]
+(defn create [name &opt content]
   (os/mkdir "db")
   (os/mkdir "db/migrations")
   (when (string? name)
-    (with [f (file/open (string "db/migrations/" (timestamp) "-" name ".sql") :w)]
-      (file/write f "-- up\n\n-- down"))))
+    (let [{:up up :down down} content]
+      (with [f (file/open (string "db/migrations/" (timestamp) "-" name ".sql") :w)]
+        (file/write f
+          (string "-- up\n" (or up "") "\n\n-- down\n" (or down "")))))))

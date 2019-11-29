@@ -1,4 +1,5 @@
 (import ./cli/migrations :as migrations)
+(import ./cli/tables :as tables)
 (import ./env :as env)
 (import ./helper :as helper)
 
@@ -20,7 +21,8 @@
       "database" (helper/create-file (env/get-var :db-name))
       "db" (helper/create-file (env/get-var :db-name))
       "route" nil
-      "table" nil)))
+      "table" (migrations/create (string "create-table-" name)
+                (tables/create (drop 1 args))))))
 
 
 (defn drop
