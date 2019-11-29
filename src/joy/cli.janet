@@ -18,6 +18,7 @@
     (case kind
       "migration" (migrations/create name)
       "database" (helper/create-file (env/get-var :db-name))
+      "db" (helper/create-file (env/get-var :db-name))
       "route" nil
       "table" nil)))
 
@@ -27,4 +28,5 @@
   [& args]
   (let [[kind name] args]
     (case kind
-      "database" (os/rm (env/get-var :db-name)))))
+      "database" (os/rm (env/get-var :db-name))
+      "db" (os/rm (env/get-var :db-name)))))
