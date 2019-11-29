@@ -78,3 +78,10 @@
   [binding & body]
   ~(with [,(first binding) (,file/open ,(get binding 1)) ,file/close]
      ,(splice body)))
+
+
+(defn create-file
+  "Creates a new file and calls file/close"
+  [filename]
+  (with [f (file/open filename :w) file/close]
+    (file/write f)))

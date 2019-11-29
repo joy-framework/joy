@@ -1,5 +1,6 @@
-# src/joy/creator.janet
-(import ./creator/migrations :as migrations)
+(import ./cli/migrations :as migrations)
+(import ./env :as env)
+(import ./helper :as helper)
 
 (defn create
   `Responsible for creating boilerplate route and migration files (and their combo: the "table" generator).
@@ -16,6 +17,14 @@
   (let [[kind name] args]
     (case kind
       "migration" (migrations/create name)
+      "database" (helper/create-file (env/get-var :db-name))
       "route" nil
       "table" nil)))
 
+
+(defn drop
+  `Drops the database`
+  [& args]
+  (let [[kind name] args]
+    (case kind
+      "database" (os/rm (env/get-var :db-name)))))

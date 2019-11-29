@@ -1,5 +1,3 @@
-# src/joy/creator/migrations.janet
-
 (defn timestamp
   "Get the current date nicely formatted"
   []

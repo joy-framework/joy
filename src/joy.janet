@@ -8,7 +8,7 @@
 (import ./joy/db :as db)
 (import ./joy/validator :as validator)
 (import ./joy/migrator :as migrator)
-(import ./joy/creator :as creator)
+(import ./joy/cli :as cli)
 (import halo)
 (import json)
 (import sqlite3)
@@ -94,4 +94,5 @@
 (def migrate migrator/migrate)
 (def rollback migrator/rollback)
 
-(def create creator/create)
+(def create cli/create)
+(def drop cli/drop)
