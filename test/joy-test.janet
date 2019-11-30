@@ -65,14 +65,14 @@
     [:input {:type "submit" :value "Create"}]]])
 
 
-(def account-params
+(def insert-params
   (params
     (validates [:name :email :password] :required true)))
 
 
 (defn create [request]
   (let [{:body body :db db} request
-        [errors account] (->> (account-params body)
+        [errors account] (->> (insert-params body)
                               (insert db :account)
                               (rescue))]
     (if (nil? errors)
