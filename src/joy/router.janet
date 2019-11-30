@@ -3,9 +3,6 @@
 (import ./helper :prefix "")
 
 
-(var route-table @{})
-
-
 (defn route-param [val]
   (if (and (string? val)
         (string/has-prefix? ":" val))
@@ -56,6 +53,25 @@
         [])))
 
 
+(defn handler-name [func]
+  (->> (string func)
+       (string/replace "<function " "")
+       (string/replace ">" "")))
+
+
+(defn route-name [route]
+  (or (get route 3)
+   (-> (get route 2)
+       (handler-name)
+       (keyword))))
+
+
+(defn route-table [routes]
+  (->> routes
+       (mapcat |(tuple (route-name $) $))
+       (apply table)))
+
+
 (defn handler
   "Creates a handler from routes"
   [routes]
@@ -64,7 +80,8 @@
           route (find-route routes request)
           [route-method route-uri route-fn] route
           route-params (route-params route-uri uri)
-          request (merge request {:params (map-keys (fn [val] (-> (string/replace ":" "" val) (keyword))) route-params)})]
+          request (merge request {:params (map-keys (fn [val] (-> (string/replace ":" "" val) (keyword))) route-params)})
+          request (merge request {:routes (route-table routes)})]
       (if (function? route-fn)
         (route-fn request)
         @{:status 404}))))
@@ -91,26 +108,8 @@
       routes)))
 
 
-(defn handler-name [func]
-  (->> (string func)
-       (string/replace "<function " "")
-       (string/replace ">" "")))
-
-
-(defn route-name [route]
-  (or (get route 3)
-   (-> (get route 2)
-       (handler-name)
-       (keyword))))
-
-
 (defn routes [& args]
-  (let [flat-routes (flatten-wrapped-routes args)
-        route-map (->> flat-routes
-                       (mapcat |(tuple (route-name $) $))
-                       (apply table))]
-    (set route-table (merge route-table route-map))
-    flat-routes))
+  (flatten-wrapped-routes args))
 
 
 (def url-encode identity)
@@ -125,7 +124,7 @@
         (string "?" s)))))
 
 
-(defn url-for [route-keyword &opt params]
+(defn url-for [{:routes route-table} route-keyword &opt params]
   (default params {})
   (let [route (get route-table route-keyword)
         _ (when (nil? route) (error (string "Route " route-keyword " does not exist")))
@@ -142,7 +141,7 @@
     (string url qs anchor)))
 
 
-(defn action-for [route-keyword &opt params]
+(defn action-for [{:routes route-table} route-keyword &opt params]
   (default params {})
   (let [[method url] (get route-table route-keyword)
         action (route-url url params)
@@ -153,7 +152,7 @@
      :action action}))
 
 
-(defn redirect-to [route-keyword &opt params]
+(defn redirect-to [request route-keyword &opt params]
   @{:status 302
     :body ""
-    :headers @{"Location" (url-for route-keyword (or params {}))}})
+    :headers @{"Location" (url-for request route-keyword (or params {}))}})

@@ -48,7 +48,7 @@
 
 
 (defn new [request]
-  [:form (action-for :create)
+  [:form (action-for request :create)
    [:div
     [:label {:for "name"} "Name"]
     [:br]
@@ -76,7 +76,7 @@
                               (insert db :account)
                               (rescue))]
     (if (nil? errors)
-      (-> (redirect-to :index)
+      (-> (redirect-to request :index)
           (put :session account))
       (new (put request :errors errors)))))
 
@@ -91,7 +91,7 @@
   (let [{:db db :params params} request
         id (get params :id)
         row (delete db :account id)]
-    (redirect-to :index)))
+    (redirect-to request :index)))
 
 
 (defn error-test [request]

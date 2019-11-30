@@ -72,39 +72,39 @@
         ((router/handler routes) {:method :get :uri "/"}))))
 
   (test "url-for with a function"
-    (let [routes (router/routes [:get "/" home])]
-      (= (router/url-for :home) "/")))
+    (let [routes (router/route-table [[:get "/" home]])]
+      (= (router/url-for {:routes routes} :home) "/")))
 
   (test "url-for with a route name"
-    (let [routes (router/routes [:get "/" home :home2])]
-      (= (router/url-for :home2) "/")))
+    (let [routes (router/route-table [[:get "/" home :home2]])]
+      (= (router/url-for {:routes routes} :home2) "/")))
 
   (test "url-for with a query string"
-    (let [routes (router/routes [:get "/test" home :qs])]
-      (= (router/url-for :qs {:? {"a" "1"}}) "/test?a=1")))
+    (let [routes (router/route-table [[:get "/test" home :qs]])]
+      (= (router/url-for {:routes routes} :qs {:? {"a" "1"}}) "/test?a=1")))
 
   (test "url-for with an anchor string and a query string"
-    (let [routes (router/routes [:get "/anchor" home :anchor])]
-      (= (router/url-for :anchor {:? {"a" "1"} "#" "anchor"}) "/anchor?a=1#anchor")))
+    (let [routes (router/route-table [[:get "/anchor" home :anchor]])]
+      (= (router/url-for {:routes routes} :anchor {:? {"a" "1"} "#" "anchor"}) "/anchor?a=1#anchor")))
 
   (test "url-for with url params an anchor string and a query string"
-    (let [routes (router/routes [:get "/anchor/:id" home :anchor-id])]
-      (= (router/url-for :anchor-id {:id 1 :? {"a" "1"} "#" "anchor"}) "/anchor/1?a=1#anchor")))
+    (let [routes (router/route-table [[:get "/anchor/:id" home :anchor-id]])]
+      (= (router/url-for {:routes routes} :anchor-id {:id 1 :? {"a" "1"} "#" "anchor"}) "/anchor/1?a=1#anchor")))
 
   (test "redirect-to with a function"
-    (let [routes (router/routes [:get "/" home])]
+    (let [routes (router/route-table [[:get "/" home]])]
       (= (freeze
-          (router/redirect-to :home))
+          (router/redirect-to {:routes routes} :home))
          {:status 302 :body "" :headers {"Location" "/"}})))
 
   (test "redirect-to with a name and params"
-    (let [routes (router/routes [:get "/accounts/:id/edit" identity :with-params])]
+    (let [routes (router/route-table [[:get "/accounts/:id/edit" identity :with-params]])]
       (= (freeze
-          (router/redirect-to :with-params {:id 100}))
+          (router/redirect-to {:routes routes} :with-params {:id 100}))
          {:status 302 :body "" :headers {"Location" "/accounts/100/edit"}})))
 
   (test "action-for with a name and params"
-    (let [routes (router/routes [:patch "/accounts/:id" identity :accounts/patch])]
+    (let [routes (router/route-table [[:patch "/accounts/:id" identity :accounts/patch]])]
       (= (freeze
-          (router/action-for :accounts/patch {:id 100}))
+          (router/action-for {:routes routes} :accounts/patch {:id 100}))
          {:_method :patch :method :post :action "/accounts/100"}))))
