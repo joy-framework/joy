@@ -4,16 +4,16 @@
 (import ./helper :as helper)
 
 (defn create
-  `Responsible for creating boilerplate route and migration files (and their combo: the "table" generator).
+  `Responsible for creating boilerplate route and migration files
   Ex.
 
   joy create migration create-table-accounts
   joy create route accounts
 
-  Or the previous two commands can be combined into one along with
+  Or you can create a create table migration with
   some args for column names and types:
 
-  joy create table accounts name:text email:text password:text`
+  joy create table accounts 'name text not null unique' 'email text not null unique' 'password text not null'`
   [& args]
   (let [[kind name] args]
     (case kind
