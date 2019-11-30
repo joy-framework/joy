@@ -43,8 +43,8 @@
   (let [args (apply table args)
         sql (sql/fetch path (merge args {:limit 1}))
         params (sql/fetch-params path)]
-    (->> (query db sql params)
-         (first))))
+    (-> (query db sql params)
+        (get 0))))
 
 
 (defn fetch-all [db path & args]
