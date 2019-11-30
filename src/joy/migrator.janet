@@ -44,6 +44,7 @@
 
 (defn migrate [db-name]
   (db/with-connection [conn db-name]
+    (db/execute conn "create table if not exists schema_migrations (version text primary key)")
     (let [migrations (pending-migrations (db-versions conn) (file-migration-map))]
       (loop [migration :in migrations]
         (helper/with-file [f (string migrations-dir "/" migration)]
@@ -55,13 +56,13 @@
             (print "Migrating [" migration "]...")
             (print up)
             (db/execute conn up)
-            (db/execute conn "create table if not exists schema_migrations (version text primary key)")
             (db/execute conn "insert into schema_migrations (version) values (:version)" {:version version})
             (print "Successfully migrated [" migration "]")))))))
 
 
 (defn rollback [db-name]
   (db/with-connection [conn db-name]
+    (db/execute conn "create table if not exists schema_migrations (version text primary key)")
     (let [version (last (db-versions conn))
           migration (get (file-migration-map) version)]
       (helper/with-file [f (string migrations-dir "/" migration)]
