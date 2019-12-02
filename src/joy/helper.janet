@@ -22,16 +22,19 @@
     (table/to-struct acc)))
 
 
-(defn select-keys [struct-map tuple-keys]
-  (if (and (dictionary? struct-map)
-        (indexed? tuple-keys))
+(defn select-keys [dict ks]
+  (if (and (dictionary? dict)
+        (indexed? ks))
     (do
-      (var table-t @{})
-      (loop [[k v] :pairs struct-map]
-        (when (not (empty? (filter (fn [k1] (= k1 k)) tuple-keys)))
-          (put table-t k v)))
-      (table/to-struct table-t))
-    {}))
+      (var new-table @{})
+      (loop [k :in ks]
+        (put new-table k (get dict k)))
+      (if (struct? dict)
+        (table/to-struct new-table)
+        new-table))
+    (if (struct? dict)
+      {}
+      @{})))
 
 
 (defmacro rescue [f &opt id]
