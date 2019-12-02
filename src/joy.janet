@@ -85,6 +85,7 @@
 
 (def params validator/params)
 (def validates validator/validates)
+(def permit validator/permit)
 
 (def pprint helper/pprint)
 
