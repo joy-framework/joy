@@ -68,7 +68,7 @@
 
 (defn session [handler]
   (let [encryption-key (codec/decode
-                        (env/get-env :encryption-key))]
+                        (env/env :encryption-key))]
     (fn [request]
       (let [decoded-session (try
                               (-> (get-in request [:headers "Cookie"])
@@ -136,7 +136,7 @@
        (let [{:body body :params params} request
              body (apply helper/dissoc body (get options :ignore-keys))]
          (logger/log {:msg err :attrs [:body body :params params] :level "error"}))
-       (if (= "development" (env/get-env :joy-env))
+       (if (= "development" (env/env :joy-env))
          (responder/respond :html
            (dev-error-page request err)
            :status 500)

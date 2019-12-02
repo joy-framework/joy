@@ -1,7 +1,7 @@
 (import ./helper :as helper)
 
 
-(defn get-dotenv [key]
+(defn- dotenv [key]
   (let [f (file/open ".env" :r)]
     (when (not (nil? f))
       (let [dot-env-table (->> (file/read f :all)
@@ -16,11 +16,8 @@
         value))))
 
 
-(defn get-env [key]
+(defn env [key]
   (when (keyword? key)
     (let [env-key (-> key string helper/snake-case string/ascii-upper)]
       (or (os/getenv env-key)
-          (get-dotenv env-key)))))
-
-
-(def get-var get-env)
+          (dotenv env-key)))))

@@ -5,4 +5,4 @@
   (test "get env variable with a single keyword"
     (do
       (os/setenv "PORT" "1234")
-      (= "1234" (env/get-env :port)))))
+      (= "1234" (env/env :port)))))
