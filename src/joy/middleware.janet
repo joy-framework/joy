@@ -151,9 +151,9 @@
     (let [{:method method :body body} request
           body (if (dictionary? body) body @{})
           extra-method (get body :_method method)]
-      (-> (put request :method extra-method)
-          (put :original-method method)
-          (handler)))))
+      (handler
+       (merge request {:method extra-method
+                       :original-method method})))))
 
 
 (defn query-string [handler]
