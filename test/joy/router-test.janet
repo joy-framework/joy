@@ -69,7 +69,7 @@
                    (router/middleware mw mw2
                      [:get "/" (fn [request] {:status 200 :body (+ (get request :b) (get request :a))})]))]
       (= {:status 200 :body 3}
-        ((router/handler routes) {:method :get :uri "/"}))))
+         ((router/handler routes) {:method :get :uri "/"}))))
 
   (test "url-for with a function"
     (let [routes (router/route-table [[:get "/" home]])]
