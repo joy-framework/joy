@@ -147,7 +147,7 @@
   (let [columns (->> (pairs params)
                      (map |(string (first $) " = " (if (= 'null (last $))
                                                      "null"
-                                                     (string ":" (last $)))))
+                                                     (string ":" (first $)))))
                      (helper/join-string ", "))]
     (string "update " (helper/snake-case table-name) " set " columns " where id = :id")))
 
