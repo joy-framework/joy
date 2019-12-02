@@ -1,5 +1,3 @@
-# router.janet
-
 (import ./helper :prefix "")
 
 
@@ -53,17 +51,17 @@
         [])))
 
 
-(defn handler-name [func]
-  (->> (string func)
-       (string/replace "<function " "")
-       (string/replace ">" "")))
+(defn handler-name [val]
+  (if (function? val)
+    (-> (disasm val)
+        (get 'name))
+    val))
 
 
 (defn route-name [route]
-  (or (get route 3)
-   (-> (get route 2)
-       (handler-name)
-       (keyword))))
+  (-> (last route)
+      (handler-name)
+      (keyword)))
 
 
 (defn route-table [routes]
@@ -78,10 +76,18 @@
   (fn [request]
     (let [{:uri uri} request
           route (find-route routes request)
-          [route-method route-uri route-fn] route
+          [route-method route-uri] route
+          functions (filter function? route)
+          middleware-fn (when (> (length functions) 1)
+                          (->> (array/slice functions 0 -2)
+                               (apply comp)))
+          route-fn (last functions)
+          route-fn (if (function? middleware-fn)
+                     (middleware-fn route-fn)
+                     route-fn)
           route-params (route-params route-uri uri)
-          request (merge request {:params (map-keys (fn [val] (-> (string/replace ":" "" val) (keyword))) route-params)})
-          request (merge request {:routes (route-table routes)})]
+          request (merge request {:params (map-keys (fn [val] (-> (string/replace ":" "" val) (keyword))) route-params)
+                                  :routes (route-table routes)})]
       (if (function? route-fn)
         (route-fn request)
         @{:status 404}))))
@@ -99,13 +105,16 @@
     [x]))
 
 
+(defn apply-middleware [route middleware-fns]
+  (let [route-array (-> (apply array route)
+                        (array/insert 2 middleware-fns))]
+    (mapcat identity route-array)))
+
+
 (defn middleware [& args]
   (let [middleware-fns (filter function? args)
-        routes (filter indexed? args)
-        middleware-fn (apply comp middleware-fns)]
-    (map (fn [[method url handler]]
-           [method url (middleware-fn handler)])
-      routes)))
+        routes (filter indexed? args)]
+    (map |(apply-middleware $ middleware-fns) routes)))
 
 
 (defn routes [& args]
