@@ -20,6 +20,7 @@
 
 (def action-for router/action-for)
 (def redirect-to router/redirect-to)
+(def url-for router/url-for)
 
 (defmacro rescue [f &opt id]
   ~(try
