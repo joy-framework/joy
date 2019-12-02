@@ -14,15 +14,35 @@
          [:title "joy test 1"]]
         [:body body]]))))
 
+
+(defn set-account [handler]
+  (fn [request]
+    (let [{:db db :params params} request
+          id (get params :id)
+          account (fetch db [:account id])]
+      (handler
+       (merge request {:account account :id id})))))
+
+
+(def insert-params
+  (params
+    (validates [:name :email :password] :required true)
+    (permit [:name :email :password])))
+
+
+(def update-params
+  (params
+    (validates [:name :email] :required true)
+    (permit [:name :email])))
+
+
 (defn home [request]
   [:h1 {:style "text-align: center"} "You've found joy!"])
 
-(defn hello [request]
-  [:h1 (string "hello " (get-in request [:params :name]))])
 
 (defn index [request]
   (let [{:db db :session session} request
-        rows (query db "select * from account")]
+        accounts (fetch-all db [:account])]
     [:table
      [:thead
       [:tr
@@ -30,8 +50,9 @@
        [:th "name"]
        [:th "email"]
        [:th "password"]
+       [:th]
        (when (not (nil? session))
-        [:th ""])]]
+         [:th])]]
      [:tbody
       (map
        (fn [{:id id :name name :email email :password password}]
@@ -40,40 +61,63 @@
           [:td name]
           [:td email]
           [:td password]
+          [:td
+           [:a {:href (url-for request :edit {:id id})}
+            "Edit"]]
           (when (not (nil? session))
             [:td
-             [:form {:action (string "/accounts/" id) :method :post}
+             [:form (action-for request :destroy {:id id})
               [:input {:type "hidden" :name "_method" :value "delete"}]
               [:input {:type "submit" :value "Delete"}]]])])
-       rows)]]))
+       accounts)]]))
+
+
+(defn show [request]
+  (let [{:account account} request
+        {:id id :name name :email email :password password :created_at created-at} account]
+    [:table
+     [:tr
+      [:th "id"]
+      [:th "name"]
+      [:th "email"]
+      [:th "password"]
+      [:th "created_at"]]
+     [:tr
+      [:td id]
+      [:td name]
+      [:td email]
+      [:td password]
+      [:td created-at]]]))
+
+
+(defn form [action &opt account]
+  (let [{:name name :email email :password password} account]
+    [:form action
+     [:input {:type "hidden" :name "_method" :value (or (get action :_method)
+                                                      (get action :method))}]
+     [:div
+      [:label {:for "name"} "Name"]
+      [:br]
+      [:input {:type "text" :name "name" :value name}]]
+     [:div
+      [:label {:for "email"} "Email"]
+      [:br]
+      [:input {:type "email" :name "email" :value email}]]
+     [:div
+      [:label {:for "password"} "Password"]
+      [:br]
+      [:input {:type "password" :name "password" :value password}]]
+     [:div
+      [:input {:type "submit" :value "Create"}]]]))
 
 
 (defn new [request]
-  [:form (action-for request :create)
-   [:div
-    [:label {:for "name"} "Name"]
-    [:br]
-    [:input {:type "text" :name "name"}]]
-   [:div
-    [:label {:for "email"} "Email"]
-    [:br]
-    [:input {:type "email" :name "email"}]]
-   [:div
-    [:label {:for "password"} "Password"]
-    [:br]
-    [:input {:type "password" :name "password"}]]
-   [:div
-    [:input {:type "submit" :value "Create"}]]])
-
-
-(def insert-params
-  (params
-    (validates [:name :email :password] :required true)))
+  (form (action-for request :create)))
 
 
 (defn create [request]
-  (let [{:body body :db db} request
-        [errors account] (->> (insert-params body)
+  (let [{:db db} request
+        [errors account] (->> (insert-params request)
                               (insert db :account)
                               (rescue))]
     (if (nil? errors)
@@ -82,16 +126,25 @@
       (new (put request :errors errors)))))
 
 
-(defn edit [request])
+(defn edit [request]
+  (let [{:account account} request
+        action (action-for request :patch account)]
+    (form action account)))
 
 
-(defn patch [request])
+(defn patch [request]
+  (let [{:db db :id id} request
+        [errors account] (->> (update-params request)
+                              (update db :account id)
+                              (rescue))]
+    (if (nil? errors)
+      (redirect-to request :index)
+      (edit (put request :errors errors)))))
 
 
 (defn destroy [request]
-  (let [{:db db :params params} request
-        id (get params :id)
-        row (delete db :account id)]
+  (let [{:db db :id id} request]
+    (delete db :account id)
     (redirect-to request :index)))
 
 
@@ -99,22 +152,32 @@
   (error "test error"))
 
 
-(def routes
+(def account-routes
+  (routes
+    [:get "/accounts" index]
+    [:get "/accounts/new" new]
+    [:post "/accounts" create]
+    (middleware set-account
+      [:get "/accounts/:id" show]
+      [:get "/accounts/:id/edit" edit]
+      [:patch "/accounts/:id" patch]
+      [:delete "/accounts/:id" destroy])))
+
+
+(def home-routes
   (routes
    [:get "/" home]
-   [:get "/error-test" error-test]
-   [:get "/hello/:name" hello]
-   [:get "/accounts" index]
-   [:get "/accounts/new" new]
-   [:post "/accounts" create]
-   [:get "/accounts/:id/edit" edit]
-   [:patch "/accounts/:id" patch]
-   [:delete "/accounts/:id" destroy]))
+   [:get "/error-test" error-test]))
+
+
+(def routes
+  (routes
+    home-routes
+    account-routes))
 
 
 (def app (-> (app routes)
              (set-db "test.sqlite3")
-             (server-error)
              (set-layout layout)
              (session)
              (static-files)
