@@ -127,23 +127,23 @@
          (string/format "%p" request)]]]]]))
 
 
-(defn server-error [handler &opt options]
-  (default options {:ignore-keys [:password :confirm-password]})
+(defn server-error [handler]
   (fn [request]
-    (try
-      (handler request)
-      ([err]
-       (let [{:body body :params params} request
-             body (apply helper/dissoc body (get options :ignore-keys))]
-         (logger/log {:msg err :attrs [:body body :params params] :level "error"}))
-       (if (= "development" (env/env :joy-env))
-         (responder/respond :html
-           (dev-error-page request err)
-           :status 500)
-
-         @{:status 500
-           :body "Internal Server Error"
-           :headers @{"Content-Type" "text/plain"}})))))
+    (let [f (fiber/new (partial handler request) :e)
+          res (resume f)]
+      (if (not= (fiber/status f) :error)
+        res
+        (do
+          (let [attrs (kvs (helper/select-keys request [:body :params]))]
+            (logger/log {:msg res :attrs attrs :level "error"}))
+          (debug/stacktrace f res)
+          (if (= "development" (env/env :joy-env))
+            (responder/respond :html
+              (dev-error-page request res)
+              :status 500)
+            @{:status 500
+              :body "Internal Server Error"
+              :headers @{"Content-Type" "text/plain"}}))))))
 
 
 (defn extra-methods [handler]

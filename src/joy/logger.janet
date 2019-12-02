@@ -1,4 +1,4 @@
-# src/joy/logger.janet
+(import ./helper :as helper)
 
 (defn- timestamp
   "Get the current date nicely formatted"
@@ -51,16 +51,20 @@
     log-line))
 
 
-(defn logger [handler]
+(defn logger [handler &opt options]
+  (default options {:ignore-keys [:password :confirm-password]})
   (fn [request]
     (let [start (os/clock)
           {:uri uri :protocol proto
-           :method method :params params} request
+           :method method :params params
+           :body body} request
+          params (helper/select-keys params (get options :ignore-keys))
+          body (helper/select-keys body (get options :ignore-keys))
           method (string/ascii-upper method)
           request-log (log {:level "info"
                             :msg (string/format "Started %s %s" method uri)
                             :ts (timestamp)
-                            :attrs [:method method :url uri :params params]})
+                            :attrs [:method method :url uri :params params :body body]})
           response (handler (apply table (kvs request)))
           end (os/clock)
           duration (string/format "%.0fms" (* 1000 (- end start)))
