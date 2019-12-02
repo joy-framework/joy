@@ -91,6 +91,7 @@
 
 
 (defn form [action &opt account]
+  (default account {})
   (let [{:name name :email email :password password} account]
     [:form action
      [:input {:type "hidden" :name "_method" :value (or (get action :_method)
@@ -184,7 +185,8 @@
              (logger)
              (extra-methods)
              (query-string)
-             (body-parser)))
+             (body-parser)
+             (server-error)))
 
 
 # (with-db-connection [conn "test.sqlite3"])
