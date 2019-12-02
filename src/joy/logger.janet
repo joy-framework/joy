@@ -1,6 +1,6 @@
 # src/joy/logger.janet
 
-(defn timestamp
+(defn- timestamp
   "Get the current date nicely formatted"
   []
   (let [date (os/date)
@@ -14,13 +14,13 @@
                    Y M D HH MM SS)))
 
 
-(defn surround [s]
+(defn- surround [s]
   (if (string/find " " s)
     (string `"` s `"`)
     s))
 
 
-(defn format-key-value-pairs [[k v]]
+(defn- format-key-value-pairs [[k v]]
   (when (not (nil? v))
     (let [val (if (string? v)
                 v
@@ -28,7 +28,7 @@
       (string k "=" (surround val)))))
 
 
-(defn message [level msg &opt kv-pairs]
+(defn- message [level msg &opt kv-pairs]
   (string "at=" (surround level) " msg=" (surround msg)
     (if (tuple? kv-pairs)
       (string " "
@@ -51,21 +51,22 @@
     log-line))
 
 
-(defn middleware [handler]
+(defn logger [handler]
   (fn [request]
     (let [start (os/clock)
           {:uri uri :protocol proto
            :method method :params params} request
+          method (string/ascii-upper method)
           request-log (log {:level "info"
-                            :msg (string "Started " (string/ascii-upper method) " " uri)
+                            :msg (string/format "Started %s %s" method uri)
                             :ts (timestamp)
-                            :attrs [:method (string/ascii-upper method) :url uri :params params]})
+                            :attrs [:method method :url uri :params params]})
           response (handler (apply table (kvs request)))
           end (os/clock)
           duration (string/format "%.0fms" (* 1000 (- end start)))
           {:status status} response
           response-log (log {:ts (timestamp)
                              :level "info"
-                             :msg (string "Finished" " " (string/ascii-upper method) " " uri)
+                             :msg (string/format "Finished %s %s" method uri)
                              :attrs [:method method :url uri :status status :duration duration]})]
        response)))

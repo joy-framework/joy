@@ -1,5 +1,5 @@
-(import ./joy/logger :as logger)
 (import ./joy/env :prefix "" :export true)
+(import ./joy/logger :prefix "" :export true)
 (import ./joy/responder :as responder)
 (import ./joy/helper :as helper)
 (import ./joy/html :as html)
@@ -13,9 +13,6 @@
 (import json)
 (import sqlite3)
 
-
-(def logger logger/middleware)
-(def log logger/log)
 
 (def respond responder/respond)
 (def render responder/respond)
