@@ -74,6 +74,6 @@
   `Takes a list of validator dictionaries
    and returns a function that either raises an error or returns the body`
   [& args]
-  (fn [body]
+  (fn [{:body body}]
     (map |(validate $ body) args) # this raises if the validator isn't met
     body))
