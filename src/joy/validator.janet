@@ -70,10 +70,23 @@
         (helper/raise (error-map invalid-ks (or message msg)))))))
 
 
+(defn permit
+  `Takes a list of keywords and returns a dictionary: {:keys [:a :b :c] :permits true}`
+  [key-or-keys]
+  (let [ks (if (indexed? key-or-keys) key-or-keys [key-or-keys])]
+    {:keys ks :permit true}))
+
+
 (defn params
   `Takes a list of validator dictionaries
    and returns a function that either raises an error or returns the body`
   [& args]
   (fn [{:body body}]
-    (map |(validate $ body) args) # this raises if the validator isn't met
-    body))
+    (->> (filter |(nil? (get $ :permit)) args)
+         (map |(validate $ body))) # this raises if the validator isn't met
+    (let [allowed-keys (-> (filter |(true? (get $ :permit)) args)
+                           (get-in [0 :keys]))]
+      (if (or (nil? allowed-keys)
+            (empty? allowed-keys))
+        body
+        (helper/select-keys body allowed-keys)))))
