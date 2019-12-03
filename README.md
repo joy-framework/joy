@@ -55,13 +55,13 @@ This creates a new empty database named `my-joy-project.sqlite3`. Let's fill it 
 Run this to create a new migration with a table with a few columns:
 
 ```sh
-joy create table account name:text email:text password:text
+joy create table account 'name text' 'email text' 'password text'
 ```
 
 Let's go ahead and create another table that will store some data for those accounts
 
 ```sh
-joy create table post title:text body:text account_id:integer
+joy create table post 'title text' 'body text' 'account_id integer'
 ```
 
 This has created two files in your db/migrations folder that are waiting to get applied to the database.
