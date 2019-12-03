@@ -50,7 +50,7 @@
         (http/cookie-string cookie-name cookie-value options)))))
 
 
-(defn decode-session [str encryption-key]
+(defn- decode-session [str encryption-key]
   (when (not (nil? str))
     (let [decrypted (->> (codec/decode str)
                          (cipher/decrypt encryption-key))]
@@ -58,7 +58,7 @@
         (json/decode decrypted)))))
 
 
-(defn encode-session [val encryption-key]
+(defn- encode-session [val encryption-key]
   (when (not (nil? val))
     (->> (json/encode val)
          (string)
@@ -108,7 +108,7 @@
         (handler request)))))
 
 
-(defn dev-error-page [request err]
+(defn- dev-error-page [request err]
   (html/render
     (html/doctype :html5)
     [:html {:lang "en"}
