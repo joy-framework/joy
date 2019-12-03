@@ -61,10 +61,11 @@
           params (helper/select-keys params (get options :ignore-keys))
           body (helper/select-keys body (get options :ignore-keys))
           method (string/ascii-upper method)
+          attrs (filter |(not (empty? $)) [:method method :url uri :params params :body body])
           request-log (log {:level "info"
                             :msg (string/format "Started %s %s" method uri)
                             :ts (timestamp)
-                            :attrs [:method method :url uri :params params :body body]})
+                            :attrs attrs})
           response (handler (apply table (kvs request)))
           end (os/clock)
           duration (string/format "%.0fms" (* 1000 (- end start)))
