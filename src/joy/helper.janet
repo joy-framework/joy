@@ -79,7 +79,7 @@
    (with-file [f "test.txt"]
      (file/read f))`
   [binding & body]
-  ~(with [,(first binding) (,file/open ,(get binding 1)) ,file/close]
+  ~(with [,(first binding) (,file/open ,(get binding 1) ,(get binding 2 :r)) ,file/close]
      ,(splice body)))
 
 
