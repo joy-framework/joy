@@ -57,6 +57,12 @@
             (print up)
             (db/execute conn up)
             (db/execute conn "insert into schema_migrations (version) values (:version)" {:version version})
+            (let [rows (db/query conn "select sql from sqlite_master where sql is not null order by rootpage")]
+              (helper/with-file [f "db/schema.sql" :w]
+                (file/write f
+                   (string/join
+                     (map |(get $ :sql) rows)
+                     "\n"))))
             (print "Successfully migrated [" migration "]")))))))
 
 
@@ -73,6 +79,12 @@
           (print down)
           (db/execute conn down)
           (db/execute conn "delete from schema_migrations where version = :version" {:version version})
+          (let [rows (db/query conn "select sql from sqlite_master where sql is not null order by rootpage")]
+            (helper/with-file [f "db/schema.sql" :w]
+              (file/write f
+                 (string/join
+                   (map |(get $ :sql) rows)
+                   "\n"))))
           (print "Successfully rolled back [" migration "]"))))))
 
 
