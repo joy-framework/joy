@@ -8,7 +8,7 @@ Joy is a full stack web framework written in [janet](https://github.com/janet-la
 (import joy)
 
 (defn home [request]
-  (joy/respond :text
+  (joy/render :text
     "Have some joy with janet 😇"))
 
 (def routes
@@ -16,7 +16,7 @@ Joy is a full stack web framework written in [janet](https://github.com/janet-la
 
 (def app (joy/app routes))
 
-(joy/serve app 8000)
+(joy/server app 8000)
 ```
 
 **The below is README driven development, this doesn't work yet**
@@ -50,12 +50,22 @@ joy create db
 
 This creates a new empty database named `my-joy-project.sqlite3`. Let's fill it up.
 
+### Taking it for a spin
+
+Alright now that we have a project and a sqlite database set up, it's time to test it out in the browser:
+
+```sh
+joy server
+```
+
+This should start an http server that's listening at http://localhost:8000.
+
 ### Create database tables
 
 Run this to create a new migration with a table with a few columns:
 
 ```sh
-joy create table account 'name text' 'email text' 'password text'
+joy create table account 'email text not null unique' 'password text not null'
 ```
 
 Let's go ahead and create another table that will store some data for those accounts
@@ -78,7 +88,7 @@ This will output what just happened to your database and create a new file `db/s
 
 ### Create route files
 
-In joy there is no MVC, no ORMs, no classes, no objects. just functions that take in requests and return responses. Let's make two route files that correspond to the two tables from earlier
+In joy there is no MVC, no ORMs, no classes, and no objects. Just functions that take in requests and return responses. Let's make two route files that correspond to the two tables from earlier
 
 ```sh
 joy create route account
@@ -87,6 +97,11 @@ joy create route post
 
 Those commands have created two new files: `src/routes/account.janet` and `src/routes/post.janet`
 
+You can look at them if you want but it's better to try them out. Head back over to http://localhost:8000/accounts
+or http://localhost:8000/posts and be amazed that you can CRUD stuff to your sqlite database!
+
+Joy can do a lot more than that, head over to the [rest of the tutorial]() to see how to handle auth, and how to relate posts and accounts!
+
 ## Why?
 
-I wanted something that felt like coast on clojure but took so little resources (memory + cpu) I could run dozens (if not hundreds) of websites on a single cheap [VPS]().
+I wanted something that felt like [coast](https://coastonclojure.com) but took so little resources (memory + cpu) I could run dozens (if not hundreds) of websites on a single cheap [VPS](https://www.vultr.com/?ref=7614094).
