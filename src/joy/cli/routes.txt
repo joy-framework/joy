@@ -1,0 +1,98 @@
+(import joy :prefix "")
+
+(defn set-%table-name% [handler]
+  (fn [request]
+    (let [{:db db :params params} request
+          id (get params :id)
+          %table-name% (fetch db [:%table-name% id])]
+      (handler
+       (merge request {:%table-name% %table-name% :id id})))))
+
+
+(def params
+  (params
+    (validates [%keys%] :required true)
+    (permit [%keys%])))
+
+
+(defn index [request]
+  (let [{:db db :session session} request
+        %table-name%s (fetch-all db [:%table-name%])]
+    [:table
+     [:thead
+      [:tr
+       %th-elements%
+       [:th]
+       [:th]
+       [:th]]]
+     [:tbody
+      (map
+       (fn [{%destructured-keys%}]
+         [:tr
+          %td-elements%
+          [:td
+           [:a {:href (url-for request :show {:id id})} "Show"]]
+          [:td
+           [:a {:href (url-for request :edit {:id id})} "Edit"]]
+          [:td
+           [:form (action-for request :destroy {:id id})
+            [:input {:type "hidden" :name "_method" :value "delete"}]
+            [:input {:type "submit" :value "Delete"}]]]])
+       %table-name%s)]]))
+
+
+(defn show [request]
+  (let [{:%table-name% %table-name%} request
+        {%destructured-keys%} %table-name%]
+    [:table
+     [:tr
+      %show-th-elements%]
+     [:tr
+      %show-td-elements%]]))
+
+
+(defn form [action &opt %table-name%]
+  (default %table-name% {})
+  (let [{:name name :email email :password password} %table-name%]
+    (form-with action
+     [:input {:type "hidden" :name "_method" :value (or (get action :_method)
+                                                      (get action :method))}]
+     %form-elements%]])))
+
+
+(defn new [request]
+  (form (action-for request :create)))
+
+
+(defn create [request]
+  (let [{:db db} request
+        result (->> (params request)
+                    (insert db :%table-name%)
+                    (rescue))
+        [errors %table-name%] result]
+    (if (nil? errors)
+      (redirect-to request :index)
+      (new (put request :errors errors)))))
+
+
+(defn edit [request]
+  (let [{:%table-name% %table-name%} request
+        action (action-for request :patch %table-name%)]
+    (form action %table-name%)))
+
+
+(defn patch [request]
+  (let [{:db db :id id} request
+        result (->> (params request)
+                    (update db :%table-name% id)
+                    (rescue))
+        [errors %table-name%] result]
+    (if (nil? errors)
+      (redirect-to request :index)
+      (edit (put request :errors errors)))))
+
+
+(defn destroy [request]
+  (let [{:db db :id id} request]
+    (delete db :%table-name% id)
+    (redirect-to request :index)))

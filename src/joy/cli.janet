@@ -1,7 +1,9 @@
 (import ./cli/migrations :as migrations)
 (import ./cli/tables :as tables)
+(import ./cli/routes :as routes)
 (import ./env :as env)
 (import ./helper :as helper)
+
 
 (defn create
   `Responsible for creating boilerplate route and migration files
@@ -20,7 +22,7 @@
       "migration" (migrations/create name)
       "database" (helper/create-file (env/env :db-name))
       "db" (helper/create-file (env/env :db-name))
-      "route" nil
+      "route" (routes/create)
       "table" (migrations/create (string "create-table-" name)
                 (tables/create (drop 1 args))))))
 
