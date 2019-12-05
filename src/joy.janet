@@ -9,6 +9,7 @@
 (import ./joy/validator :as validator)
 (import ./joy/migrator :as migrator)
 (import ./joy/cli :as cli)
+(import ./joy/form-helper :prefix "" :export true)
 (import halo)
 (import json)
 (import sqlite3)
