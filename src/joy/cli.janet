@@ -22,7 +22,7 @@
       "migration" (migrations/create name)
       "database" (helper/create-file (env/env :db-name))
       "db" (helper/create-file (env/env :db-name))
-      "route" (routes/create)
+      "route" (routes/create name)
       "table" (migrations/create (string "create-table-" name)
                 (tables/create (drop 1 args))))))
 

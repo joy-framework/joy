@@ -22,7 +22,7 @@
 
 (defn set-db [handler conn]
   (fn [request]
-    (db/with-connection [db conn]
+    (db/with-db-connection [db conn]
       (handler (put request :db db)))))
 
 
@@ -109,7 +109,7 @@
 
 
 (defn- dev-error-page [request err]
-  (html/render
+  (html/html
     (html/doctype :html5)
     [:html {:lang "en"}
      [:head

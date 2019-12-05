@@ -1,34 +1,34 @@
 (import ./helper :as helper)
 
-(defn max-length? [len val]
+(defn- max-length? [len val]
   (> (length val) len))
 
 
-(defn min-length? [len val]
+(defn- min-length? [len val]
   (< (length val) len))
 
 
-(defn blank? [val]
+(defn- blank? [val]
   (or (nil? val)
     (empty? val)))
 
 
-(defn matches-peg? [peg val]
+(defn- matches-peg? [peg val]
   (peg/match peg val))
 
 
-(defn email? [val]
+(defn- email? [val]
   (let [result (peg/match '(any (+ (* ($) "@") 1)) val)]
     (and (not (nil? result))
       (not (empty? result)))))
 
 
-(defn invalid-keys [ks dict pred]
+(defn- invalid-keys [ks dict pred]
   (filter |(pred (get dict $))
     ks))
 
 
-(defn error-map [ks message]
+(defn- error-map [ks message]
   (->> (map (fn [k] {k (string k " " message)}) ks)
        (apply merge)))
 

@@ -11,13 +11,6 @@
     (validates :email :email true)))
 
 (deftest
-  (test "invalid-keys with an empty value and blank? predicate"
-    (= '(:a) (freeze (invalid-keys [:a] {:a ""} blank?))))
-
-  (test "invalid-keys with a non-empty value and blank? predicate"
-    (= (freeze (invalid-keys [:a] {:a "a"} blank?))
-       '()))
-
   (test "params returns a valid dictionary when all required keys are present and not blank"
     (= (freeze (account-params {:body {:name "name" :email "test@example.com" :password "password"}}))
        {:name "name" :email "test@example.com" :password "password"}))

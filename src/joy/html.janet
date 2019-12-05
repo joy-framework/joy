@@ -1,7 +1,7 @@
 # html.janet
 # parts of the code shamelessly stolen from https://github.com/brandonchartier/html
 
-(defn escape [string-arg]
+(defn- escape [string-arg]
   (let [struct-chars [["&" "&amp;"]
                       ["<" "&lt;"]
                       [">" "&gt;"]
@@ -30,43 +30,43 @@
       (get doctypes key "")))
 
 
-(def void-elements
+(def- void-elements
   [:area :base :br :col :embed
    :hr :img :input :keygen :link
    :meta :param :source :track :wbr])
 
 
-(defn void-element?
+(defn- void-element?
   [name]
   (some (partial = name) void-elements))
 
 
-(defn text-element?
+(defn- text-element?
   [name]
   (= name :text))
 
 
-(defn attr-reducer
+(defn- attr-reducer
   [acc [attr value]]
   (string acc " " attr `="` value `"`))
 
 
-(defn create-attrs
+(defn- create-attrs
   [attrs]
   (reduce attr-reducer "" (pairs attrs)))
 
 
-(defn opening-tag
+(defn- opening-tag
   [name attrs]
   (string "<" name (create-attrs attrs) (if (void-element? name) " />" ">")))
 
 
-(defn closing-tag
+(defn- closing-tag
   [name]
   (string "</" name ">"))
 
 
-(defn first-child
+(defn- first-child
   [children]
   (if (indexed? children)
       (when (not (empty? children))
@@ -74,7 +74,7 @@
       children))
 
 
-(defn create-children
+(defn- create-children
   [create children]
 
   (defn child-reducer
@@ -92,14 +92,14 @@
       :else children)))
 
 
-(defn valid-children?
+(defn- valid-children?
   [children]
   (or (indexed? children)
       (number? children)
       (string? children)))
 
 
-(defn validate-element
+(defn- validate-element
   [name attrs children]
   (unless (keyword? name)
           (error "name must be a keyword"))
@@ -109,7 +109,7 @@
           (error "children must be a string, number, or index")))
 
 
-(defn create-element
+(defn- create-element
   [create name attrs children]
   (validate-element name attrs children)
   (cond
@@ -120,7 +120,7 @@
             (closing-tag name))))
 
 
-(defn create
+(defn- create
   [element]
   (if (not (nil? element))
     (if (every? (map indexed? element))
@@ -132,5 +132,5 @@
     ""))
 
 
-(defn render [& args]
+(defn html [& args]
   (string/join (map create args) ""))

@@ -5,7 +5,7 @@
 (defn create [table-name]
   (helper/with-file [f "src/joy/cli/routes.txt"]
     (let [template (file/read f :all)]
-      (db/with-connection [conn "test.sqlite3"]
+      (db/with-db-connection [conn "test.sqlite3"]
         (let [columns (->> (db/query conn "select pti.name as col from sqlite_master join pragma_table_info(sqlite_master.name) pti on sqlite_master.name != pti.name where sqlite_master.name = :table order by pti.cid" {:table table-name})
                            (map |(get $ :col)))
               ks (->> (filter |(and (not= $ "created_at")

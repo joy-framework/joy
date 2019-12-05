@@ -1,6 +1,6 @@
 # responder.janet
 
-(defn content-type [k]
+(defn- content-type [k]
   (let [content-types {:html "text/html; charset=utf-8"
                        :json "application/json"
                        :text "text/plain"
@@ -26,3 +26,6 @@
     @{:status (or status 200)
       :headers headers
       :body body}))
+
+
+(def render respond)
