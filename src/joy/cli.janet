@@ -25,12 +25,3 @@
       "route" (routes/create name)
       "table" (migrations/create (string "create-table-" name)
                 (tables/create (drop 1 args))))))
-
-
-(defn drop
-  `Drops the database`
-  [& args]
-  (let [[kind name] args]
-    (case kind
-      "database" (os/rm (env/env :db-name))
-      "db" (os/rm (env/env :db-name)))))
