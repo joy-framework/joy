@@ -93,6 +93,9 @@
         @{:status 404}))))
 
 
+(def app router)
+
+
 (defn- depth [val idx]
   (if (indexed? val)
     (depth (first val) (inc idx))
