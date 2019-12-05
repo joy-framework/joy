@@ -24,16 +24,10 @@
        (merge request {:account account :id id})))))
 
 
-(def insert-params
+(def params
   (params
     (validates [:name :email :password] :required true)
     (permit [:name :email :password])))
-
-
-(def update-params
-  (params
-    (validates [:name :email] :required true)
-    (permit [:name :email])))
 
 
 (defn home [request]
@@ -90,35 +84,29 @@
       [:td created-at]]]))
 
 
-(defn form [action &opt account]
-  (default account {})
-  (let [{:name name :email email :password password} account]
-    [:form action
-     [:input {:type "hidden" :name "_method" :value (or (get action :_method)
-                                                      (get action :method))}]
-     [:div
-      [:label {:for "name"} "Name"]
-      [:br]
-      [:input {:type "text" :name "name" :value name}]]
-     [:div
-      [:label {:for "email"} "Email"]
-      [:br]
-      [:input {:type "email" :name "email" :value email}]]
-     [:div
-      [:label {:for "password"} "Password"]
-      [:br]
-      [:input {:type "password" :name "password" :value password}]]
-     [:div
-      [:input {:type "submit" :value "Create"}]]]))
+(defn form [request route]
+  (let [account (get request :account {})
+        {:name name :email email :password password} account]
+    (form-for [request route account]
+      (label :name)
+      (text-field account :name)
+
+      (label :email)
+      (email-field account :email)
+
+      (label :password)
+      (password-field account :password)
+
+      (submit "Create"))))
 
 
 (defn new [request]
-  (form (action-for request :create)))
+  (form request :create))
 
 
 (defn create [request]
   (let [{:db db} request
-        [errors account] (->> (insert-params request)
+        [errors account] (->> (params request)
                               (insert db :account)
                               (rescue))]
     (if (nil? errors)
@@ -128,14 +116,12 @@
 
 
 (defn edit [request]
-  (let [{:account account} request
-        action (action-for request :patch account)]
-    (form action account)))
+  (form request :patch))
 
 
 (defn patch [request]
   (let [{:db db :id id} request
-        [errors account] (->> (update-params request)
+        [errors account] (->> (params request)
                               (update db :account id)
                               (rescue))]
     (if (nil? errors)
@@ -177,7 +163,7 @@
     account-routes))
 
 
-(def app (-> (app routes)
+(def app (-> (router routes)
              (set-db "test.sqlite3")
              (set-layout layout)
              (session)

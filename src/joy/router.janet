@@ -1,21 +1,21 @@
 (import ./helper :prefix "")
 
 
-(defn route-param [val]
+(defn- route-param [val]
   (if (and (string? val)
         (string/has-prefix? ":" val))
     val
     (string ":" val)))
 
 
-(defn route-url [string-route struct-params]
+(defn- route-url [string-route struct-params]
   (var mut-string-route string-route)
   (loop [[k v] :in (pairs struct-params)]
     (set mut-string-route (string/replace (route-param k) (string v) mut-string-route)))
   mut-string-route)
 
 
-(defn route-matches? [array-route1 dictionary-request]
+(defn- route-matches? [array-route1 dictionary-request]
   (let [[route-method route-url] array-route1
         {:method method :uri uri} dictionary-request
         url (first (string/split "?" uri))]
@@ -23,7 +23,7 @@
              (= route-url url)))))
 
 
-(defn route-params [string-route-url string-request-url]
+(defn- route-params [string-route-url string-request-url]
   (if (true?
        (and (string? string-route-url)
          (string? string-request-url)))
@@ -38,7 +38,7 @@
     {}))
 
 
-(defn find-route [indexed-routes dictionary-request]
+(defn- find-route [indexed-routes dictionary-request]
   (let [{:uri uri :method method} dictionary-request]
     (or (get
           (filter (fn [indexed-route]
@@ -51,14 +51,14 @@
         [])))
 
 
-(defn handler-name [val]
+(defn- handler-name [val]
   (if (function? val)
     (-> (disasm val)
         (get 'name))
     val))
 
 
-(defn route-name [route]
+(defn- route-name [route]
   (-> (last route)
       (handler-name)
       (keyword)))
@@ -70,7 +70,7 @@
        (apply table)))
 
 
-(defn handler
+(defn router
   "Creates a handler from routes"
   [routes]
   (fn [request]
@@ -93,19 +93,19 @@
         @{:status 404}))))
 
 
-(defn depth [val idx]
+(defn- depth [val idx]
   (if (indexed? val)
     (depth (first val) (inc idx))
     idx))
 
 
-(defn flatten-wrapped-routes [x]
+(defn- flatten-wrapped-routes [x]
   (if (> (depth x 0) 1)
     (mapcat flatten-wrapped-routes x)
     [x]))
 
 
-(defn apply-middleware [route middleware-fns]
+(defn- apply-middleware [route middleware-fns]
   (let [route-array (-> (apply array route)
                         (array/insert 2 middleware-fns))]
     (mapcat identity route-array)))
@@ -121,10 +121,10 @@
   (flatten-wrapped-routes args))
 
 
-(def url-encode identity)
+(def- url-encode identity)
 
 
-(defn query-string [m]
+(defn- query-string [m]
   (when (dictionary? m)
     (let [s (->> (pairs m)
                  (map (fn [[k v]] (string (-> k string url-encode) "=" (url-encode v))))

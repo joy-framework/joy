@@ -3,7 +3,7 @@
 (import ./joy/responder :as responder)
 (import ./joy/helper :as helper)
 (import ./joy/html :as html)
-(import ./joy/router :as router)
+(import ./joy/router :prefix "" :export true)
 (import ./joy/middleware :prefix "" :export true)
 (import ./joy/db :as db)
 (import ./joy/validator :as validator)
@@ -14,14 +14,9 @@
 (import json)
 (import sqlite3)
 
-
 (def respond responder/respond)
 (def render responder/respond)
 (def redirect responder/redirect)
-
-(def action-for router/action-for)
-(def redirect-to router/redirect-to)
-(def url-for router/url-for)
 
 (defmacro rescue [f &opt id]
   ~(try
@@ -44,10 +39,6 @@
 (def json-decode json/decode)
 
 (def serve halo/server)
-
-(def app router/handler)
-(def routes router/routes)
-(def middleware router/middleware)
 
 (def query db/query)
 (def execute db/execute)
