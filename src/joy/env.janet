@@ -1,19 +1,20 @@
 (import ./helper :as helper)
 
 
+(defn parse-dotenv [dot-env-string]
+  (when (not (nil? dot-env-string))
+    (->> (string/split "\n" dot-env-string)
+         (mapcat |(string/split "=" $ 0 2))
+         (filter |(not (empty? $)))
+         (map string/trim)
+         (apply table))))
+
+
 (defn- dotenv [key]
-  (let [f (file/open ".env" :r)]
-    (when (not (nil? f))
-      (let [dot-env-table (->> (file/read f :all)
-                               (string/split "\n")
-                               (map |(string/split "=" $))
-                               (flatten)
-                               (filter |(not (empty? $)))
-                               (map string/trim)
-                               (apply table))
-            value (get dot-env-table key)]
-        (file/close f)
-        value))))
+  (helper/with-file [f ".env" :r]
+    (-> (file/read f :all)
+        (parse-dotenv)
+        (get key))))
 
 
 (defn env [key]
