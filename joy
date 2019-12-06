@@ -11,13 +11,10 @@
   Actions:
     help                                     - Print this usage information
     new <project-name>                       - Create a new folder with the name of your project
-    create <db|route|table|migration> <name> - Create a new thing
+    create <db|route|table|migration> <name> - Generate a new thing
     migrate                                  - Migrates the database
     rollback                                 - Rolls back the most recent migration
-    serve                                    - Serves current site
-     [port=8000]                               -- optional port
-     [host=127.0.0.1]                          -- optional host
-    watch                                    - Watch files and restart server on file change
+    server                                   - Serves the app
     version                                  - Print the current version
 ```)
 
@@ -28,11 +25,10 @@
       (empty? action))
   (print "joy" usage)
   (case action
-    "create" (apply joy/create options)
+    "create" (apply joy/generate options)
     "help" (print "joy" usage)
-    "new" nil
+    "new" (joy/generate "project" ;options)
     "migrate" (joy/migrate (joy/env :db-name))
     "rollback" (joy/rollback (joy/env :db-name))
-    "serve" nil
-    "watch" nil
+    "server" nil
     "version" (print "0.2.0")))
