@@ -5,7 +5,6 @@
 (import ./db :as db)
 (import ./responder :as responder)
 (import ./html :as html)
-(import uuid)
 (import cipher)
 (import json)
 (import codec)
