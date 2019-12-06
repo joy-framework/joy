@@ -11,6 +11,7 @@
         [:head
          [:meta {:charset "utf-8"}]
          [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
+         [:link {:rel "stylesheet" :href "/css/test.css"}]
          [:title "joy test 1"]]
         [:body body]]))))
 
@@ -31,7 +32,7 @@
 
 
 (defn home [request]
-  [:h1 {:style "text-align: center"} "You've found joy!"])
+  [:h1 {:class "test"} "You've found joy!"])
 
 
 (defn index [request]
@@ -163,22 +164,22 @@
     account-routes))
 
 
-(def app (-> (router routes)
+(def app (-> (app routes)
              (set-db "test.sqlite3")
              (set-layout layout)
              (session)
-             (static-files)
-             (logger)
              (extra-methods)
              (query-string)
              (body-parser)
-             (server-error)))
+             (server-error)
+             (logger)
+             (static-files)))
 
 
-# (with-db-connection [conn "test.sqlite3"])
-#   (execute conn "create table if not exists account (id integer primary key, name text not null unique, email text not null unique, password text not null, created_at integer not null default(strftime('%s', 'now')))")
+# (with-db-connection [conn "test.sqlite3"]
+#   (execute conn "create table if not exists account (id integer primary key, name text not null unique, email text not null unique, password text not null, created_at integer not null default(strftime('%s', 'now')))"))
 #
-# (serve app 8000)
+# (server app 8000)
 
 
 (deftest

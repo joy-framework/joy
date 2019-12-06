@@ -80,7 +80,16 @@
      (file/read f))`
   [binding & body]
   ~(with [,(first binding) (,file/open ,(get binding 1) ,(get binding 2 :r)) ,file/close]
-     ,(splice body)))
+     ,;body))
+
+
+(defn file-exists? [filename]
+  (try
+    (do
+      (with-file [f filename])
+      true)
+    ([err]
+     (not= err "bad slot #0, expected core/file, got nil"))))
 
 
 (defn create-file

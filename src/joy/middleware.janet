@@ -8,6 +8,7 @@
 (import cipher)
 (import json)
 (import codec)
+(import path)
 
 
 (defn set-layout [handler layout]
@@ -28,13 +29,13 @@
 (defn static-files [handler &opt root]
   (default root "./public")
   (fn [request]
-    (let [response (handler request)]
-      (if (not= 404 (get response :status))
-        response
-        (let [{:method method :uri uri} request]
-          (if (some (partial = method) ["GET" "HEAD"])
-            {:file (string root uri)}
-            (error (string "Error responding to file request: " (string root uri)))))))))
+    (let [{:method method :uri uri} request
+          filename (path/join root uri)]
+      (if (and (some (partial = method) ["GET" "HEAD"])
+            (helper/file-exists? filename)
+            (not (nil? (path/ext filename))))
+        {:file filename}
+        (handler request)))))
 
 
 (defn set-cookie [handler &opt cookie-name cookie-value options]
