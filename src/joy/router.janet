@@ -81,7 +81,9 @@
           middleware-fn (when (> (length functions) 1)
                           (->> (array/slice functions 0 -2)
                                (apply comp)))
-          route-fn (last functions)
+          route-fn (if (empty? functions)
+                     nil
+                     (last functions))
           route-fn (if (function? middleware-fn)
                      (middleware-fn route-fn)
                      route-fn)
