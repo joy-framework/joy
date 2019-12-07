@@ -11,8 +11,8 @@
 
 (def params
   (params
-    (validates [%keys%] :required true)
-    (permit [%keys%])))
+    (validates [%permit-keys%] :required true)
+    (permit [%permit-keys%])))
 
 
 (defn index [request]
@@ -51,17 +51,15 @@
       %show-td-elements%]]))
 
 
-(defn form [action &opt %table-name%]
-  (default %table-name% {})
-  (let [{:name name :email email :password password} %table-name%]
-    (form-with action
-     [:input {:type "hidden" :name "_method" :value (or (get action :_method)
-                                                      (get action :method))}]
-     %form-elements%]])))
+(defn form [request route]
+  (let [%table-name% (get request :%table-name% {})
+        {%form-destructured-keys%} %table-name%]
+    (form-for [request route %table-name%]
+      %form-elements%)))
 
 
 (defn new [request]
-  (form (action-for request :create)))
+  (form request :create))
 
 
 (defn create [request]
