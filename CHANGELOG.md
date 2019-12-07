@@ -1,3 +1,14 @@
+## Joy 0.3.0 (12/06/2019) ##
+
+* Finish up the cli
+* Add a template folder and the `joy new` command
+* Add form, `url-for`, `action-for` and `redirect-to` helpers
+* Finish up `*.sql` migrations
+* Get static files working
+* Stop logging static files by default
+* Use `:export` instead of redefining everything in `joy.janet`
+* Fix quite a few bugs
+
 ## Joy 0.2.0 (11/21/2019) ##
 
 * Add a whole new MIT licensed http server halo
