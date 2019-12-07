@@ -17,4 +17,4 @@
   :main "joy")
 
 (declare-source
-  :source @["template" "src/joy" "src/joy.janet"])
+  :source @["src/joy" "src/joy.janet"])
