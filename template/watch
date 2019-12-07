@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+pkill -xf 'janet main.janet'
+janet main.janet &

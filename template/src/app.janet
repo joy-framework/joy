@@ -15,6 +15,3 @@
              (server-error)
              (logger)
              (static-files)))
-
-(defn start [port]
-  (server app port))

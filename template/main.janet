@@ -1,3 +1,4 @@
-(import ./src/server :as server)
+(import joy)
+(import ./src/app :prefix "")
 
-(server/start 8000)
+(joy/server app 8000)
