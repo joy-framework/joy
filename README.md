@@ -2,17 +2,13 @@
 
 Joy is a full stack web framework written in [janet](https://github.com/janet-lang/janet)
 
-**This project is in early development so expect major changes**
-
 ```clojure
 (import joy)
 
 (defn home [request]
-  (joy/render :text
-    "Have some joy with janet 😇"))
+  (joy/render :text "Have some joy with janet 😇"))
 
-(def routes
-  (joy/routes [:get "/" home]))
+(def routes (joy/routes [:get "/" home]))
 
 (def app (joy/app routes))
 
@@ -48,7 +44,7 @@ If you aren't already in the `my-joy-project` directory, go ahead and get in the
 joy create db
 ```
 
-This creates a new empty database named `my-joy-project.sqlite3`. Let's fill it up.
+This creates a new empty database named `dev.sqlite3`. Let's fill it up.
 
 ### Taking it for a spin
 
