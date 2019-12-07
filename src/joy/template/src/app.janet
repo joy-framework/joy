@@ -11,7 +11,6 @@
              (body-parser)
              (extra-methods)
              (query-string)
-             (body-parser)
              (server-error)
              (logger)
              (static-files)))
