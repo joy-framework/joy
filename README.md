@@ -94,9 +94,9 @@ joy create route post
 Those commands have created two new files: `src/routes/account.janet` and `src/routes/post.janet`
 
 You can look at them if you want but it's better to try them out. Head back over to http://localhost:8000/accounts
-or http://localhost:8000/posts and be amazed that you can CRUD stuff to your sqlite database!
+or http://localhost:8000/posts and check it out!
 
-Joy can do a lot more than that, head over to the [rest of the tutorial]() to see how to handle auth, and how to relate posts and accounts!
+Joy can do a lot more than that, more docs coming soon!
 
 ## Why?
 
