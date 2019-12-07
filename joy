@@ -30,5 +30,6 @@
     "new" (joy/generate "project" ;options)
     "migrate" (joy/migrate (joy/env :db-name))
     "rollback" (joy/rollback (joy/env :db-name))
-    "server" nil
+    "server" (os/shell "jpm run server")
+    "watch" (os/shell "jpm run watch")
     "version" (print "0.2.0")))
