@@ -22,6 +22,7 @@
   (default params {})
   (let [sql (string sql ";")]
     (->> (sqlite3/eval db sql params)
+         (map (partial helper/map-keys helper/kebab-case))
          (map (partial helper/map-keys keyword)))))
 
 
