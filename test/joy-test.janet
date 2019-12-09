@@ -166,6 +166,7 @@
 (def app (-> (app routes)
              (set-db "test.sqlite3")
              (set-layout layout)
+             (logger)
              (csrf-token)
              (session)
              (extra-methods)
@@ -173,7 +174,6 @@
              (body-parser)
              (server-error)
              (x-headers)
-             (logger)
              (static-files)))
 
 
