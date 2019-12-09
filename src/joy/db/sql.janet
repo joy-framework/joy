@@ -9,7 +9,7 @@
     (= v 'null) "is null"
     :else (if positional?
             (string "= ?")
-            (string "= :" k))))
+            (string "= :" (helper/snake-case k)))))
 
 
 (defn where-clause
@@ -18,7 +18,7 @@
   (if (string? params)
     params
     (->> (pairs params)
-         (map |(string (first $) " " (where-op $ positional?)))
+         (map |(string (-> $ first helper/snake-case) " " (where-op $ positional?)))
          (helper/join-string " and "))))
 
 
@@ -93,13 +93,14 @@
 (defn fetch
   "Takes a path and generates join statements along with a where clause. Think 'get-in' for sqlite."
   [path &opt args]
-  (let [keywords (filter keyword? path)
+  (let [keywords (->> (filter keyword? path)
+                      (map helper/snake-case))
         ids (fetch-params path)
         where (when (not (empty? ids))
                 (string "where "
                   (->> (partition 2 path)
                        (filter |(= 2 (length $)))
-                       (map |(string (first $) ".id = ?"))
+                       (map |(string (-> $ first helper/snake-case) ".id = ?"))
                        (helper/join-string " and "))))]
     (->> ["select * from"
           (last keywords)
@@ -114,8 +115,10 @@
   "Returns an insert statement sql string from a dictionary"
   [table-name params]
   (let [columns (->> (keys params)
+                     (map helper/snake-case)
                      (helper/join-string ", "))
         vals (->> (keys params)
+                  (map helper/snake-case)
                   (map |(string ":" $))
                   (helper/join-string ", "))]
     (string "insert into " (helper/snake-case table-name) " (" columns ") values (" vals ")")))
@@ -126,6 +129,7 @@
   [table-name arr]
   (let [columns (->> (first arr)
                      (keys)
+                     (map helper/snake-case)
                      (helper/join-string ", "))
         vals (->> (map keys arr)
                   (mapcat (fn [ks] (string "(" (helper/join-string ","
@@ -145,9 +149,9 @@
   "Returns an update sql string from a dictionary of params representing the set portion of the update statement"
   [table-name params]
   (let [columns (->> (pairs params)
-                     (map |(string (first $) " = " (if (= 'null (last $))
-                                                     "null"
-                                                     (string ":" (first $)))))
+                     (map |(string (-> $ first helper/snake-case) " = " (if (= 'null (last $))
+                                                                          "null"
+                                                                          (string ":" (-> $ first helper/snake-case)))))
                      (helper/join-string ", "))]
     (string "update " (helper/snake-case table-name) " set " columns " where id = :id")))
 
@@ -171,13 +175,13 @@
     (values where-params)))
 
 
-(defn delete
-  "Returns a delete sql string from a table name and value for the id column"
-  [table-name id]
-  (string "delete from " (helper/snake-case table-name) " where id = :id"))
-
-
 (defn delete-all
   "Returns a delete sql string from a table name and value for the id column"
   [table-name params]
   (string "delete from " (helper/snake-case table-name) " where " (where-clause params)))
+
+
+(defn delete
+  "Returns a delete sql string from a table name and value for the id column"
+  [table-name id]
+  (delete-all table-name {:id id}))

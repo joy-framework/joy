@@ -18,17 +18,31 @@
     ,;body))
 
 
+(defn kebab-case-keys [dict]
+  (->> (helper/map-keys helper/kebab-case dict)
+       (helper/map-keys keyword)))
+
+
+(defn snake-case-keys [dict]
+  (->> (helper/map-keys helper/snake-case dict)
+       (helper/map-keys keyword)))
+
+
 (defn query [db sql &opt params]
   (default params {})
   (let [sql (string sql ";")]
-    (->> (sqlite3/eval db sql params)
-         (map (partial helper/map-keys helper/kebab-case))
-         (map (partial helper/map-keys keyword)))))
+    (->> (sqlite3/eval db sql (if (dictionary? params)
+                                (snake-case-keys params)
+                                params))
+         (map kebab-case-keys))))
 
 
 (defn execute [db sql &opt params]
   (default params {})
-  (let [sql (string sql ";")]
+  (let [sql (string sql ";")
+        params (if (dictionary? params)
+                (snake-case-keys params)
+                params)]
     (sqlite3/eval db sql params)
     (sqlite3/last-insert-rowid db)))
 

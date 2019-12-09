@@ -14,6 +14,10 @@
     (= "insert into account (name) values (:name)"
        (sql/insert :account {:name 'null})))
 
+  (test "insert with multiple params with dashes"
+    (= "insert into account (password, name, created_at) values (:password, :name, :created_at)"
+       (sql/insert :account {:name "name" :password "password" :created-at "created-at"})))
+
   (test "insert-all test"
     (= "insert into account (name) values (?), (?)"
        (sql/insert-all :account [{:name "name1"} {:name "name2"}])))
@@ -21,6 +25,10 @@
   (test "insert-all test with two params"
     (= "insert into account (email, name) values (?,?), (?,?)"
        (sql/insert-all :account [{:name "name1" :email "email"} {:name "name2" :email "email2"}])))
+
+  (test "insert-all test with kebab-cased params"
+    (= "insert into table_a_b_c (email, a_b_c, name) values (?,?,?), (?,?,?)"
+       (sql/insert-all :table-a-b-c [{:name "name1" :email "email" :a-b-c ""} {:name "name2" :email "email2" :a-b-c ""}])))
 
   (test "insert-all-params test with two params"
     (= ["email" "name1" "email2" "name2"]
@@ -50,6 +58,10 @@
     (= "update account set name = null where id = :id"
        (sql/update :account {:name 'null})))
 
+  (test "update with null value and kebab-case params"
+    (= "update account set a_b_c = :a_b_c, name = null where id = :id"
+       (sql/update :account {:name 'null :a-b-c ""})))
+
   (test "update-all test with same where and set keys"
     (= "update account set name = ? where name = ?"
        (sql/update-all :account {:name "old name"} {:name "new name"})))
@@ -65,6 +77,10 @@
   (test "delete-all test with params dictionary"
     (= "delete from account where name = :name"
        (sql/delete-all :account {:name "name"})))
+
+  (test "delete-all test with params dictionary"
+    (= "delete from account where a_b_c = :a_b_c"
+       (sql/delete-all :account {:a-b-c ""})))
 
   (test "delete-all test with params string"
     (= "delete from account where name = :name or name is null"
