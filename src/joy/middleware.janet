@@ -6,7 +6,6 @@
 (import ./responder :as responder)
 (import ./html :as html)
 (import cipher)
-(import json)
 (import codec)
 (import path)
 
@@ -55,13 +54,14 @@
   (when (not (nil? str))
     (let [decrypted (->> (codec/decode str)
                          (cipher/decrypt encryption-key))]
-      (when (not (nil? decrypted))
-        (json/decode decrypted)))))
+      (when (and (not (nil? decrypted))
+                 (not (empty? decrypted)))
+        (unmarshal decrypted)))))
 
 
 (defn- encode-session [val encryption-key]
-  (when (not (nil? val))
-    (->> (json/encode val)
+  (when (not (nil? encryption-key))
+    (->> (marshal val)
          (string)
          (cipher/encrypt encryption-key)
          (codec/encode))))
