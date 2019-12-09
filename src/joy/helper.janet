@@ -97,3 +97,18 @@
   [filename]
   (with [f (file/open filename :w) file/close]
     (file/write f)))
+
+
+(defn rand-int [min-int max-int]
+  (+ min-int (math/round (* (- max-int min-int) (math/random)))))
+
+
+(defn rand-nth [arr]
+  (get arr (rand-int 0 (dec (length arr)))))
+
+
+(defn rand-str [len]
+  (let [chars (array/concat (range 65 90)
+                            (range 97 123)
+                            (range 48 57))]
+    (string/from-bytes ;(map (fn [_] (rand-nth chars)) (range 0 len)))))
