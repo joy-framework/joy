@@ -20,8 +20,12 @@
        (http/cookie-string "name" "value" {"SameSite" "strict"})))
 
   (test "cookie-string with samesite and httponly"
-    (= "name=value; SameSite=strict"
-       (http/cookie-string "name" "value" {"SameSite" "strict" "HttpOnly" nil}))))
+    (= "name=value; SameSite=Strict; HttpOnly"
+       (http/cookie-string "name" "value" {"SameSite" "Strict" "HttpOnly" ""})))
+
+  (test "cookie-string with samesite, httponly and path"
+    (= "name=value; SameSite=Strict; Path=/; HttpOnly"
+       (http/cookie-string "name" "value" {"SameSite" "Strict" "HttpOnly" "" "Path" "/"}))))
 
 
 (deftest
