@@ -183,11 +183,6 @@
 
 
 (deftest
-  (test "joy get env variable with a single keyword"
-    (do
-      (os/setenv "JOY_ENV" "development")
-      (= "development" (env :joy-env))))
-
   (test "test the app"
     (= 200
        (let [response (app {:uri "/" :method :get})]
