@@ -84,8 +84,8 @@
         (if (nil? session-value)
           response
           (put-in response [:headers "Set-Cookie"]
-            (http/cookie-string "id" (encode-session session-value encryption-key)
-              {"SameSite" "Strict" "HttpOnly" ""})))))))
+            (http/cookie-string "id" (-> (encode-session session-value encryption-key) (string/trimr "\0"))
+              {"SameSite" "Strict" "HttpOnly" "" "Path" "/"})))))))
 
 
 (defn default-headers [handler &opt options]
