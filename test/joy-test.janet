@@ -61,9 +61,8 @@
             "Edit"]]
           (when (not (nil? session))
             [:td
-             [:form (action-for request :destroy {:id id})
-              [:input {:type "hidden" :name "_method" :value "delete"}]
-              [:input {:type "submit" :value "Delete"}]]])])
+             (form-for [request :destroy {:id id}]
+              [:input {:type "submit" :value "Delete"}])])])
        accounts)]]))
 
 
@@ -167,11 +166,13 @@
 (def app (-> (app routes)
              (set-db "test.sqlite3")
              (set-layout layout)
+             (csrf-token)
              (session)
              (extra-methods)
              (query-string)
              (body-parser)
              (server-error)
+             (x-headers)
              (logger)
              (static-files)))
 
