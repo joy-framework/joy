@@ -88,13 +88,37 @@
               {"SameSite" "Strict" "HttpOnly" "" "Path" "/"})))))))
 
 
-(defn default-headers [handler &opt options]
-  (default options {"X-Frame-Options" "SAMEORIGIN"
-                    "X-XSS-Protection" "1; mode=block"
-                    "X-Content-Type-Options" "nosniff"
-                    "X-Download-Options" "noopen"
-                    "X-Permitted-Cross-Domain-Policies" "none"
-                    "Referrer-Policy" "strict-origin-when-cross-origin"})
+(defn blank? [val]
+  (or (nil? val)
+      (empty? val)))
+
+
+(defn present? [val]
+  (not (blank? val)))
+
+(varglobal '*csrf-token* (helper/rand-str 40))
+
+(defn csrf-token [handler]
+  (fn [request]
+    (let [csrf-token (get-in request [:body :csrf-token])
+          new-token (helper/rand-str 40)
+          request (put request :csrf-token new-token)
+          response (if (blank? (get request :body))
+                     (handler request)
+                     (if (= csrf-token *csrf-token*)
+                       (handler request)
+                       (responder/render :text "Invalid CSRF Token" :status 403)))]
+        (set *csrf-token* new-token)
+        response)))
+
+
+(defn x-headers [handler &opt options]
+  (default options @{"X-Frame-Options" "SAMEORIGIN"
+                     "X-XSS-Protection" "1; mode=block"
+                     "X-Content-Type-Options" "nosniff"
+                     "X-Download-Options" "noopen"
+                     "X-Permitted-Cross-Domain-Policies" "none"
+                     "Referrer-Policy" "strict-origin-when-cross-origin"})
   (fn [request]
     (let [response (handler request)]
       (update response :headers merge options))))
