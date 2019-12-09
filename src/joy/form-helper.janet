@@ -16,10 +16,10 @@
         action (apply router/action-for action-args)]
     [:form action
       body
+      (when (not (nil? (request :csrf-token)))
+        (hidden-field request :csrf-token))
       (when (not (nil? (action :_method)))
-        (hidden-field action :_method))
-      (hidden-field request :csrf-token)]))
-
+        (hidden-field action :_method))]))
 
 
 (defn label [key &opt attrs]
