@@ -38,11 +38,12 @@
         (handler request)))))
 
 
-(defn set-cookie [handler &opt cookie-name cookie-value options]
+(defn set-cookie [handler cookie-name cookie-value &opt options]
   (default options {"SameSite" "Strict"
-                    "HttpOnly" ""})
+                    "HttpOnly" ""
+                    "Path" "/"})
   (default cookie-name "id")
-  (default cookie-value "id")
+  (default cookie-value "value")
   (fn [request]
     (let [response (handler request)]
       (put-in response
