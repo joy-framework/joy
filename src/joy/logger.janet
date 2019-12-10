@@ -66,7 +66,7 @@
                             :msg (string/format "Started %s %s" method uri)
                             :ts (timestamp)
                             :attrs attrs})
-          response (handler (apply table (kvs request)))
+          response (handler request)
           end (os/clock)
           duration (string/format "%.0fms" (* 1000 (- end start)))
           {:status status} response
