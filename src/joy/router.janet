@@ -1,4 +1,5 @@
 (import ./helper :prefix "")
+(import ./http :as http)
 
 
 (defn- route-param [val]
@@ -126,14 +127,10 @@
   (flatten-wrapped-routes args))
 
 
-# TODO Move to http
-(def- url-encode identity)
-
-
 (defn- query-string [m]
   (when (dictionary? m)
     (let [s (->> (pairs m)
-                 (map (fn [[k v]] (string (-> k string url-encode) "=" (url-encode v))))
+                 (map (fn [[k v]] (string (-> k string http/url-encode) "=" (http/url-encode v))))
                  (join-string "&"))]
       (when (not (empty? s))
         (string "?" s)))))

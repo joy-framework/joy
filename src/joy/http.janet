@@ -18,7 +18,7 @@
   [str]
   (let [mapping {"A" 10 "B" 11 "C" 12 "D" 13 "E" 14 "F" 15}
         arr (partition 1 (drop 1 str))
-        [a b] (map |(get mapping $ (scan-number $)) arr)
+        [a b] (map |(get mapping (string/ascii-upper $) (scan-number $)) arr)
         output (+ b (* a 16))]
     (string/from-bytes output)))
 
@@ -34,22 +34,34 @@
     :main (* "%" :hex :hex)})
 
 
-(defn escape-hex
-  `Changes any % encoded hex in a string to \x encoded hex`
-  [s]
-  (let [encoded-hex? (replacer encoded-hex-grammar ascii->hex)]
-    (string/join
-      (peg/match encoded-hex? s)
-      "")))
+(def url-encode-map {"%21" "!" "%23" "#" "%24" "$" "%25" "%"
+                     "%26" "&" "%27" "'" "%28" "(" "%29" ")"
+                     "%2A" "*" "%2B" "+" "%2C" "," "%2F" "/"
+                     "%3A" ":" "%3B" ";" "$3D" "=" "%3F" "?"
+                     "%40" "@" "%5B" "[" "%5D" "]"})
 
 
 (defn url-decode
-  "Handles + signs in application/x-www-form-urlencoded forms"
-  [s]
-  (let [url-encoded? (replacer "+" " ")]
-    (string/join
-      (peg/match url-encoded? s)
-      "")))
+  "Decodes a string with percent encoding"
+  [str]
+  (let [encoded-hex? (replacer encoded-hex-grammar ascii->hex)
+        url-encoded? (replacer "+" " ")]
+    (->> (peg/match url-encoded? str)
+         (string/join)
+         (peg/match encoded-hex?)
+         (string/join))))
+
+
+(defn url-encode-char [str]
+  (-> (invert url-encode-map) (get str str)))
+
+
+(defn url-encode
+  "Encodes a string with percent encoding"
+  [str]
+  (->> (partition 1 str)
+       (map url-encode-char)
+       (string/join)))
 
 
 (defn parse-body [string-s]
@@ -60,8 +72,7 @@
          (flatten)
          (apply table)
          (helper/map-keys keyword)
-         (helper/map-vals url-decode)
-         (helper/map-vals escape-hex))))
+         (helper/map-vals url-decode))))
 
 
 (defn cookie-pair [str]

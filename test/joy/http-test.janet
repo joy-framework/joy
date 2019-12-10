@@ -46,3 +46,19 @@
     (= {:a "b" :c "2" :encoded "hello world"}
        (freeze
         (http/parse-query-string "/hello-world/part/part1?a=b&c=2&encoded=hello%20world")))))
+
+(deftest
+  (test "url encode and decode"
+    (= "hello! world!"
+       (http/url-decode
+        (http/url-encode "hello! world!"))))
+
+  (test "url encode and decode with a + sign"
+    (= "hello!+world!"
+       (http/url-decode
+        (http/url-encode "hello!+world!"))))
+
+  (test "url encode only encodes reserved characters"
+    (= "hello world%21%21"
+       (http/url-encode "hello world!!"))))
+
