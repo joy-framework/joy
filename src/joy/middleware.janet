@@ -19,10 +19,23 @@
         response))))
 
 
-(defn db [handler conn]
-  (fn [request]
-    (db/with-db-connection [db conn]
-      (handler (put request :db db)))))
+(defn db [handler db-name]
+  (let [schema (db/with-db-connection [conn db-name]
+                 (->> (db/query conn `select sqlite_master.name as tbl,
+                                             pti.name as col
+                                      from sqlite_master
+                                      join pragma_table_info(sqlite_master.name) pti on sqlite_master.name != pti.name
+                                      order by pti.cid`)
+                      (filter |(= "updated_at" (get $ :col)))
+                      (map |(struct (get $ :tbl) (get $ :col)))
+                      (apply merge)))]
+    (fn [request]
+      (db/with-db-connection [conn db-name]
+        # TODO: Figure out a better way to do this
+        # connection pool? or one connection per
+        # server and then transactions per request
+        (db/execute conn "PRAGMA foreign_keys = 1")
+        (handler (put request :db {:schema schema :connection conn}))))))
 
 
 (defn static-files [handler &opt root]

@@ -45,17 +45,21 @@
        [:th "name"]
        [:th "email"]
        [:th "password"]
+       [:th "updated-at"]
+       [:th "created-at"]
        [:th]
        (when (not (nil? session))
          [:th])]]
      [:tbody
       (map
-       (fn [{:id id :name name :email email :password password}]
+       (fn [{:id id :name name :email email :password password :updated-at updated-at :created-at created-at}]
          [:tr
           [:td id]
           [:td name]
           [:td email]
           [:td password]
+          [:td updated-at]
+          [:td created-at]
           [:td
            [:a {:href (url-for request :edit {:id id})}
             "Edit"]]
@@ -68,19 +72,21 @@
 
 (defn show [request]
   (let [{:account account} request
-        {:id id :name name :email email :password password :created_at created-at} account]
+        {:id id :name name :email email :password password :created-at created-at :updated-at updated-at} account]
     [:table
      [:tr
       [:th "id"]
       [:th "name"]
       [:th "email"]
       [:th "password"]
+      [:th "updated_at"]
       [:th "created_at"]]
      [:tr
       [:td id]
       [:td name]
       [:td email]
       [:td password]
+      [:td updated-at]
       [:td created-at]]]))
 
 

@@ -30,21 +30,28 @@
 
 (defn query [db sql &opt params]
   (default params {})
-  (let [sql (string sql ";")]
-    (->> (sqlite3/eval db sql (if (dictionary? params)
-                                (snake-case-keys params)
-                                params))
+  (let [connection (if (dictionary? db)
+                     (get db :connection)
+                     db)
+        sql (string sql ";")
+        params (if (dictionary? params)
+                 (snake-case-keys params)
+                 params)]
+    (->> (sqlite3/eval connection sql params)
          (map kebab-case-keys))))
 
 
 (defn execute [db sql &opt params]
   (default params {})
-  (let [sql (string sql ";")
+  (let [connection (if (dictionary? db)
+                     (get db :connection)
+                     db)
+        sql (string sql ";")
         params (if (dictionary? params)
                 (snake-case-keys params)
                 params)]
-    (sqlite3/eval db sql params)
-    (sqlite3/last-insert-rowid db)))
+    (sqlite3/eval connection sql params)
+    (sqlite3/last-insert-rowid connection)))
 
 
 (defn last-inserted [db table-name rowid]
@@ -89,7 +96,13 @@
 
 
 (defn update [db table-name id params]
-  (let [sql (sql/update table-name params)]
+  (let [schema (when (dictionary? db)
+                 (get db :schema))
+        params (if (and (dictionary? schema)
+                        (= "updated_at" (get schema (helper/snake-case table-name))))
+                 (merge params {:updated-at (os/time)})
+                 params)
+        sql (sql/update table-name params)]
     (execute db sql (merge params {:id id}))
     (fetch db [table-name id])))
 
@@ -97,6 +110,12 @@
 (defn update-all [db table-name where-params set-params]
   (let [rows (from db table-name where-params)
         sql (sql/update-all table-name where-params set-params)
+        schema (when (dictionary? db)
+                 (get db :schema))
+        set-params (if (and (dictionary? schema)
+                            (= "updated_at" (get schema (helper/snake-case table-name))))
+                     (merge set-params {:updated-at (os/time)})
+                     set-params)
         params (sql/update-all-params where-params set-params)]
     (execute db sql params)
     (from db table-name (map |(table :id (get $ :id))
