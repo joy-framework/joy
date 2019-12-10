@@ -2,7 +2,7 @@
 (import "src/joy" :prefix "")
 
 
-(defn layout [response]
+(defn app-layout [response]
   (let [{:body body} response]
     (render :html
       (html
@@ -164,8 +164,8 @@
 
 
 (def app (-> (app routes)
-             (set-db "test.sqlite3")
-             (set-layout layout)
+             (db "test.sqlite3")
+             (layout app-layout)
              (logger)
              (csrf-token)
              (session)

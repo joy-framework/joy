@@ -10,16 +10,16 @@
 (import path)
 
 
-(defn set-layout [handler layout]
+(defn layout [handler layout-fn]
   (fn [request]
     (let [response (handler request)
           response (if (indexed? response) @{:status 200 :body response} response)]
       (if (= 200 (get response :status))
-        (layout response)
+        (layout-fn response)
         response))))
 
 
-(defn set-db [handler conn]
+(defn db [handler conn]
   (fn [request]
     (db/with-db-connection [db conn]
       (handler (put request :db db)))))

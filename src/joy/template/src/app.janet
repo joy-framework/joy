@@ -2,11 +2,9 @@
 (import ./layout :as layout)
 (import ./routes :as routes)
 
-(def db (env :db-name))
-
 (def app (-> (app routes/app)
-             (set-db db)
-             (set-layout layout/app)
+             (db (env :db-name))
+             (layout layout/app)
              (logger)
              (csrf-token)
              (session)
