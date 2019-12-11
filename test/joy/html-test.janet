@@ -6,8 +6,20 @@
   (test "empty div"
     (= "<div></div>" (html/html [:div])))
 
+  (test "empty div with spaces"
+    (= "<div>hello world</div>" (html/html [:div "hello world"])))
+
+  (test "empty div with special characters"
+    (= "<div>!@#$&#37;^&amp;*()[]-_+=~`|\\:;&quot;'</div>" (html/html [:div "!@#$%^&*()[]-_+=~`|\\:;\"'"])))
+
   (test "empty div with attributes"
     (= `<div class="class"></div>` (html/html [:div {:class "class"}])))
+
+  (test "special characters again"
+    (= "<div>special!!!!&#37;$#^&amp;*()[] characters</div>" (html/html [:div "special!!!!%$#^&*()[] characters"])))
+
+  (test "special characters some more"
+    (= "<input value=\"&#37;\" type=\"password\" />" (html/html [:input {:type "password" :value "%"}])))
 
   (test "non-empty div without attributes"
     (= `<div>hello world</div>` (html/html [:div "hello world"])))

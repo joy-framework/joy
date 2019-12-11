@@ -5,7 +5,8 @@
   (let [struct-chars [["&" "&amp;"]
                       ["<" "&lt;"]
                       [">" "&gt;"]
-                      ["\"" "&quot;"]]]
+                      ["\"" "&quot;"]
+                      ["%" "&#37;"]]]
     (var string-escaped string-arg)
     (loop [[k v] :in struct-chars]
       (set string-escaped (string/replace-all k v string-escaped)))
@@ -53,7 +54,7 @@
 
 (defn- create-attrs
   [attrs]
-  (reduce attr-reducer "" (pairs attrs)))
+  (reduce attr-reducer "" (map (fn [[x y]] [x (escape y)]) (pairs attrs))))
 
 
 (defn- opening-tag
