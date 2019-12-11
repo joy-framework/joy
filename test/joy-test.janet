@@ -103,7 +103,7 @@
       (label :password)
       (password-field account :password)
 
-      (submit "Create"))))
+      (submit "Save"))))
 
 
 (defn new [request]
