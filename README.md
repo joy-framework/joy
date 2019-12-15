@@ -17,9 +17,9 @@ Joy is a full stack web framework written in [janet](https://github.com/janet-la
 
 ## Getting Started
 
-First things first, make sure [janet is installed](https://janet-lang.org/docs/index.html)
+First make sure [janet is installed](https://janet-lang.org/docs/index.html)
 
-Second things second, install the joy cli like this
+Next, install the joy cli like this
 
 ```sh
 jpm install https://github.com/joy-framework/joy.git
