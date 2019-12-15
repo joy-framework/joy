@@ -15,8 +15,6 @@ Joy is a full stack web framework written in [janet](https://github.com/janet-la
 (joy/server app 8000)
 ```
 
-**The below is README driven development, this doesn't work yet**
-
 ## Getting Started
 
 First things first, make sure [janet is installed](https://janet-lang.org/docs/index.html)
