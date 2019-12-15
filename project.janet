@@ -2,7 +2,7 @@
   :name "joy"
   :description "A full stack janet web framework"
   :dependencies [{:repo "https://github.com/janet-lang/json" :tag "fc59d46f06501569c21d18fff3df15e1494bf144"}
-                 {:repo "https://github.com/janet-lang/sqlite3" :tag "5e0ad6749a95a08818369d8467c346889496503d"}
+                 {:repo "https://github.com/janet-lang/sqlite3" :tag "a3a254003c605cf4e048963feda70a60537057d9"}
                  {:repo "https://github.com/janet-lang/path" :tag "e7f6f45575de7eca655da1c543df18c04b6d0dc5"}
                  {:repo "https://github.com/joy-framework/tester" :tag "c14aff3591cb0aed74cba9b54d853cf0bf539ecb"}
                  {:repo "https://github.com/joy-framework/cipher" :tag "a9432889da39cba58c1bb2625f32d3acac3948c7"}
