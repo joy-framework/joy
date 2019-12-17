@@ -62,13 +62,7 @@ Run this to create a new migration with a table with a few columns:
 joy create table account 'email text not null unique' 'password text not null'
 ```
 
-Let's go ahead and create another table that will store some data for those accounts
-
-```sh
-joy create table post 'title text' 'body text' 'account_id integer'
-```
-
-This has created two files in your db/migrations folder that are waiting to get applied to the database.
+This has created one file in your db/migrations folder that is waiting to get applied to the database.
 
 ### Run database migrations
 
@@ -78,21 +72,21 @@ Run this from your terminal
 joy migrate
 ```
 
-This will output what just happened to your database and create a new file `db/schema.sql` which is really just sqlite3's `.schema` output ... for now.
+This will output what just happened to your database and create a new file `db/schema.sql`.
 
-### Create route files
+### Create a route file
 
-In joy there is no MVC, no ORMs, no classes, and no objects. Just functions that take in requests and return responses. Let's make two route files that correspond to the two tables from earlier
+In joy there are no ORMs, no classes, and no objects, just functions that take in requests and return responses.
+
+Let's make a route file that corresponds to the table from earlier
 
 ```sh
 joy create route account
-joy create route post
 ```
 
-Those commands have created two new files: `src/routes/account.janet` and `src/routes/post.janet`
+Those commands have created another new file: `src/routes/account.janet` and updated your `src/routes.janet` file with a few helpful routes.
 
-You can look at them if you want but it's better to try them out. Head back over to http://localhost:8000/accounts
-or http://localhost:8000/posts and check it out!
+Go ahead and check out the new `account` routes in the browser now: `http://localhost:8000/account`
 
 Joy can do a lot more than that, more docs coming soon!
 
