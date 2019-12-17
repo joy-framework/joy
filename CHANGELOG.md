@@ -1,3 +1,15 @@
+## Joy 0.4.0 (12/16/2019)
+
+* Add git dotfiles to template folder
+* Add first pass at code generation
+* Change all database interactions to auto kebab-case from and snake-case to db
+* Fix duplicate body-parser middleware in template
+* Add csrf-protection
+* Set path and http-only on set-cookie middleware
+* Marshal/unmarshal for cookie session serialization
+* Escape html in attributes
+* Add second pass at route code generation
+
 ## Joy 0.3.0 (12/06/2019) ##
 
 * Finish up the cli

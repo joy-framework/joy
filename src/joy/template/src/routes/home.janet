@@ -6,7 +6,7 @@
           :class "w-100"}]
    [:p {:class "code"}
     [:b "Joy Version:"]
-    [:span " 1.0.0"]]
+    [:span " 0.4.0"]]
    [:p {:class "code"}
     [:b "Janet Version:"]
     [:span " 1.6.0"]]])
