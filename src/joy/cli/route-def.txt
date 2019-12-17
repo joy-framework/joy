@@ -1,0 +1,10 @@
+(def %singular-name%-routes
+  (routes
+    [:get "/%plural-name%" %singular-name%/index]
+    [:get "/%plural-name%/new" %singular-name%/new]
+    [:post "/%plural-name%" %singular-name%/create]
+    (middleware %singular-name%/find-by-id
+      [:get "/%plural-name%/:id" %singular-name%/show]
+      [:get "/%plural-name%/:id/edit" %singular-name%/edit]
+      [:patch "/%plural-name%/:id" %singular-name%/patch]
+      [:delete "/%plural-name%/:id" %singular-name%/destroy])))

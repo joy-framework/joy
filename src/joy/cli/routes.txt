@@ -1,6 +1,6 @@
 (import joy :prefix "")
 
-(defn set-%table-name% [handler]
+(defn find-by-id [handler]
   (fn [request]
     (let [{:db db :params params} request
           id (get params :id)

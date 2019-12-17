@@ -44,6 +44,13 @@
     (= `<div class="class"><span>span</span></div>` (html/html [:div {:class "class"}
                                                                 [:span "span"]])))
 
+  # (test "a link inside of some content"
+  #   (= `<div class="class">View the <a href="https://github.com/joy-framework/joy">joy</a> source</div>`
+  #      (print (html/html [:div {:class "class"}
+  #                          "View the "
+  #                          [:a {:href "https://github.com/joy-framework/joy"} "joy"]
+  #                          " source"]))))
+
   (test "html/html with a nested node with attributes and content"
     (= `<div class="class"><span id="id">span</span></div>` (html/html [:div {:class "class"}
                                                                         [:span {:id "id"} "span"]])))
