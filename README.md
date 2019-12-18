@@ -22,7 +22,7 @@ First make sure [janet is installed](https://janet-lang.org/docs/index.html)
 Next, install the joy cli like this
 
 ```sh
-jpm install https://github.com/joy-framework/joy.git
+jpm install joy
 ```
 
 Hopefully the `joy` executable will be on your path and ready to roll. Now, run the following from your terminal
