@@ -44,7 +44,6 @@
     (let [{:method method :uri uri} request
           filename (path/join root uri)]
       (if (and (some (partial = method) ["GET" "HEAD"])
-            (helper/file-exists? filename)
             (not (nil? (path/ext filename))))
         {:file filename}
         (handler request)))))
