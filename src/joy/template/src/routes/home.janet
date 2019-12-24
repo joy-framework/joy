@@ -9,4 +9,4 @@
     [:span " 0.4.0"]]
    [:p {:class "code"}
     [:b "Janet Version:"]
-    [:span " 1.6.0"]]])
+    [:span janet/version]]])
