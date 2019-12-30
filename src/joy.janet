@@ -11,8 +11,3 @@
 (import ./joy/cli :prefix "" :export true)
 (import ./joy/form-helper :prefix "" :export true)
 (import halo :prefix "" :export true)
-(import json)
-
-# TODO Is this necessary?
-(def json-decode json/decode)
-(def json json/encode)
