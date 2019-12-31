@@ -1,6 +1,8 @@
 (import ./helper :prefix "")
 (import ./http :as http)
 
+(varglobal '*route-symbols* @[])
+(varglobal '*route-table* @{})
 
 (defn- route-param [val]
   (if (and (string? val)
@@ -34,7 +36,8 @@
             (length request-url-segments))
         (as-> (interleave route-url-segments request-url-segments) %
               (apply struct %)
-              (select-keys % (filter (fn [x] (string/has-prefix? ":" x)) route-url-segments)))
+              (select-keys % (filter (fn [x] (string/has-prefix? ":" x)) route-url-segments))
+              (map-keys (fn [val] (-> (string/replace ":" "" val) (keyword))) %))
         {}))
     {}))
 
@@ -52,79 +55,46 @@
         [])))
 
 
-(defn- handler-name [val]
-  (if (function? val)
-    (-> (disasm val)
-        (get 'name))
-    val))
-
-
 (defn- route-name [route]
-  (-> (last route)
-      (handler-name)
-      (keyword)))
+  (-> route last keyword))
 
 
-(defn route-table [routes]
+(defn- route-table [routes]
   (->> routes
        (mapcat |(tuple (route-name $) $))
        (apply table)))
 
 
-(defn router
-  "Creates a handler from routes"
+(defn handler
+  "Creates a handler function from routes. Returns nil when handler/route doesn't exist."
   [routes]
   (fn [request]
     (let [{:uri uri} request
           route (find-route routes request)
-          [route-method route-uri] route
-          functions (filter function? route)
-          middleware-fn (when (> (length functions) 1)
-                          (->> (array/slice functions 0 -2)
-                               (apply comp)))
-          route-fn (if (empty? functions)
-                     nil
-                     (last functions))
-          route-fn (if (function? middleware-fn)
-                     (middleware-fn route-fn)
-                     route-fn)
-          route-params (route-params route-uri uri)
-          request (merge request {:params (map-keys (fn [val] (-> (string/replace ":" "" val) (keyword))) route-params)
-                                  :routes (route-table routes)})]
-      (if (function? route-fn)
-        (route-fn request)
-        @{:status 404}))))
+          [route-method route-uri route-fn] route
+          params (route-params route-uri uri)
+          request (merge request {:params params})]
+      (when (function? route-fn)
+        (route-fn request)))))
 
 
-(def app router)
+(defn app [& handlers]
+  (fn [request]
+    (some |($ request) handlers)))
 
 
-(defn- depth [val idx]
-  (if (indexed? val)
-    (depth (first val) (inc idx))
-    idx))
+(defmacro routes [& args]
+  (do
+    ~(array/concat *route-symbols* (drop 1 ,;args))
+    ~(set *route-table* (merge *route-table* (route-table (drop 1 ,;args))))))
 
 
-(defn- flatten-wrapped-routes [x]
-  (if (> (depth x 0) 1)
-    (mapcat flatten-wrapped-routes x)
-    [x]))
-
-
-(defn- apply-middleware [route middleware-fns]
-  (let [route-array (-> (apply array route)
-                        (array/insert 2 middleware-fns))]
-    (mapcat identity route-array)))
-
-
-(defn middleware [& args]
-  (let [middleware-fns (filter function? args)
-        routes (filter indexed? args)]
-    (map |(apply-middleware $ middleware-fns) routes)))
-
-
-(defn routes [& args]
-  (flatten-wrapped-routes args))
+(defmacro defroutes [& args]
+  (let [name (first args)
+        rest (drop 1 args)
+        rest (array ;rest)]
+    (routes args)
+    ~(def ,name :public ,rest)))
 
 
 (defn- query-string [m]
@@ -136,9 +106,9 @@
         (string "?" s)))))
 
 
-(defn url-for [{:routes route-table} route-keyword &opt params]
+(defn url-for [route-keyword &opt params]
   (default params {})
-  (let [route (get route-table route-keyword)
+  (let [route (get *route-table* route-keyword)
         _ (when (nil? route) (error (string "Route " route-keyword " does not exist")))
         route-params (->> (kvs params)
                           (apply table))
@@ -152,9 +122,9 @@
     (string url qs anchor)))
 
 
-(defn action-for [{:routes route-table} route-keyword &opt params]
+(defn action-for [route-keyword &opt params]
   (default params {})
-  (let [[method url] (get route-table route-keyword)
+  (let [[method url] (get *route-table* route-keyword)
         action (route-url url params)
         _method (when (not= :post method) method)
         method (if (not= :get method) :post :get)]
@@ -163,7 +133,7 @@
      :action action}))
 
 
-(defn redirect-to [request route-keyword &opt params]
+(defn redirect-to [route-keyword &opt params]
   @{:status 302
     :body ""
-    :headers @{"Location" (url-for request route-keyword (or params {}))}})
+    :headers @{"Location" (url-for route-keyword (or params {}))}})
