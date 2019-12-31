@@ -13,12 +13,12 @@
 
 (defn form-for [action-args & body]
   (let [[request] action-args
-        action (apply router/action-for action-args)]
+        action (apply router/action-for (drop 1 action-args))]
     [:form action
       body
-      (when (not (nil? (request :csrf-token)))
+      (when (truthy? (request :csrf-token))
         (hidden-field request :csrf-token))
-      (when (not (nil? (action :_method)))
+      (when (truthy? (action :_method))
         (hidden-field action :_method))]))
 
 
