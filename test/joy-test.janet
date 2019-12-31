@@ -16,13 +16,10 @@
         [:body body]]))))
 
 
-(defn set-account [handler]
-  (fn [request]
-    (let [{:db db :params params} request
-          id (get params :id)
-          account (fetch db [:account id])]
-      (handler
-       (merge request {:account account :id id})))))
+(defn account [request]
+  (let [db (get request :db)
+        id (get-in request [:params :id])]
+    (fetch db [:account id])))
 
 
 (def params
@@ -61,7 +58,7 @@
           [:td updated-at]
           [:td created-at]
           [:td
-           [:a {:href (url-for request :edit {:id id})}
+           [:a {:href (url-for :edit {:id id})}
             "Edit"]]
           (when (not (nil? session))
             [:td
@@ -71,7 +68,7 @@
 
 
 (defn show [request]
-  (let [{:account account} request
+  (let [account (account request)
         {:id id :name name :email email :password password :created-at created-at :updated-at updated-at} account]
     [:table
      [:tr
@@ -116,7 +113,7 @@
                               (insert db :account)
                               (rescue))]
     (if (nil? errors)
-      (-> (redirect-to request :index)
+      (-> (redirect-to :index)
           (put :session account))
       (new (put request :errors errors)))))
 
@@ -126,50 +123,39 @@
 
 
 (defn patch [request]
-  (let [{:db db :id id} request
+  (let [{:db db} request
+        account (account request)
         [errors account] (->> (params request)
-                              (update db :account id)
+                              (update db :account (account :id))
                               (rescue))]
     (if (nil? errors)
-      (redirect-to request :index)
+      (redirect-to :index)
       (edit (put request :errors errors)))))
 
 
 (defn destroy [request]
   (let [{:db db :id id} request]
     (delete db :account id)
-    (redirect-to request :index)))
+    (redirect-to :index)))
 
 
 (defn error-test [request]
   (error "test error"))
 
 
-(def account-routes
-  (routes
-    [:get "/accounts" index]
-    [:get "/accounts/new" new]
-    [:post "/accounts" create]
-    (middleware set-account
-      [:get "/accounts/:id" show]
-      [:get "/accounts/:id/edit" edit]
-      [:patch "/accounts/:id" patch]
-      [:delete "/accounts/:id" destroy])))
+(defroutes routes
+  [:get "/" home]
+  [:get "/accounts" index]
+  [:get "/accounts/new" new]
+  [:post "/accounts" create]
+  [:get "/accounts/:id" show]
+  [:get "/accounts/:id/edit" edit]
+  [:patch "/accounts/:id" patch]
+  [:delete "/accounts/:id" destroy]
+  [:get "/error-test" error-test])
 
 
-(def home-routes
-  (routes
-   [:get "/" home]
-   [:get "/error-test" error-test]))
-
-
-(def routes
-  (routes
-    home-routes
-    account-routes))
-
-
-(def app (-> (app routes)
+(def app (-> (handler routes)
              (db "test.sqlite3")
              (layout app-layout)
              (logger)
