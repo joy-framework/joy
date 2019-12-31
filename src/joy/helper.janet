@@ -112,3 +112,25 @@
                             (range 97 123)
                             (range 48 57))]
     (string/from-bytes ;(map (fn [_] (rand-nth chars)) (range 0 len)))))
+
+
+(defn method? [name request]
+  (-> (get request :method)
+      (string/ascii-upper)
+      (= name)))
+
+
+(def get? (partial method? "GET"))
+(def head? (partial method? "HEAD"))
+(def post? (partial method? "POST"))
+(def put? (partial method? "PUT"))
+(def patch? (partial method? "PATCH"))
+(def delete? (partial method? "DELETE"))
+
+
+(defn xhr? [request]
+  (= "XMLHttpRequest" (get-in request [:headers "X-Requested-With"])))
+
+
+(defn body? [request]
+  (truthy? (get request :body)))
