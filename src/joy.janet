@@ -10,4 +10,5 @@
 (import ./joy/migrator :prefix "" :export true)
 (import ./joy/cli :prefix "" :export true)
 (import ./joy/form-helper :prefix "" :export true)
+(import ./joy/base64 :prefix "base64" :export true)
 (import halo :prefix "" :export true)
