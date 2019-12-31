@@ -33,8 +33,9 @@
     (if (tuple? kv-pairs)
       (string " "
         (string/join
-          (->> (map format-key-value-pairs (partition 2 kv-pairs))
-               (filter (fn [x] (not (nil? x)))))
+          (->> (partition 2 kv-pairs)
+               (map format-key-value-pairs)
+               (filter |(not (nil? $))))
           " "))
       "")))
 
@@ -51,27 +52,42 @@
     log-line))
 
 
+(defn request-struct [request options]
+  (let [{:uri uri :protocol proto
+         :method method :params params
+         :body body} request
+        params (helper/select-keys params (get options :ignore-keys))
+        body (helper/select-keys body (get options :ignore-keys))
+        method (string/ascii-upper method)
+        attrs @[:method method :url uri]
+        attrs (if (empty? params) attrs (array/concat attrs [:params params]))
+        attrs (if (empty? body) attrs (array/concat attrs [:body body]))]
+    {:level "info"
+     :msg (string/format "Started %s %s" method uri)
+     :ts (timestamp)
+     :attrs (freeze attrs)}))
+
+
+(defn response-struct [request response start-seconds end-seconds]
+  (let [duration (string/format "%.0fms" (* 1000 (- end-seconds start-seconds)))
+        {:status status} response
+        {:method method :uri uri} request
+        method (string/ascii-upper method)
+        content-type (or (get-in response [:headers "Content-Type"])
+                         (get-in response [:headers "content-type"]))]
+    {:ts (timestamp)
+     :level "info"
+     :msg (string/format "Finished %s %s" method uri)
+     :attrs [:method method :url uri :status status :duration duration :content-type content-type]}))
+
+
 (defn logger [handler &opt options]
   (default options {:ignore-keys [:password :confirm-password]})
   (fn [request]
-    (let [start (os/clock)
-          {:uri uri :protocol proto
-           :method method :params params
-           :body body} request
-          params (helper/select-keys params (get options :ignore-keys))
-          body (helper/select-keys body (get options :ignore-keys))
-          method (string/ascii-upper method)
-          attrs (filter |(not (empty? $)) [:method method :url uri :params params :body body])
-          request-log (log {:level "info"
-                            :msg (string/format "Started %s %s" method uri)
-                            :ts (timestamp)
-                            :attrs attrs})
+    (let [start-seconds (os/clock)
           response (handler request)
-          end (os/clock)
-          duration (string/format "%.0fms" (* 1000 (- end start)))
-          {:status status} response
-          response-log (log {:ts (timestamp)
-                             :level "info"
-                             :msg (string/format "Finished %s %s" method uri)
-                             :attrs [:method method :url uri :status status :duration duration]})]
-       response)))
+          end-seconds (os/clock)]
+      (when response
+        (log (request-struct request options))
+        (log (response-struct request response start-seconds end-seconds)))
+      response)))

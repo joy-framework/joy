@@ -10,4 +10,4 @@
   (test "logger"
     (= {:status 200 :body ""}
        ((logger/logger (fn [request] {:status 200 :body ""}))
-        {:method "GET" :uri "/hello" :params {}}))))
+        {:method :get :uri "/hello"}))))
