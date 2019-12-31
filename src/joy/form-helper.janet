@@ -2,7 +2,7 @@
 
 (defn- field [kind val key &opt attrs]
   (default attrs [])
-  [:input (merge {:type kind :name (string key) :value (val key)} (apply table attrs))])
+  [:input (merge {:type kind :name (string key) :value (get val key)} (apply table attrs))])
 
 
 (def hidden-field (partial field "hidden"))
