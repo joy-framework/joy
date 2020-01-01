@@ -1,7 +1,6 @@
 (import ./helper :prefix "")
 (import ./http :as http)
 
-(varglobal '*route-symbols* @[])
 (varglobal '*route-table* @{})
 
 (defn- route-param [val]
@@ -85,7 +84,6 @@
 
 (defmacro routes [& args]
   (do
-    ~(array/concat *route-symbols* (drop 1 ,;args))
     ~(set *route-table* (merge *route-table* (route-table (drop 1 ,;args))))))
 
 
