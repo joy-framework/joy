@@ -1,3 +1,15 @@
+## Joy 0.5.0 (12/31/2019)
+
+* Breaking changes for routing
+* No more per route middleware
+* Delete json-encode/decode functions
+* Rely on defglobal for routes tokens
+* Handle nil responses in built in middleware
+* Simplify routing by using `some` and grouping middleware per handler
+* `(defroutes name [] [])` instead of `(def name (routes [] []))`
+* Massive anti-csrf changes: encrypting, base64 encoding and storing the token in the session + hidden form fields
+* New module for base64 encoding/decoding (base64/encode), (base64/decode)
+
 ## Joy 0.4.0 (12/16/2019)
 
 * Add git dotfiles to template folder
