@@ -3,16 +3,17 @@
 Joy is a full stack web framework written in [janet](https://github.com/janet-lang/janet)
 
 ```clojure
-(import joy)
+(use joy)
 
 (defn home [request]
-  (joy/render :text "You found joy!"))
+  (render :text "You found joy!"))
 
-(def routes (joy/routes [:get "/" home]))
+(defroutes routes)
+  [:get "/" home]
 
-(def app (joy/app routes))
+(def app (handler routes))
 
-(joy/server app 8000)
+(server app 8000)
 ```
 
 ## Getting Started
@@ -92,4 +93,4 @@ Joy can do a lot more than that, more docs coming soon!
 
 ## Why?
 
-I wanted something that felt like [coast](https://coastonclojure.com) but took so little resources (memory + cpu) I could run dozens (if not hundreds) of websites on a single cheap [VPS](https://www.vultr.com/?ref=7614094).
+I wanted something that felt like [coast](https://coastonclojure.com) but took so little resources (memory + cpu) I could run dozens (if not hundreds) of websites on a cheap [VPS](https://www.vultr.com/?ref=7614094).
