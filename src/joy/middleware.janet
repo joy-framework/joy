@@ -211,7 +211,7 @@
         response
         (if (function? custom-fn)
           (custom-fn)
-          (respond :text "not found" :status 404))))))
+          (responder/respond :text "not found" :status 404))))))
 
 
 (defn extra-methods [handler]
