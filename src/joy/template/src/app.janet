@@ -3,9 +3,7 @@
 (import ./routes :as routes)
 
 
-(defn web
-  "Default web app middleware"
-  [handler]
+(defn app-middleware [handler]
   (-> handler
       (db (env :db-name))
       (layout layout/app)
@@ -21,9 +19,8 @@
       (not-found)))
 
 
-(def public (-> routes/public
-                (handler)
-                (web)))
+(def app-handler (-> (handler routes/app)
+                     (app-middleware)))
 
 
-(def app (app public))
+(def app (app app-handler))

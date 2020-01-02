@@ -1,5 +1,5 @@
 (import joy :prefix "")
 (import ./routes/home :as home)
 
-(defroutes public
+(defroutes app
   [:get "/" home/index])
