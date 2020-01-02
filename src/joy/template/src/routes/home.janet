@@ -8,7 +8,7 @@
           :class "w-100"}]
    [:p {:class "code"}
     [:b "Joy Version:"]
-    [:span (string " " joy/version)]]
+    [:span (string " " version)]]
    [:p {:class "code"}
     [:b "Janet Version:"]
     [:span janet/version]]])
