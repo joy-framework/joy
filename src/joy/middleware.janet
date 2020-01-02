@@ -125,7 +125,7 @@
 
 (defn new-csrf-token [session-id]
   (when (truthy? session-id)
-    (->> (rand-str 40) (cipher/encrypt session-id) (base64/encode))))
+    (->> (rand-str 20) (cipher/encrypt session-id) (base64/encode))))
 
 
 (defn csrf-token [handler]
