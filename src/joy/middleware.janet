@@ -204,6 +204,16 @@
               :headers @{"Content-Type" "text/plain"}}))))))
 
 
+(defn not-found [handler &opt custom-fn]
+  (fn [request]
+    (let [response (handler request)]
+      (if (dictionary? response)
+        response
+        (if (function? custom-fn)
+          (custom-fn)
+          (respond :text "not found" :status 404))))))
+
+
 (defn extra-methods [handler]
   (fn [request]
     (let [{:method method :body body} request
