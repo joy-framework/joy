@@ -4,44 +4,6 @@
 (import path)
 
 
-(def grammar
-  ~{:ws (set " \t\r\f\n\0\v")
-    :readermac (set "';~,|")
-    :symchars (+ (range "09" "AZ" "az" "\x80\xFF") (set "!$%&*+-./:<?=>@^_|"))
-    :token (some :symchars)
-    :hex (range "09" "af" "AF")
-    :escape (* "\\" (+ (set "ntrzfev0\"\\")
-                       (* "x" :hex :hex)
-                       (error (constant "bad hex escape"))))
-    :comment (* "#" (any (if-not (+ "\n" -1) 1)))
-    :symbol :token
-    :keyword (* ":" (any :symchars))
-    :constant (+ "true" "false" "nil")
-    :bytes (* "\"" (any (+ :escape (if-not "\"" 1))) "\"")
-    :string :bytes
-    :buffer (* "@" :bytes)
-    :long-bytes {:delim (some "`")
-                 :open (capture :delim :n)
-                 :close (cmt (* (not (> -1 "`")) (-> :n) ':delim) ,=)
-                 :main (drop (* :open (any (if-not :close 1)) :close))}
-    :long-string :long-bytes
-    :long-buffer (* "@" :long-bytes)
-    :number (cmt (<- :token) ,scan-number)
-    :raw-value (+ :comment :constant :number :keyword
-                  :string :buffer :long-string :long-buffer
-                  :parray :barray :ptuple :btuple :struct :dict :symbol)
-    :value (* (any (+ :ws :readermac)) :raw-value (any :ws))
-    :root (any (<- :value))
-    :root2 (any (<- (* :value :value)))
-    :ptuple (* (<- "(") :root (+ (<- ")") (error "")))
-    :btuple (* "[" :root (+ "]" (error "")))
-    :struct (* "{" :root2 (+ "}" (error "")))
-    :parray (* "@" :ptuple)
-    :barray (* "@" :btuple)
-    :dict (* "@" :struct)
-    :main :root})
-
-
 (defn join-lines [dict lines]
   (string/join lines
     (string/format "\n%s"
@@ -127,18 +89,8 @@
           imports (filter |(string/has-prefix? "(import" $) lines)
           import-index (length imports)
           lines (array/insert lines import-index (string/format "(import ./routes/%s :as %s)" table-name table-name))
-          app-index (find-index |(string/has-prefix? "(def app" $) lines)
-          lines (array/insert lines app-index (route-def table-name))
-          app-index (find-index |(string/has-prefix? "(def app" $) lines)
-          parts (->> (peg/match grammar (-> (drop app-index lines)
-                                            (string/join "\n")))
-                     (filter |(not (and (string/has-prefix? "(" $) (or (string/has-suffix? ")\n" $) (string/has-suffix? ")" $))))))
-          index (find-index |(= ")" $) parts)
-          new-app @[(string/join
-                     (array/insert parts index (string/format "\n    %s-routes" table-name)))]]
-      (string/join
-       (array/concat (array/slice lines 0 app-index) new-app)
-       "\n"))))
+          lines (array/push lines (route-def table-name))]
+      (string/join lines "\n"))))
 
 
 (defn create [table-name]

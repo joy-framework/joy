@@ -1,12 +1,10 @@
 (import joy :prefix "")
 
-(defn find-by-id [handler]
-  (fn [request]
-    (let [{:db db :params params} request
-          id (get params :id)
-          %table-name% (fetch db [:%table-name% id])]
-      (handler
-       (merge request {:%table-name% %table-name% :id id})))))
+
+(defn %table-name% [request]
+  (let [db (get request :db)
+        id (get-in request [:params :id])]
+    (fetch db [:%table-name% id])))
 
 
 (def params
@@ -16,10 +14,10 @@
 
 
 (defn index [request]
-  (let [{:db db :session session} request
-        %table-name%s (fetch-all db [:%table-name%])]
+  (let [{:db db} request
+        %table-name% (fetch-all db [:%table-name%])]
    [:div
-    [:a {:href (url-for request :new)} "New %table-name%"]
+    [:a {:href (url-for :new)} "New %table-name%"]
     [:table
      [:thead
       [:tr
@@ -33,18 +31,17 @@
          [:tr
           %td-elements%
           [:td
-           [:a {:href (url-for request :show {:id id})} "Show"]]
+           [:a {:href (url-for :show {:id id})} "Show"]]
           [:td
-           [:a {:href (url-for request :edit {:id id})} "Edit"]]
+           [:a {:href (url-for :edit {:id id})} "Edit"]]
           [:td
-           [:form (action-for request :destroy {:id id})
-            [:input {:type "hidden" :name "_method" :value "delete"}]
-            [:input {:type "submit" :value "Delete"}]]]])
-       %table-name%s)]]]))
+           (form-for [:destroy {:id id}]
+            (submit "Delete"))]])
+       %table-name%)]]]))
 
 
 (defn show [request]
-  (let [{:%table-name% %table-name%} request
+  (let [%table-name% (%table-name% request)
         {%destructured-keys%} %table-name%]
     [:table
      [:tr
@@ -54,8 +51,7 @@
 
 
 (defn form [request route]
-  (let [%table-name% (get request :%table-name% {})
-        {%form-destructured-keys%} %table-name%]
+  (let [{%form-destructured-keys%} (%table-name% request)]
     (form-for [request route %table-name%]
       %form-elements%)))
 
@@ -71,7 +67,7 @@
                     (rescue))
         [errors %table-name%] result]
     (if (nil? errors)
-      (redirect-to request :index)
+      (redirect-to :index)
       (new (put request :errors errors)))))
 
 
@@ -80,17 +76,19 @@
 
 
 (defn patch [request]
-  (let [{:db db :id id} request
+  (let [{:db db} request
+        %table-name% (%table-name% request)
         result (->> (params request)
                     (update db :%table-name% id)
                     (rescue))
         [errors %table-name%] result]
     (if (nil? errors)
-      (redirect-to request :index)
+      (redirect-to :index)
       (edit (put request :errors errors)))))
 
 
 (defn destroy [request]
-  (let [{:db db :id id} request]
+  (let [{:db db} request
+        %table-name% (%table-name% request)]
     (delete db :%table-name% id)
-    (redirect-to request :index)))
+    (redirect-to :index)))
