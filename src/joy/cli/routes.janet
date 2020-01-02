@@ -45,6 +45,7 @@
                 not-sys-columns (filter |(and (not= $ "created_at") (not= $ "updated_at") (not= $ "id"))
                                         columns)
                 permit-keys (->> (map |(string ":" $) not-sys-columns)
+                                 (map helper/kebab-case)
                                  (helper/join-string " "))
                 kebab-columns (map helper/kebab-case columns)
                 ks (->> (map helper/kebab-case no-timestamp-columns)
