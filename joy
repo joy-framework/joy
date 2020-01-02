@@ -32,4 +32,4 @@
     "rollback" (joy/rollback (joy/env :db-name))
     "server" (os/shell "jpm run server")
     "watch" (os/shell "jpm run watch")
-    "version" (print "0.2.0")))
+    "version" (print joy/version)))

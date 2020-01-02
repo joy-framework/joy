@@ -134,3 +134,6 @@
 
 (defn body? [request]
   (truthy? (get request :body)))
+
+
+(def version "0.5.0")
