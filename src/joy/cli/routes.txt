@@ -7,12 +7,6 @@
     (fetch db [:%table-name% id])))
 
 
-(def params
-  (params
-    (validates [%permit-keys%] :required true)
-    (permit [%permit-keys%])))
-
-
 (defn index [request]
   (let [{:db db} request
         %table-name% (fetch-all db [:%table-name%])]
@@ -48,6 +42,12 @@
       %show-th-elements%]
      [:tr
       %show-td-elements%]]))
+
+
+(def params
+  (params
+    (validates [%permit-keys%] :required true)
+    (permit [%permit-keys%])))
 
 
 (defn form [request route]
