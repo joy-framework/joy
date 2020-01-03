@@ -1,4 +1,3 @@
-(defroutes %singular-name%
   [:get "/%plural-name%" %singular-name%/index]
   [:get "/%plural-name%/new" %singular-name%/new]
   [:post "/%plural-name%" %singular-name%/create]

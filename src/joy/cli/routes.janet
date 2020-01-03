@@ -90,6 +90,8 @@
           imports (filter |(string/has-prefix? "(import" $) lines)
           import-index (length imports)
           lines (array/insert lines import-index (string/format "(import ./routes/%s :as %s)" table-name table-name))
+          paren-index (find-index |(string/has-suffix? "])" $) lines)
+          lines (put lines paren-index (string/trimr (get lines paren-index) ")"))
           lines (array/push lines (route-def table-name))]
       (string/join lines "\n"))))
 
