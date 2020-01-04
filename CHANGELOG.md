@@ -1,4 +1,4 @@
-## Joy 0.5.0 (12/31/2019)
+## Joy 0.5.0 (01/04/2020)
 
 * Breaking changes for routing
 * No more per route middleware
@@ -9,6 +9,8 @@
 * `(defroutes name [] [])` instead of `(def name (routes [] []))`
 * Massive anti-csrf changes: encrypting, base64 encoding and storing the token in the session + hidden form fields
 * New module for base64 encoding/decoding (base64/encode), (base64/decode)
+* `app` has been renamed to `handler`
+* `app` is still around but it runs handlers one after the other for different middleware stacks (apis, auth...)
 
 ## Joy 0.4.0 (12/16/2019)
 
