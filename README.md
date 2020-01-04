@@ -33,7 +33,7 @@ joy new my-joy-project
 ```
 
 This should create a new directory called `my-joy-project` and it should create a few files and things
-to get you started. Next, let's create a database, two tables and connect them with routes and a few functions for handling requests.
+to get you started. Next, let's create a database, a table and connect it with routes and a few functions for handling requests.
 
 ### Create a new sqlite database
 
@@ -55,7 +55,7 @@ joy server
 
 This should start an http server that's listening at http://localhost:8000.
 
-### Create database tables
+### Create a database table
 
 Run this to create a new migration with a table with a few columns:
 
