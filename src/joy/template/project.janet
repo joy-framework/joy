@@ -1,7 +1,7 @@
 (declare-project
   :name "%project-name%"
   :description ""
-  :dependencies [{:repo "https://github.com/joy-framework/joy" :tag "0.5.0"}
+  :dependencies [{:repo "https://github.com/joy-framework/joy" :tag "b014c2168bcf8062fb2aad11a95d03095a221b83"}
                  {:repo "https://github.com/joy-framework/tester" :tag "0.1.0"}]
   :author ""
   :license ""
