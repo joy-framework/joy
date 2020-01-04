@@ -8,8 +8,8 @@ Joy is a full stack web framework written in [janet](https://github.com/janet-la
 (defn home [request]
   (render :text "You found joy!"))
 
-(defroutes routes)
-  [:get "/" home]
+(defroutes routes
+  [:get "/" home])
 
 (def app (handler routes))
 
