@@ -95,14 +95,17 @@
     (query db (string "select * from " (helper/snake-case table-name) " order by rowid limit " (length params)))))
 
 
-(defn update [db table-name id params]
+(defn update [db table-name dict-or-id params]
   (let [schema (when (dictionary? db)
                  (get db :schema))
         params (if (and (dictionary? schema)
                         (= "updated_at" (get schema (helper/snake-case table-name))))
                  (merge params {:updated-at (os/time)})
                  params)
-        sql (sql/update table-name params)]
+        sql (sql/update table-name params)
+        id (if (dictionary? dict-or-id)
+             (get dict-or-id :id)
+             dict-or-id)]
     (execute db sql (merge params {:id id}))
     (fetch db [table-name id])))
 
@@ -122,8 +125,11 @@
                           rows))))
 
 
-(defn delete [db table-name id]
-  (let [row (fetch db [table-name id])
+(defn delete [db table-name dict-or-id]
+  (let [id (if (dictionary? dict-or-id)
+             (get dict-or-id :id)
+             dict-or-id)
+        row (fetch db [table-name id])
         sql (sql/delete table-name id)
         params {:id id}]
     (execute db sql params)
