@@ -136,4 +136,4 @@
   (truthy? (get request :body)))
 
 
-(def version "0.5.1")
+(def version "0.5.2")
