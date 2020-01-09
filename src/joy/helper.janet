@@ -137,3 +137,10 @@
 
 
 (def version "0.5.2")
+
+
+(defn drop-last [val]
+  (cond
+    (array? val) (array/slice val 0 (dec (length val)))
+    (tuple? val) (tuple/slice val 0 (dec (length val)))
+    :else @[]))

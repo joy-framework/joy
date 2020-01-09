@@ -47,12 +47,6 @@
          (helper/join-string " "))))
 
 
-(defn drop-last [arr]
-  (->> (reverse arr)
-       (drop 1)
-       (reverse)))
-
-
 (defn clone-inside
   "Copies the inner elements of arrays when there are three or more elements"
   [an-array]
@@ -60,7 +54,7 @@
         inner (drop 1 an-array)
         last-val (when (not (empty? inner))
                    (last inner))
-        inner (drop-last inner)
+        inner (helper/drop-last inner)
         cloned-inner (interleave inner inner)]
     (->> [first-val cloned-inner last-val]
          (filter |(not (nil? $)))
