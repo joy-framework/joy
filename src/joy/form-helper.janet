@@ -22,13 +22,12 @@
         (hidden-field action :_method))]))
 
 
-(defn label [key &opt attrs]
-  (default attrs [:for (string key)])
+(defn label [key & args]
   (let [str (string key)]
-    [:label (merge {:for str :style "display: block;"} (apply table attrs)) str]))
+    [:label (merge {:for str :style "display: block;"} (table ;args))
+      str]))
 
 
-(defn submit [value &opt attrs]
-  (default attrs [])
-  [:input (merge {:type "submit" :value value :style "display: block"} (apply table attrs))])
+(defn submit [value & args]
+  [:input (merge {:type "submit" :value value :style "display: block"} (apply table args))])
 
