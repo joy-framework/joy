@@ -14,7 +14,7 @@
 (defn layout [handler layout-fn]
   (fn [request]
     (let [response (handler request)
-          response (if (indexed? response) @{:status 200 :body response} response)]
+          response (if (indexed? response) @{:status 200 :body response :request request} response)]
       (if (= 200 (get response :status))
         (layout-fn response)
         response))))
