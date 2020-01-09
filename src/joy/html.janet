@@ -128,8 +128,8 @@
       (string/join (map create element) "")
       (let [[name attrs] element]
         (if (dictionary? attrs)
-          (create-element create name attrs (drop 2 element))
-          (create-element create name {} (drop 1 element)))))
+          (create-element create name attrs (filter truthy? (drop 2 element)))
+          (create-element create name {} (filter truthy? (drop 1 element))))))
     ""))
 
 

@@ -95,4 +95,17 @@
          [:head
           [:title "title"]]
          [:body
+          [:h1 "h1"]]])))
+
+  (test "html with when"
+    (= `<!DOCTYPE HTML><html><head><title>title</title></head><body><h1>h1</h1></body></html>`
+       (html/html
+        (html/doctype :html5)
+        [:html
+         [:head
+          [:title "title"]]
+         [:body
+          (when false
+            [:div "hello"])
           [:h1 "h1"]]]))))
+
