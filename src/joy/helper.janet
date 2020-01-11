@@ -144,3 +144,16 @@
     (array? val) (array/slice val 0 (dec (length val)))
     (tuple? val) (tuple/slice val 0 (dec (length val)))
     :else @[]))
+
+
+(defmacro rest
+  `Returns all but the first element in an array/tuple.
+   Does not maintain input (array or tuple) data structure,
+   always returns a tuple. Throws on nil.
+
+   Example
+
+   (rest @[1 2 3]) => (2 3)
+   (rest [3 2 1]) => (2 1)`
+  [indexed]
+  ~(drop 1 ,indexed))
