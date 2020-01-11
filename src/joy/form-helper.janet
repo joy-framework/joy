@@ -1,17 +1,82 @@
 (import ./router :as router)
 
-(defn- field [kind val key &opt attrs]
-  (default attrs [])
-  [:input (merge {:type kind :name (string key) :value (get val key)} (apply table attrs))])
+
+(defn- field [kind val key & attrs]
+  [:input (merge {:type kind :name (string key) :value (get val key)} (table ;attrs))])
 
 
-(def hidden-field (partial field "hidden"))
-(def text-field (partial field "text"))
-(def email-field (partial field "email"))
-(def password-field (partial field "password"))
+(def hidden-field
+  `(hidden-field val key & attrs)
+
+   Generates an <input type="hidden" /> html element where
+   val is a dictionary and key is the value html attribute of a key
+   in the val dictionary. If key is nil, an error will be thrown.
+
+   Ex.
+
+   (hidden-field {:a "a" :b "b"} :a :class "a-class" :style "a-style")
+   (hidden-field {:a "a" :b "b"} :b)`
+  (partial field "hidden"))
 
 
-(defn form-for [action-args & body]
+(def text-field
+  `(text-field val key & attrs)
+
+   Generates an <input type="text" /> html element where
+   val is a dictionary and key is the value html attribute of a key
+   in the val dictionary. If key is nil, an error will be thrown.
+
+   Ex.
+
+   (text-field {:a "a" :b "b"} :a :class "a-class" :style "a-style")
+   (text-field {:a "a" :b "b"} :b)`
+  (partial field "text"))
+
+
+(def email-field
+  `(email-field val key & attrs)
+
+   Generates an <input type="email" /> html element where
+   val is a dictionary and key is the value html attribute of a key
+   in the val dictionary. If key is nil, an error will be thrown.
+
+   Ex.
+
+   (email-field {:a "a" :b "b"} :a :class "a-class" :style "a-style")
+   (email-field {:a "a" :b "b"} :b)`
+  (partial field "email"))
+
+
+(def password-field
+  `(password-field val key & attrs)
+
+   Generates an <input type="password" /> html element where
+   val is a dictionary and key is the value html attribute of a key
+   in the val dictionary. If key is nil, an error will be thrown.
+
+   Ex.
+
+   (password-field {:a "a" :b "b"} :a :class "a-class" :style "a-style")
+   (password-field {:a "a" :b "b"} :b)`
+  (partial field "password"))
+
+
+(defn form-for
+  `(form-for action-args & body)
+
+   Generates a <form> html element where action-args is a tuple
+   of [request route-keyword route-arg1 route-arg2...] and
+   body is the rest of the form. The form requires the request for
+   the csrf-token and any put, patch or delete http methods.
+   These get put in the _method hidden input.
+
+   Ex.
+
+   (form-for [request :account/patch {:id 1}]
+    (label :name "Account name")
+    (text-field {:name "name"} :name)
+    (submit "Save name"))`
+  [action-args & body]
   (let [[request] action-args
         action (apply router/action-for (drop 1 action-args))]
     [:form action
@@ -22,12 +87,34 @@
         (hidden-field action :_method))]))
 
 
-(defn label [key & args]
-  (let [str (string key)]
-    [:label (merge {:for str :style "display: block;"} (table ;args))
-      str]))
+(defn label
+  `(label html-for body & args)
+
+   Generates a <label> html element where html-for
+   is the for attribute value (as a keyword) and the
+   body is usually just the label's string value, args
+   represents the rest of the attributes, if any.
+
+   Ex.
+
+   (label :name "Account name")
+   (label :name "Account name" :class "form-label")`
+  [html-for body & args]
+  [:label (merge {:for (string html-for)} (table ;args))
+    body])
 
 
-(defn submit [value & args]
-  [:input (merge {:type "submit" :value value :style "display: block"} (apply table args))])
+(defn submit
+  `(submit value & args)
+
+   Generates an <input type="submit" /> html element
+   where value is the value attribute and the args
+   are any html attributes.
+
+   Ex.
+
+   (submit "Save")
+   (submit "Save" :class "btn btn-submit")`
+  [value & args]
+  [:input (merge {:type "submit" :value value} (table ;args))])
 
