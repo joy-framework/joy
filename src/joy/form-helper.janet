@@ -62,9 +62,7 @@
 
 
 (defn form-for
-  `(form-for action-args & body)
-
-   Generates a <form> html element where action-args is a tuple
+  `Generates a <form> html element where action-args is a tuple
    of [request route-keyword route-arg1 route-arg2...] and
    body is the rest of the form. The form requires the request for
    the csrf-token and any put, patch or delete http methods.
@@ -88,9 +86,7 @@
 
 
 (defn label
-  `(label html-for body & args)
-
-   Generates a <label> html element where html-for
+  `Generates a <label> html element where html-for
    is the for attribute value (as a keyword) and the
    body is usually just the label's string value, args
    represents the rest of the attributes, if any.
@@ -105,9 +101,7 @@
 
 
 (defn submit
-  `(submit value & args)
-
-   Generates an <input type="submit" /> html element
+  `Generates an <input type="submit" /> html element
    where value is the value attribute and the args
    are any html attributes.
 
