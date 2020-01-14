@@ -172,10 +172,18 @@
 (defn delete-all
   "Returns a delete sql string from a table name and value for the id column"
   [table-name params]
-  (string "delete from " (helper/snake-case table-name) " where " (where-clause params)))
+  (let [where-params (get params :where)
+        where (when (truthy? where-params) (string "where " (where-clause where-params)))]
+    (->> [(string "delete from " (helper/snake-case table-name))
+          where
+          (fetch-options params)]
+         (filter truthy?)
+         (helper/join-string " ")
+         (string/trimr))))
 
 
 (defn delete
   "Returns a delete sql string from a table name and value for the id column"
   [table-name id]
-  (delete-all table-name {:id id}))
+  (string/trimr
+   (delete-all table-name {:where {:id id}})))

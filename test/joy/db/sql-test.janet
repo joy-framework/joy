@@ -76,15 +76,15 @@
 
   (test "delete-all test with params dictionary"
     (= "delete from account where name = :name"
-       (sql/delete-all :account {:name "name"})))
+       (sql/delete-all :account {:where {:name "name"}})))
 
-  (test "delete-all test with params dictionary"
+  (test "delete-all test with params dictionary kebab case"
     (= "delete from account where a_b_c = :a_b_c"
-       (sql/delete-all :account {:a-b-c ""})))
+       (sql/delete-all :account {:where {:a-b-c ""}})))
 
   (test "delete-all test with params string"
     (= "delete from account where name = :name or name is null"
-       (sql/delete-all :account "name = :name or name is null")))
+       (sql/delete-all :account {:where "name = :name or name is null"})))
 
   (test "where-clause test"
     (= "id = :id and name = :name"
