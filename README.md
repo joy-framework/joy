@@ -89,7 +89,7 @@ Those commands have created another new file: `src/routes/account.janet` and upd
 
 Go ahead and check out the new `account` routes in the browser now: `http://localhost:8000/account`
 
-Joy can do a lot more than that, more docs coming soon!
+Joy can do a lot more than that, [check out the docs here](https://github.com/joy-framework/joy/wiki)
 
 ## Why?
 
