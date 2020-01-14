@@ -17,7 +17,17 @@
         (get key))))
 
 
-(defn env [key]
+(defn env
+  `Returns a key from either a .env file or the system's environment
+
+   Example:
+
+   Given a .env file or a system env like this
+
+   JOY_ENV=development
+
+   (env :joy-env) => "development"`
+  [key]
   (when (keyword? key)
     (let [env-key (-> key string helper/snake-case string/ascii-upper)]
       (or (os/getenv env-key)
