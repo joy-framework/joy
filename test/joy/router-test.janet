@@ -47,12 +47,12 @@
   (test "redirect-to with a function"
     (= (freeze
         (redirect-to :home))
-       {:status 302 :body "" :headers {"Location" "/"}}))
+       {:status 302 :body " " :headers {"Location" "/"}}))
 
   (test "redirect-to with a name and params"
     (= (freeze
         (redirect-to :with-params {:id 100}))
-       {:status 302 :body "" :headers {"Location" "/accounts/100/edit"}}))
+       {:status 302 :body " " :headers {"Location" "/accounts/100/edit"}}))
 
   (test "action-for with a name and params"
     (= (freeze
