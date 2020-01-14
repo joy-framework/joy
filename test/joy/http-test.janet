@@ -36,7 +36,9 @@
     (nil? (http/parse-query-string "")))
 
   (test "parse-query-string with a ? only"
-    (nil? (http/parse-query-string "?")))
+    (let [parsed (http/parse-query-string "?")]
+      (and (empty? parsed)
+           (dictionary? parsed))))
 
   (test "parse-query-string with a url without a ?"
     (nil? (freeze
@@ -59,6 +61,6 @@
         (http/url-encode "hello!+world!"))))
 
   (test "url encode only encodes reserved characters"
-    (= "hello world%21%21"
+    (= "hello%20world%21%21"
        (http/url-encode "hello world!!"))))
 
