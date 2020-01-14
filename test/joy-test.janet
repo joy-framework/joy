@@ -91,13 +91,13 @@
   (let [account (get request :account {})
         {:name name :email email :password password} account]
     (form-for [request route account]
-      (label :name)
+      (label :name "name")
       (text-field account :name)
 
-      (label :email)
+      (label :email "email")
       (email-field account :email)
 
-      (label :password)
+      (label :password "password")
       (password-field account :password)
 
       (submit "Save"))))
