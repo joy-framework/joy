@@ -211,7 +211,7 @@
       (if (dictionary? response)
         response
         (if (function? custom-fn)
-          (custom-fn)
+          (custom-fn request)
           (responder/respond :text "not found" :status 404))))))
 
 
