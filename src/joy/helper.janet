@@ -3,7 +3,7 @@
 (defn kebab-case
   `Changes a string from snake_case to kebab-case
 
-   Ex.
+   Example
 
    (kebab-case "created_at") -> "created-at"`
   [val]
@@ -13,14 +13,22 @@
 (defn snake-case
   `Changes a string from kebab-case to snake_case
 
-   Ex.
+   Example
 
    (snake-case "created-at") -> "created_at"`
   [val]
   (string/replace-all "-" "_" val))
 
 
-(defn map-keys [f struct-m]
+(defn map-keys
+  `Executes a function on a dictionary's keys and
+   returns a struct
+
+  Example
+
+  (map-keys snake-case {:created_at "" :uploaded_by ""}) -> {:created-at "" :uploaded-by ""}
+  `
+  [f struct-m]
   (let [acc @{}]
     (loop [[k v] :in (pairs struct-m)]
       (put acc (f k) v))
