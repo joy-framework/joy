@@ -1,10 +1,22 @@
 # helper.janet
 
-(defn kebab-case [val]
+(defn kebab-case
+  `Changes a string from snake_case to kebab-case
+
+   Ex.
+
+   (kebab-case "created_at") -> "created-at"`
+  [val]
   (string/replace-all "_" "-" val))
 
 
-(defn snake-case [val]
+(defn snake-case
+  `Changes a string from kebab-case to snake_case
+
+   Ex.
+
+   (snake-case "created-at") -> "created_at"`
+  [val]
   (string/replace-all "-" "_" val))
 
 
