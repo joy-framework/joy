@@ -18,7 +18,7 @@
 
 (defn form-element [table-name column]
   (join-lines {:spaces 6}
-   [(string/format "(label :%s \"%s\")" column)
+   [(string/format "(label :%s \"%s\")" column (string column))
     (string/format "(text-field %s :%s)" table-name column)]))
 
 
