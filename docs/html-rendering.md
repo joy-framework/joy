@@ -29,6 +29,21 @@ See, it wasn't that bad, it's actually kind of readable
 
 That's pretty much all there is to it, but we can go further
 
+## Dynamic data
+
+How do you do loops?!
+
+```clojure
+(defn item [{:name name}]
+  [:li {:class "list-item"} name])
+
+(let [items [{:name "name1"} {:name "name2"}]]
+  [:ul {:class "list"}
+    (map item items)])
+```
+
+Other dynamic data that isn't loops, works similarly. You have the full power of the janet language at your disposal! There's no separate template syntax to learn!
+
 ## Layouts
 
 How do you get things like re-use and layouts? Functions!
@@ -44,9 +59,9 @@ How do you get things like re-use and layouts? Functions!
 
 (defn layout [response])
   (let [{:body body} response]
-    (respond :html
-      (html
-       (doctype :html5)
+    (joy/respond :html
+      (joy/html
+       (joy/doctype :html5)
        [:html {:lang "en"}
         [:head
          [:meta {:charset "utf-8"}]
