@@ -158,7 +158,7 @@
 (def app (-> (handler routes)
              (db "test.sqlite3")
              (layout app-layout)
-             (logger)
+             #(logger)
              (csrf-token)
              (session)
              (extra-methods)
