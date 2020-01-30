@@ -10,10 +10,8 @@
     (= {:hello "world" :email "janet@example.com"} (http/parse-body "hello=world&email=janet%40example.com")))
 
   (test "parse-body with space char"
-    (= {:space-test "this is a test" :email "janet@example.com"} (http/parse-body "space-test=this%20is%20a%20test&email=janet%40example.com"))))
+    (= {:space-test "this is a test" :email "janet@example.com"} (http/parse-body "space-test=this%20is%20a%20test&email=janet%40example.com")))
 
-
-(deftest
   (test "cookie-string"
     (= "name=value; "
        (http/cookie-string "name" "value" {})))
@@ -28,10 +26,8 @@
 
   (test "cookie-string with samesite, httponly and path"
     (= "name=value; SameSite=Strict; Path=/; HttpOnly"
-       (http/cookie-string "name" "value" {"SameSite" "Strict" "HttpOnly" "" "Path" "/"}))))
+       (http/cookie-string "name" "value" {"SameSite" "Strict" "HttpOnly" "" "Path" "/"})))
 
-
-(deftest
   (test "parse-query-string with nil"
     (nil? (http/parse-query-string nil)))
 
@@ -50,9 +46,8 @@
   (test "parse-query-string with a real query string"
     (= {:a "b" :c "2" :encoded "hello world"}
        (freeze
-        (http/parse-query-string "/hello-world/part/part1?a=b&c=2&encoded=hello%20world")))))
+        (http/parse-query-string "/hello-world/part/part1?a=b&c=2&encoded=hello%20world"))))
 
-(deftest
   (test "url encode and decode"
     (= "hello! world!"
        (http/url-decode
