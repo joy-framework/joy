@@ -7,7 +7,10 @@
     (= {:hello "world"} (http/parse-body "hello=world")))
 
   (test "parse-body with escaped char"
-    (= {:hello "world" :email "janet@example.com"} (http/parse-body "hello=world&email=janet%40example.com"))))
+    (= {:hello "world" :email "janet@example.com"} (http/parse-body "hello=world&email=janet%40example.com")))
+
+  (test "parse-body with space char"
+    (= {:space-test "this is a test" :email "janet@example.com"} (http/parse-body "space-test=this%20is%20a%20test&email=janet%40example.com"))))
 
 
 (deftest
