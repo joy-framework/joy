@@ -57,4 +57,11 @@
              (helper/rescue)
              (first)
              (freeze))
-         {:name "name can't be blank"}))))
+         {:name "name can't be blank"})))
+
+  (let [test-params (params
+                      (validates :website :uri true))]
+    (test "uri validator"
+      (= (-> (test-params {:body {:website "example.com"}})
+             (protect)
+             (last))))))

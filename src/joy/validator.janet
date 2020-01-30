@@ -1,4 +1,5 @@
 (import ./helper :as helper)
+(import uri)
 
 (defn- max-length? [len val]
   (> (length val) len))
@@ -21,6 +22,12 @@
   (let [result (peg/match '(any (+ (* ($) "@") 1)) val)]
     (and (not (nil? result))
       (not (empty? result)))))
+
+
+(defn- uri? [val]
+  (when (string? val)
+    (->> (uri/parse val)
+         (helper/contains? :path))))
 
 
 (defn- invalid-keys [ks dict pred]
@@ -49,13 +56,15 @@
          :min-length min-length
          :max-length max-length
          :email email
-         :matches matches} validator
+         :matches matches
+         :uri uri} validator
         msg (cond
               (true? required) "is required"
               (number? min-length) (string "needs to be more than " min-length " characters")
               (number? max-length) (string "needs to be less than " max-length " characters")
               (not (nil? email)) "needs to be an email"
               (not (nil? matches)) (string "needs to match " (string/format "%q" matches))
+              (not (nil? uri)) (string "needs to be a valid uri " (string/format "%q" uri))
               :else "")
         predicate (cond
                     (true? required) blank?
@@ -63,6 +72,7 @@
                     (number? max-length) (partial max-length? max-length)
                     (not (nil? email)) (comp not email?)
                     (not (nil? matches)) (partial (comp not matches-peg?) matches)
+                    (not (nil? uri)) (comp not uri?)
                     :else identity)]
     (let [invalid-ks (invalid-keys ks body predicate)]
       (if (empty? invalid-ks)
