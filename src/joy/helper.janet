@@ -42,19 +42,40 @@
     (table/to-struct acc)))
 
 
-(defn select-keys [dict ks]
+(defn contains?
+  `Finds a truthy value in an indexed or a dictionary's
+   keys
+
+   Example
+
+   (contains? :a [:a :b :c]) => true
+   (contains? :a {:a 1 :b 2 :c 3}) => true
+   (contains? :d {:a 1 :b 2 :c 3}) => false`
+  [val arr]
+  (when (or (indexed? arr)
+            (dictionary? arr))
+    (truthy?
+     (or (find |(= val $) arr)
+         (get arr val)))))
+
+
+(defn select-keys
+  `Selects part of a dictionary based on arr of keys
+   and returns a table.
+
+   Example
+
+   (select-keys @{:a 1 :b 2 :c 3} [:a :b]) => @{:a 1 :b 2}
+   (select-keys @{:a 1 :b 2 :c 3} []) => @{}
+   (select-keys @{:a 1 :b 2 :c 3} [:a]) => @{:a 1}`
+  [dict arr]
   (if (and (dictionary? dict)
-        (indexed? ks))
-    (do
-      (var new-table @{})
-      (loop [k :in ks]
-        (put new-table k (get dict k)))
-      (if (struct? dict)
-        (table/to-struct new-table)
-        new-table))
-    (if (struct? dict)
-      {}
-      @{})))
+        (indexed? arr))
+    (->> (pairs dict)
+         (filter |(contains? (first $) arr))
+         (mapcat identity)
+         (apply table))
+    @{}))
 
 
 (defmacro rescue [f &opt id]
