@@ -44,6 +44,22 @@ How do you do loops?!
 
 Other dynamic data that isn't loops, works similarly. You have the full power of the janet language at your disposal! There's no separate template syntax to learn!
 
+## Unescaped HTML strings
+
+Another benefit of having the language represent html is everything gets escaped by default. The only problem is when you *dont* want everything escaped, like inserting a string of markdown for example. There's a way around it: `raw`
+
+```clojure
+(import joy :prefix "")
+(import moondown)
+
+(defn show [request]
+  (let [title (get-in request [:params :title])]
+    (with-file [f (string/format "posts/%s.md" title)]
+      (render :html
+        [:div {:class "white bg-transparent lh-copy mt4"}
+          (raw (moondown/render (string (file/read f :all))))]))))
+```
+
 ## Layouts
 
 How do you get things like re-use and layouts? Functions!
