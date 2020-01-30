@@ -1,4 +1,4 @@
-## Getting Started
+# Getting Started
 
 First make sure [janet is installed](https://janet-lang.org/docs/index.html)
 
