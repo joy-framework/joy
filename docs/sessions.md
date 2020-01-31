@@ -44,7 +44,7 @@ Likewise you can remove data from the session similarly:
 
 ```clojure
 (-> (redirect-to :home-page)
-    (put :session nil))
+    (put :session {}))
 ```
 
 
