@@ -9,7 +9,7 @@
 
 (defn index [request]
   (let [{:db db} request
-        %table-name% (fetch-all db [:%table-name%])]
+        rows (fetch-all db [:%table-name%])]
    [:div
     [:a {:href (url-for :%table-name%/new)} "New %table-name%"]
     [:table
@@ -31,7 +31,7 @@
           [:td
            (form-for [request :%table-name%/destroy {:id id}]
             (submit "Delete"))]])
-       %table-name%)]]]))
+       rows)]]]))
 
 
 (defn show [request]
