@@ -25,7 +25,7 @@
        (http/cookie-string "name" "value" {"SameSite" "Strict" "HttpOnly" ""})))
 
   (test "cookie-string with samesite, httponly and path"
-    (= "name=value; SameSite=Strict; Path=/; HttpOnly"
+    (= "name=value; SameSite=Strict; HttpOnly; Path=/"
        (http/cookie-string "name" "value" {"SameSite" "Strict" "HttpOnly" "" "Path" "/"})))
 
   (test "parse-query-string with nil"

@@ -15,7 +15,7 @@
        (sql/insert :account {:name 'null})))
 
   (test "insert with multiple params with dashes"
-    (= "insert into account (password, name, created_at) values (:password, :name, :created_at)"
+    (= "insert into account (password, created_at, name) values (:password, :created_at, :name)"
        (sql/insert :account {:name "name" :password "password" :created-at "created-at"})))
 
   (test "insert-all test"
@@ -35,8 +35,8 @@
        (freeze (sql/insert-all-params [{:name "name1" :email "email"} {:name "name2" :email "email2"}]))))
 
   (test "insert-all-params test with three params"
-    (= [1 "email" "name1" 2 "email2" "name2"]
-       (freeze (sql/insert-all-params [{:name "name1" :email "email" :test 1} {:name "name2" :email "email2" :test 2}]))))
+    (deep= @["email" 1 "name1" "email2" 2 "name2"]
+           (sql/insert-all-params [{:name "name1" :email "email" :test 1} {:name "name2" :email "email2" :test 2}])))
 
   (test "insert-all-params test"
     (= ["name1" "name2"]
@@ -87,11 +87,11 @@
        (sql/delete-all :account {:where "name = :name or name is null"})))
 
   (test "where-clause test"
-    (= "id = :id and name = :name"
+    (= "name = :name and id = :id"
        (sql/where-clause {:id 1 :name "name"})))
 
   (test "where-clause with a null value"
-    (= "id = :id and name is null"
+    (= "name is null and id = :id"
        (sql/where-clause {:id 1 :name 'null})))
 
   (test "from test"
