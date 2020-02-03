@@ -77,7 +77,8 @@
     (let [invalid-ks (invalid-keys ks body predicate)]
       (if (empty? invalid-ks)
         body
-        (helper/raise (error-map invalid-ks (or message msg)))))))
+        (-> (error-map invalid-ks (or message msg))
+            (helper/raise :params))))))
 
 
 (defn permit
