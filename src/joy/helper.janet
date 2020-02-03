@@ -83,10 +83,14 @@
      [nil ,f]
      ([err]
       (if (and (dictionary? err)
-            (or (true? (get err :id))
+            (or (truthy? (get err :id))
               (= ,id (get err :id))))
         [(get err :error) nil]
         (error err)))))
+
+
+(defmacro rescue-from [id f]
+  ~(rescue ,f ,id))
 
 
 (defn raise [err &opt id]
