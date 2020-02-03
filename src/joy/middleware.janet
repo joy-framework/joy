@@ -32,10 +32,6 @@
                       (apply merge)))]
     (fn [request]
       (db/with-db-connection [conn db-name]
-        # TODO: Figure out a better way to do this
-        # connection pool? or one connection per
-        # server and then transactions per request
-        (db/execute conn "PRAGMA foreign_keys = 1")
         (handler (put request :db {:schema schema :connection conn}))))))
 
 

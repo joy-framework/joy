@@ -15,7 +15,9 @@
      (sqlite3/eval conn "select 1;" {}))`
   [binding & body]
   ~(with [,(first binding) (,sqlite3/open ,(get binding 1)) ,sqlite3/close]
-    ,;body))
+     (sqlite3/eval ,(first binding) "PRAGMA foreign_keys = 1;")
+     (sqlite3/eval ,(first binding) "PRAGMA journal_mode=WAL;")
+     ,;body))
 
 
 (defn kebab-case-keys
