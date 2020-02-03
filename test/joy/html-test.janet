@@ -19,7 +19,7 @@
     (= "<div>special!!!!&#37;$#^&amp;*()[] characters</div>" (html/html [:div "special!!!!%$#^&*()[] characters"])))
 
   (test "special characters some more"
-    (= "<input value=\"&#37;\" type=\"password\" />" (html/html [:input {:type "password" :value "%"}])))
+    (= "<input type=\"password\" value=\"&#37;\" />" (html/html [:input {:type "password" :value "%"}])))
 
   (test "non-empty div without attributes"
     (= `<div>hello world</div>` (html/html [:div "hello world"])))
