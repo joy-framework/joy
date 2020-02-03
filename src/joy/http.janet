@@ -8,6 +8,10 @@
 (def url-encode uri/escape)
 
 
+(defn form-decode [val]
+  (string/replace-all "+" " " (uri/unescape val)))
+
+
 (defn parse-body [string-s]
   (when (and (string? string-s)
           (not (empty? string-s)))
@@ -16,7 +20,8 @@
          (flatten)
          (apply table)
          (helper/map-keys keyword)
-         (helper/map-vals uri/unescape))))
+         (helper/map-vals uri/unescape)
+         (helper/map-vals form-decode))))
 
 
 (defn cookie-pair [str]

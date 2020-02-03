@@ -12,6 +12,9 @@
   (test "parse-body with space char"
     (= {:space-test "this is a test" :email "janet@example.com"} (http/parse-body "space-test=this%20is%20a%20test&email=janet%40example.com")))
 
+  (test "parse-body with + chars"
+    (= {:space-test "this is a test " :email "janet@example.com"} (http/parse-body "space-test=this+is+a+test%20&email=janet%40example.com")))
+
   (test "cookie-string"
     (= "name=value; "
        (http/cookie-string "name" "value" {})))
