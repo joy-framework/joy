@@ -177,7 +177,7 @@
   (truthy? (get request :body)))
 
 
-(def version "0.5.2")
+(def version "0.5.3")
 
 
 (defn drop-last [val]
