@@ -5,7 +5,7 @@
 (import ./joy/html :prefix "" :export true)
 (import ./joy/router :prefix "" :export true)
 (import ./joy/middleware :prefix "" :export true)
-(import ./joy/db :prefix "" :export true)
+(import ./joy/db1 :prefix "" :export true)
 (import ./joy/validator :prefix "" :export true)
 (import ./joy/migrator :prefix "" :export true)
 (import ./joy/cli :prefix "" :export true)
