@@ -6,7 +6,7 @@
                  {:repo "https://github.com/janet-lang/path" :tag "d8619960d428c45ebb784600771a7c584ae49431"}
                  {:repo "https://github.com/joy-framework/cipher" :tag "87fc9bc38b335d0f31c93d6c95f35b8a6abce6af"}
                  {:repo "https://github.com/joy-framework/codec" :tag "1c225116484a4eaee7674aa5fd5527ecb2353977"}
-                 {:repo "https://github.com/joy-framework/halo" :tag "70e03184d303f89489269bb440568727aceee9b1"}
+                 {:repo "https://github.com/joy-framework/halo" :tag "fd34201fee41b372314aede9e72044d711510afa"}
                  {:repo "https://github.com/andrewchambers/janet-uri" :tag "d191ed238dc7c4966f121f9f4c40b19cc75e34ee"}
                  {:repo "https://git.sr.ht/~bakpakin/temple" :tag "ed7e83e8779e2a54e23bbbcc75366ade2dd5372a"}
                  {:repo "https://github.com/joy-framework/tester" :tag "0.2.1"}]
