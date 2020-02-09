@@ -4,7 +4,7 @@ Database migrations in joy don't stray from other web frameworks. If it ain't br
 
 ## Creating a database
 
-Joy uses the `.env` file (or your system's environment) to create a new sqlite3 database file. So if `.env` has `DB_NAME=dev.sqlite3`. Your database will be called `dev.sqlite3`.
+Joy uses the `.env` file (or your system's environment) to create a new sqlite3 database file. So if `.env` has `DATABASE_URL=dev.sqlite3`. Your database will be called `dev.sqlite3`.
 
 ```sh
 joy create db
