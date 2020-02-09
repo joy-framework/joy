@@ -6,6 +6,7 @@
 (db/connect)
 
 (def app (as-> routes/app ?
+               (handler ?)
                (layout ? layout/app)
                (logger ?)
                (session ?)
