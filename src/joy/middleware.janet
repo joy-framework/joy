@@ -60,42 +60,60 @@
         (http/cookie-string cookie-name cookie-value options)))))
 
 
-(defn- decode-session [str encryption-key]
-  (when (truthy? str)
-    (let [decrypted (->> (base64/decode str)
-                         (cipher/decrypt encryption-key))]
-      (when (and (not (nil? decrypted))
-                 (not (empty? decrypted)))
-        (unmarshal decrypted)))))
+(defn- deserialize-session [decrypted]
+  (when (and (not (nil? decrypted))
+             (not (empty? decrypted)))
+    (unmarshal decrypted)))
 
 
-(defn- encode-session [val encryption-key]
-  (when (truthy? encryption-key)
+(defn- decrypt-session [key str]
+  (when (string? str)
+    (try
+      (as-> str ?
+            (base64/decode ?)
+            (cipher/decrypt key ?))
+      ([err]
+       (unless (= err "decryption failed")
+         (error err))))))
+
+
+(defn- decode-session [str key]
+  (when (and (string? str)
+             (truthy? key))
+    (as-> str ?
+          (decrypt-session key ?)
+          (deserialize-session ?))))
+
+
+(defn- encode-session [val key]
+  (when (truthy? key)
     (->> (marshal val)
          (string)
-         (cipher/encrypt encryption-key)
+         (cipher/encrypt key)
          (base64/encode))))
 
 
+(defn- session-from-request [key request]
+  (as-> (get-in request [:headers "Cookie"]) ?
+        (http/parse-cookie ?)
+        (get ? "id")
+        (decode-session ? key)))
+
+
 (defn session [handler]
-  (let [encryption-key (base64/decode (env/env :encryption-key))]
+  (let [key (base64/decode (env/env :encryption-key))]
     (fn [request]
-      (let [decoded-session (try
-                              (-> (get-in request [:headers "Cookie"])
-                                  (http/parse-cookie)
-                                  (get "id")
-                                  (decode-session encryption-key))
-                              ([err]
-                               (logger/log {:msg err :attrs [:action "decode-session" :uri (get request :uri) :method (get request :method)] :level "error"})))
-            response (handler (merge request (or decoded-session {})))
+      (let [request-session (or (session-from-request key request)
+                                @{})
+            response (handler (merge request request-session))
             session-value (or (get response :session)
-                              (get decoded-session :session))
-            session-id (or (get decoded-session :session-id)
+                              (get request-session :session))
+            session-id (or (get request-session :session-id)
                            (base64/encode (cipher/password-key)))]
           (let [joy-session {:session session-value :session-id session-id :csrf-token (get response :csrf-token)}]
             (when (truthy? response)
               (put-in response [:headers "Set-Cookie"]
-                (http/cookie-string "id" (encode-session joy-session encryption-key)
+                (http/cookie-string "id" (encode-session joy-session key)
                   {"SameSite" "Strict" "HttpOnly" "" "Path" "/"}))))))))
 
 
@@ -106,8 +124,12 @@
 
 (defn decode-token [token session-id]
   (when (truthy? token)
-    (->> (base64/decode token)
-         (cipher/decrypt session-id))))
+    (try
+      (->> (base64/decode token)
+           (cipher/decrypt session-id))
+      ([err]
+       (unless (= err "decryption failed")
+         (error err))))))
 
 
 (defn form-csrf-token [request]
