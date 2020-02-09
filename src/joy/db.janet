@@ -151,8 +151,7 @@
 
 
 (def schema-sql
-  `
-  select
+  `select
     m.name as tbl,
     pti.name as col
   from sqlite_master m
