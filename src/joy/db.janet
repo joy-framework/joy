@@ -3,7 +3,6 @@
 (import ./db/sql :as sql)
 (import ./env :prefix "")
 
-(setdyn :joy/connection nil)
 
 (defn connect [&opt database-url]
   (let [database-url (or database-url
