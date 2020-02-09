@@ -184,7 +184,7 @@
 
 (defn server-error [handler]
   (fn [request]
-    (let [f (fiber/new (partial handler request) :e)
+    (let [f (fiber/new (partial handler request) :eip)
           res (resume f)]
       (if (not= (fiber/status f) :error)
         res
