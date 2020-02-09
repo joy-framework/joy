@@ -10,16 +10,16 @@
 
 (declare-executable
   :name "%project-name%"
-  :entry "main.janet")
+  :entry "src/server.janet")
 
 (phony "server" []
   (do
-    (os/shell "pkill -xf 'janet main.janet'")
-    (os/shell "janet main.janet")))
+    (os/shell "pkill -xf 'janet src/server.janet'")
+    (os/shell "janet src/server.janet")))
 
 (phony "watch" []
   (do
-    (os/shell "pkill -xf 'janet main.janet'")
-    (os/shell "janet main.janet &")
+    (os/shell "pkill -xf 'janet src/server.janet'")
+    (os/shell "janet src/server.janet &")
     (os/shell "fswatch -o src | xargs -n1 -I{} ./watch")))
 

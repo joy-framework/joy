@@ -1,18 +1,19 @@
 (import joy :prefix "")
+(import joy/db)
 (import ./layout :as layout)
 (import ./routes :as routes)
 
+(db/connect)
 
 (def app (as-> routes/app ?
                (layout ? layout/app)
-               (db ? (env :database-url))
                (logger ?)
-               (csrf-token ?)
                (session ?)
                (extra-methods ?)
                (query-string ?)
                (body-parser ?)
                (server-error ?)
                (x-headers ?)
-               (static-files ?)
-               (not-found ?)))
+               (static-files ?)))
+
+(server app 8000)
