@@ -42,7 +42,7 @@ How do you do loops?!
     (map item items)])
 ```
 
-Other dynamic data that isn't loops, works similarly. You have the full power of the janet language at your disposal! There's no separate template syntax to learn!
+You have the full power of the janet language at your disposal! There's no separate template syntax to learn!
 
 ## Unescaped HTML strings
 

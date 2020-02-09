@@ -22,6 +22,7 @@ For this next bit you're going to need another library in your `project.janet` f
 *src/routes/account.janet*
 ```clojure
 (import joy :prefix "")
+(import joy/db)
 (import joy/base64 :as base64)
 (import cipher)
 
@@ -56,11 +57,11 @@ For this next bit you're going to need another library in your `project.janet` f
 
 
 (defn create [request]
-  (let [{:db db} request
-        result (->> (params request)
-                    (hash-password)
-                    (insert db :account)
-                    (rescue))
+  (let [result (as-> request ?
+                     (params ?)
+                     (hash-password ?)
+                     (db/insert :account ?)
+                     (rescue-from :params ?))
         [errors account] result
         account (select-keys account [:email])]
 
@@ -104,6 +105,7 @@ In case you didn't catch it before, this is the bit where we hash passwords. It'
 
 ```clojure
 (import joy :prefix "")
+(import joy/db)
 (import joy/base64 :as base64)
 (import cipher)
 
@@ -137,10 +139,11 @@ In case you didn't catch it before, this is the bit where we hash passwords. It'
 
 
 (defn create [request]
-  (let [{:db db} request
-        [_ account-params] (rescue (params request))
+  (let [[_ account-params] (as-> request ?)
+                                 (params ?)
+                                 (rescue ?))
         email (get account-params :email)
-        account (-> (from db :account :where {:email email} :limit 1)
+        account (-> (db/from :account :where {:email email} :limit 1)
                     (get 0))]
 
     (if (and (not (nil? account))
@@ -150,7 +153,7 @@ In case you didn't catch it before, this is the bit where we hash passwords. It'
       (new (put request :errors {:email "Email or password is incorrect"})))))
 ```
 
-Not the cleanest code there but don't forget to wire up those routes
+Don't forget to wire up those routes:
 
 ```clojure
 (use joy)
