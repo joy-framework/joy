@@ -21,8 +21,8 @@
   (let [[kind name] args]
     (case kind
       "migration" (migrations/create name)
-      "database" (helper/create-file (env/env :db-name))
-      "db" (helper/create-file (env/env :db-name))
+      "database" (helper/create-file (env/env :database-url))
+      "db" (helper/create-file (env/env :database-url))
       "route" (routes/create name)
       "table" (migrations/create (string "create-table-" name)
                 (tables/create (drop 1 args)))

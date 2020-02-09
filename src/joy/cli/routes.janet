@@ -33,7 +33,7 @@
   (let [sys-path (dyn :syspath)]
     (helper/with-file [f (path/join sys-path "joy" "cli" "routes.txt")]
       (let [template (file/read f :all)]
-        (db/with-db-connection [conn (env/env :db-name)]
+        (db/with-db-connection [conn (env/env :database-url)]
           (let [columns (->> (db/query conn `select pti.name as col
                                              from sqlite_master
                                              join pragma_table_info(sqlite_master.name) pti on sqlite_master.name != pti.name
