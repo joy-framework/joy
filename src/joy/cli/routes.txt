@@ -1,15 +1,14 @@
 (import joy :prefix "")
+(import joy/db)
 
 
 (defn %table-name% [request]
-  (let [db (get request :db)
-        id (get-in request [:params :id])]
-    (fetch db [:%table-name% id])))
+  (let [id (get-in request [:params :id])]
+    (db/fetch [:%table-name% id])))
 
 
 (defn index [request]
-  (let [{:db db} request
-        rows (fetch-all db [:%table-name%])]
+  (let [rows (db/fetch-all [:%table-name%])]
    [:div
     [:a {:href (url-for :%table-name%/new)} "New %table-name%"]
     [:table
@@ -61,9 +60,8 @@
 
 
 (defn create [request]
-  (let [{:db db} request
-        result (->> (params request)
-                    (insert db :%table-name%)
+  (let [result (->> (params request)
+                    (db/insert :%table-name%)
                     (rescue))
         [errors %table-name%] result]
     (if (nil? errors)
@@ -76,10 +74,9 @@
 
 
 (defn patch [request]
-  (let [{:db db} request
-        %table-name% (%table-name% request)
+  (let [%table-name% (%table-name% request)
         result (->> (params request)
-                    (update db :%table-name% %table-name%)
+                    (db/update :%table-name% %table-name%)
                     (rescue))
         [errors %table-name%] result]
     (if (nil? errors)
@@ -88,7 +85,6 @@
 
 
 (defn destroy [request]
-  (let [{:db db} request
-        %table-name% (%table-name% request)]
-    (delete db :%table-name% %table-name%)
+  (let [%table-name% (%table-name% request)]
+    (db/delete :%table-name% %table-name%)
     (redirect-to :%table-name%/index)))
