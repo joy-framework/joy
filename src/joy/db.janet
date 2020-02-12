@@ -226,6 +226,29 @@
     (query sql params)))
 
 
+(defn find
+  `Takes a table name and optional args
+   and returns either nil or the first row from the query.
+
+  Example:
+
+  (import joy/db)
+
+  (db/find :todo :where {:completed true} :order "name")
+
+  # or
+
+  (db/find :todo :where {:completed true} :order "name desc")
+
+  => {:id 1 name "name" :completed true}`
+  [table-name & args]
+  (let [opts (table ;args)
+        sql (sql/from table-name opts)
+        params (get opts :where {})
+        rows (query sql params)]
+    (get rows 0)))
+
+
 (defn insert
   `Takes an optional db connection, a table name and a dictionary,
   inserts the dictionary as rows/columns into the database
