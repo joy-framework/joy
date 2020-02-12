@@ -1,27 +1,15 @@
 (import ./helper :as helper)
 (import uri)
 
-
 (def url-decode uri/unescape)
-
-
 (def url-encode uri/escape)
 
-
-(defn form-decode [val]
-  (string/replace-all "+" " " (uri/unescape val)))
-
-
-(defn parse-body [string-s]
-  (when (and (string? string-s)
-          (not (empty? string-s)))
-    (->> (string/split "&" string-s)
-         (map |(string/split "=" $))
-         (flatten)
-         (apply table)
-         (helper/map-keys keyword)
-         (helper/map-vals uri/unescape)
-         (helper/map-vals form-decode))))
+(defn parse-body [str]
+  (as-> str ?
+        (string/split "+" ?)
+        (string/join ? "%20")
+        (uri/parse-query ?)
+        (helper/map-keys keyword ?)))
 
 
 (defn cookie-pair [str]
