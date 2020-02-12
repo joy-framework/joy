@@ -1,4 +1,5 @@
 (import ./router :as router)
+(import ./middleware :as middleware)
 
 
 (defn- field [kind val key & attrs]
@@ -79,8 +80,8 @@
         action (apply router/action-for (drop 1 action-args))]
     [:form action
       body
-      (when (truthy? (request :csrf-token))
-        (hidden-field request :csrf-token))
+      (when (get request :csrf-token)
+        [:input {:type "hidden" :name "__csrf-token" :value (middleware/form-csrf-token request)}])
       (when (truthy? (action :_method))
         (hidden-field action :_method))]))
 

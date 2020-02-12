@@ -60,18 +60,15 @@
         (http/cookie-string cookie-name cookie-value options)))))
 
 
-(defn- deserialize-session [decrypted]
-  (when (and (not (nil? decrypted))
-             (not (empty? decrypted)))
-    (unmarshal decrypted)))
+(defn- safe-unmarshal [val]
+  (unless (or (nil? val) (empty? val))
+    (unmarshal val)))
 
 
 (defn- decrypt-session [key str]
   (when (string? str)
     (try
-      (as-> str ?
-            (base64/decode ?)
-            (cipher/decrypt key ?))
+      (cipher/decrypt key str)
       ([err]
        (unless (= err "decryption failed")
          (error err))))))
@@ -82,15 +79,14 @@
              (truthy? key))
     (as-> str ?
           (decrypt-session key ?)
-          (deserialize-session ?))))
+          (safe-unmarshal ?))))
 
 
 (defn- encode-session [val key]
   (when (truthy? key)
     (->> (marshal val)
          (string)
-         (cipher/encrypt key)
-         (base64/encode))))
+         (cipher/encrypt key))))
 
 
 (defn- session-from-request [key request]
@@ -101,67 +97,71 @@
 
 
 (defn session [handler]
-  (let [key (base64/decode (env/env :encryption-key))]
+  (let [key (env/env :encryption-key)]
     (fn [request]
       (let [request-session (or (session-from-request key request)
                                 @{})
             response (handler (merge request request-session))
             session-value (or (get response :session)
-                              (get request-session :session))
-            session-id (or (get request-session :session-id)
-                           (base64/encode (cipher/password-key)))]
-          (let [joy-session {:session session-value :session-id session-id :csrf-token (get response :csrf-token)}]
+                              (get request-session :session))]
+          (let [joy-session {:session session-value :csrf-token (get response :csrf-token)}]
             (when (truthy? response)
               (put-in response [:headers "Set-Cookie"]
                 (http/cookie-string "id" (encode-session joy-session key)
                   {"SameSite" "Strict" "HttpOnly" "" "Path" "/"}))))))))
 
 
-(defn session-id [request]
-  (when-let [id (get request :session-id)]
-    (base64/decode id)))
+(defn xor-byte-strings [str1 str2]
+  (let [arr @[]
+        bytes1 (string/bytes str1)
+        bytes2 (string/bytes str2)]
+    (loop [i :range [0 32]]
+      (array/push arr (bxor (get bytes1 i) (get bytes2 i))))
+    (string/from-bytes ;arr)))
 
 
-(defn decode-token [token session-id]
-  (when (truthy? token)
-    (try
-      (->> (base64/decode token)
-           (cipher/decrypt session-id))
-      ([err]
-       (unless (= err "decryption failed")
-         (error err))))))
+(defn mask-token [request]
+  (let [pad (os/cryptorand 32)
+        csrf-token (get request :csrf-token)
+        masked-token (xor-byte-strings pad csrf-token)]
+    (base64/encode (string pad masked-token))))
+
+
+(defn session-csrf-token [request]
+  (or (get request :csrf-token)
+      (os/cryptorand 32)))
 
 
 (defn form-csrf-token [request]
-  (decode-token (get-in request [:body :csrf-token])
-                (session-id request)))
+  (mask-token request))
 
 
-(defn session-token [request]
-  (decode-token (get request :csrf-token)
-                (session-id request)))
+(defn csrf-tokens-equal? [form-token session-token]
+  (cipher/secure-compare form-token session-token))
 
 
-(defn new-csrf-token [session-id]
-  (when (truthy? session-id)
-    (->> (rand-str 20) (cipher/encrypt session-id) (base64/encode))))
+(defn unmask-token [request]
+  (let [masked-token (get-in request [:body :__csrf-token])
+        _ (when (nil? masked-token)
+            (error "Required parameter __csrf-token not found"))
+        token (base64/decode masked-token)
+        pad (string/slice token 0 32)
+        csrf-token (string/slice token 32)]
+    (xor-byte-strings pad csrf-token)))
 
 
 (defn csrf-token [handler]
   (fn [request]
-    (let [session-id (session-id request)
-          new-csrf-token (new-csrf-token session-id)]
+    (let [session-token (session-csrf-token request)]
        (if (or (head? request) (get? request))
-         (let [response (handler (put request :csrf-token new-csrf-token))]
-           (when (truthy? response)
-             (put response :csrf-token new-csrf-token)))
-         (let [session-token (session-token request)
-               form-csrf-token (form-csrf-token request)]
-           (if (= form-csrf-token session-token)
-             (let [response (handler request)]
-               (when (truthy? response)
-                 (put response :csrf-token new-csrf-token)))
-             (responder/render :text "Invalid CSRF Token" :status 403)))))))
+         (when-let [response (handler request)]
+           (put response :csrf-token session-token))
+         (let [form-token (unmask-token request)]
+           (if (csrf-tokens-equal? form-token session-token)
+             (when-let [response (handler request)]
+               (put response :csrf-token session-token))
+             (-> (responder/render :text "Invalid CSRF Token" :status 403)
+                 (put :csrf-token session-token))))))))
 
 
 (defn x-headers [handler &opt options]
