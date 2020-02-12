@@ -13,6 +13,25 @@ joy migrate
 
 Don't forget to migrate!
 
+## Create a password key for hashing passwords
+
+Open up your janet repl and type this in
+
+```clojure
+(import cipher) (cipher/password-key)
+```
+
+Copy and paste the output to your `.env` file like this:
+
+```sh
+# .env
+PASSWORD_KEY=<copy-pasted-value>
+```
+
+Replace `<copy-pasted-value>` with the actual value.
+
+Look, I know you know, but I just want to make sure this isn't a known unknown or an unknown unknown situation. So I spelled it out.
+
 ## Creating new accounts
 
 The next step is to set up routes and handlers to let people sign up and one more route to redirect people after signing in/up.
@@ -23,7 +42,6 @@ For this next bit you're going to need another library in your `project.janet` f
 ```clojure
 (import joy :prefix "")
 (import joy/db)
-(import joy/base64 :as base64)
 (import cipher)
 
 
@@ -50,9 +68,8 @@ For this next bit you're going to need another library in your `project.janet` f
 
 (defn hash-password [dict]
   (let [{:password password} dict
-        key (-> (env :encryption-key) (base64/decode))
-        new-password (-> (cipher/hash-password key password)
-                         (base64/encode))
+        key (env :password-key)
+        new-password (cipher/hash-password key password)
     (merge dict {:password new-password})))
 
 
@@ -93,9 +110,8 @@ In case you didn't catch it before, this is the bit where we hash passwords. It'
 ```clojure
 (defn hash-password [dict]
   (let [{:password password} dict
-        key (-> (env :encryption-key) (base64/decode))
-        new-password (-> (cipher/hash-password key password)
-                         (base64/encode))
+        key (env :password-key)
+        new-password (cipher/hash-password key password)
     (merge dict {:password new-password})))
 ```
 
@@ -106,7 +122,6 @@ In case you didn't catch it before, this is the bit where we hash passwords. It'
 ```clojure
 (import joy :prefix "")
 (import joy/db)
-(import joy/base64 :as base64)
 (import cipher)
 
 
@@ -129,12 +144,12 @@ In case you didn't catch it before, this is the bit where we hash passwords. It'
       (password-field account :password)
       (when errors [:div {:class "red"} (get errors :password)])
 
-      (submit "Save"))))
+      (submit "Save")))))
 
 
 (defn password-matches? [hashed plaintext]
-  (cipher/verify-password (codec/decode (env :encryption-key))
-                          (codec/decode (get hashed :password))
+  (cipher/verify-password (env :password-key)
+                          (get hashed :password)
                           (get plaintext :password)))
 
 
@@ -194,5 +209,5 @@ Oh, don't forget to update the routes again 😅
   [:post "/accounts" account/create]
   [:get "/sign-in" session/create]
   [:post "/sessions" session/create]
-  [:delete "/sessions" session/destroy])
+  [:delete "/sessions" session/destroy]) ; add this one here
 ```

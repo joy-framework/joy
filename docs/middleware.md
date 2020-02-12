@@ -9,6 +9,7 @@ If you make a new joy app from the command line with `joy new` you'll notice `sr
                (handler ?)
                (layout ? layout/app)
                (logger ? )
+               (csrf-token ?)
                (session ?)
                (extra-methods ?)
                (query-string ?)
