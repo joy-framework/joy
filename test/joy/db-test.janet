@@ -9,6 +9,8 @@
 
 (db/connect)
 
+(db/delete-all :account)
+
 (defn last-id []
   (as-> (db/from :account :order "created_at desc" :limit 1) ?
         (get ? 0)
@@ -18,6 +20,10 @@
   (test "insert"
     (let [account (db/insert :account {:name "name" :email "test@example.com" :password "password"})]
       (true? (truthy? (get account :created-at)))))
+
+  (test "from with null param"
+    (let [rows (db/from :account :where {:updated-at 'null})]
+      (= 1 (length rows))))
 
   (test "update"
     (let [account (db/update :account (last-id) {:name "new name"})]

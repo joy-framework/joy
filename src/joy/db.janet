@@ -222,7 +222,12 @@
   [table-name & args]
   (let [opts (table ;args)
         sql (sql/from table-name opts)
-        params (get opts :where {})]
+        params (get opts :where {})
+        params (as-> params ?
+                     (pairs ?)
+                     (filter (fn [[k v]] (not= 'null v)) ?)
+                     (mapcat identity ?)
+                     (apply table ?))]
     (query sql params)))
 
 
