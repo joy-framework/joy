@@ -1,5 +1,11 @@
 (import tester :prefix "" :exit true)
 (import "src/joy/db" :as db)
+(import "src/joy/helper" :as helper)
+(import cipher)
+
+# create a test .env file when this test is run
+(helper/with-file [f ".env" :w]
+  (file/write f (string/format "ENCRYPTION_KEY=%s\nJOY_ENV=development\nDATABASE_URL=test.sqlite3" (string (cipher/encryption-key)))))
 
 (db/connect)
 
