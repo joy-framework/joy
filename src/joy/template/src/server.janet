@@ -17,4 +17,6 @@
                (x-headers ?)
                (static-files ?)))
 
-(server app 8000)
+(server app 8000) # stops on SIGINT
+
+(db/disconnect)
