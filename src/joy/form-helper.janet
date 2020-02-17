@@ -62,6 +62,20 @@
   (partial field "password"))
 
 
+(def file-field
+  `(file-field val key & attrs)
+
+   Generates an <input type="file" /> html element where
+   val is a dictionary and key is the value html attribute of a key
+   in the val dictionary. If key is nil, an error will be thrown.
+
+   Ex.
+
+   (file-field {:a "a" :b "b"} :a :class "a-class" :style "a-style")
+   (file-field {:a "a" :b "b"} :b)`
+  (partial field "file"))
+
+
 (defn form-for
   `Generates a <form> html element where action-args is a tuple
    of [request route-keyword route-arg1 route-arg2...] and
