@@ -206,21 +206,17 @@
 
 (defn server-error [handler]
   (fn [request]
-    (let [f (fiber/new (partial handler request) :eip)
-          res (resume f)]
-      (if (not= (fiber/status f) :error)
-        res
-        (do
-          (let [attrs (kvs (select-keys request [:body :params]))]
-            (logger/log {:msg res :attrs attrs :level "error"}))
-          (debug/stacktrace f res)
-          (if (= "development" (env/env :joy-env))
-            (responder/respond :html
-              (dev-error-page request res)
-              :status 500)
-            @{:status 500
-              :body "Internal Server Error"
-              :headers @{"Content-Type" "text/plain"}}))))))
+    (try
+      (handler request)
+      ([err fib]
+       (debug/stacktrace fib err)
+       (if (= "development" (env/env :joy-env))
+         (responder/respond :html
+           (dev-error-page request err)
+           :status 500)
+         @{:status 500
+           :body "Internal Server Error"
+           :headers @{"Content-Type" "text/plain"}})))))
 
 
 (defn not-found [handler &opt custom-fn]
