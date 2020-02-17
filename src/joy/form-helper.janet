@@ -1,5 +1,6 @@
 (import ./router :as router)
 (import ./middleware :as middleware)
+(import ./helper :prefix "")
 
 
 (defn- field [kind val key & attrs]
@@ -97,6 +98,48 @@
       (when (get request :csrf-token)
         [:input {:type "hidden" :name "__csrf-token" :value (middleware/form-csrf-token request)}])
       (when (truthy? (action :_method))
+        (hidden-field action :_method))]))
+
+
+(defn form-with
+  [request &opt options & body]
+  `
+  Generates an html <form> element where the request is the request dictionary and options
+  are any form options.
+
+  Options can look like this:
+
+  {:route <a route keyword>
+   :route [:route {:id 1}] <- routes with args
+   :method "method"
+   :action "/"
+   :class ""
+   :enctype ""}
+
+  Examples:
+
+  (form-with request {:route :account/new :enctype "multipart/form-data"}
+    (label :name "name")
+    (file-field {} :name)
+    (submit "Upload file"))
+
+  (form-with request (merge (action-for :account/edit {:id 1}) {:enctype "multipart/form-data"})
+    (label :name "name")
+    (file-field {} :name)
+    (submit "Upload file"))`
+  (default options {})
+  (let [{:action action :route route} options
+        action (if (truthy? action)
+                 {:action action}
+                 (if (truthy? route)
+                   (router/action-for ;(if (indexed? route) route [route]))
+                   {:action ""}))
+        options (select-keys options [:class :enctype :method])]
+    [:form (merge options action)
+      body
+      (when (get request :csrf-token)
+        [:input {:type "hidden" :name "__csrf-token" :value (middleware/form-csrf-token request)}])
+      (when (truthy? (get action :_method))
         (hidden-field action :_method))]))
 
 
