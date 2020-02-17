@@ -140,8 +140,17 @@
   (cipher/secure-compare form-token session-token))
 
 
+(defn multipart-csrf-token [request]
+  (as-> request ?
+        (get ? :multipart-body)
+        (filter |(= (get $ :name) "__csrf-token") ?)
+        (first ?)
+        (get ? :content)))
+
+
 (defn unmask-token [request]
-  (let [masked-token (get-in request [:body :__csrf-token])
+  (let [masked-token (or (get-in request [:body :__csrf-token])
+                         (multipart-csrf-token request))
         _ (when (nil? masked-token)
             (error "Required parameter __csrf-token not found"))
         token (base64/decode masked-token)
@@ -180,7 +189,9 @@
 (defn body-parser [handler]
   (fn [request]
     (let [{:body body} request]
-      (if (and body (post? request))
+      (if (and body
+               (post? request)
+               (not (http/multipart? request)))
         (handler (merge request {:body (http/parse-body body)}))
         (handler request)))))
 
@@ -244,4 +255,30 @@
     (let [{:uri uri} request
           query-string (http/parse-query-string uri)
           request (put request :query-string query-string)]
+      (handler request))))
+
+
+(defn file-uploads
+  `This middleware attempts parse multipart form bodies
+   and saves temp files for each part with a filename
+   content disposition
+
+   The tempfiles are deleted after your handler is called
+
+   It then returns the body as an array of dictionaries like this:
+
+   @[{:filename "name of file" :content-type "content-type" :size 123 :tempfile "<file descriptor>"}]`
+  [handler]
+  (fn [request]
+    (if (and (get request :body)
+             (post? request)
+             (http/multipart? request))
+      (let [body (http/parse-multipart-body request)
+            response (handler (put request :multipart-body body))
+            files (as-> body ?
+                        (map |(get $ :temp-file) ?)
+                        (filter truthy? ?))]
+        (loop [f :in files] # delete temp files
+          (file/close f))
+        response)
       (handler request))))

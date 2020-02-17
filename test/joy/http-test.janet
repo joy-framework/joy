@@ -1,5 +1,5 @@
 (import tester :prefix "" :exit true)
-(import "src/joy/http" :as http)
+(import "src/joy" :prefix "")
 
 
 (deftest
@@ -63,5 +63,48 @@
 
   (test "url encode only encodes reserved characters"
     (= "hello%20world%21%21"
-       (http/url-encode "hello world!!"))))
+       (http/url-encode "hello world!!")))
 
+  (test "multipart?"
+    (true? (http/multipart? {:headers {"Content-Type" "multipart/form-data; boundary=------------------------a7d70bee2175f725"}})))
+
+  (test "multipart? false"
+    (false? (http/multipart? {:headers {"Content-Type" "application/x-www-form-urlencoded"}})))
+
+  (test "multipart-boundary"
+    (= "a simple boundary" (http/multipart-boundary {:headers {"Content-Type" "multipart/form-data; boundary=a simple boundary"}})))
+
+  (test "multipart-boundary 2"
+    (= "------------------------a7d70bee2175f725" (http/multipart-boundary {:headers {"Content-Type" "multipart/form-data; boundary=------------------------a7d70bee2175f725"}})))
+
+  (test "multipart header"
+    (= {:name "person"
+        "Content-Disposition" "form-data; name=\"person\""}
+       (http/multipart-header "Content-Disposition: form-data; name=\"person\"")))
+
+  (test "multipart header 2"
+    (= {:name "test"
+        :filename "testing weird @@ chars !! in ,<,> this one.txt"
+        "Content-Disposition" "form-data; name=\"test\" filename=\"testing weird @@ chars !! in ,<,> this one.txt\""}
+       (http/multipart-header "Content-Disposition: form-data; name=\"test\" filename=\"testing weird @@ chars !! in ,<,> this one.txt\"")))
+
+  (test "multipart-headers"
+    (= {:name "test"
+        :filename "test.txt"
+        "Content-Disposition" "form-data; name=\"test\"; filename=\"test.txt\""
+        "Content-Type" "text/plain"}
+       (http/multipart-headers "Content-Disposition: form-data; name=\"test\"; filename=\"test.txt\"\r\nContent-Type: text/plain\r\n\r\nthis is a test\n\nwith two lines in it\n\r\n")))
+
+  (test "parse-multipart-body"
+    (deep= @[{:name "person" :content "anonymous"}
+             {:name "test" :filename "test.txt" :size 36 :content-type "text/plain"}]
+           (let [sample-body "--------------------------78eaa4a42a0548dd\r\nContent-Disposition: form-data; name=\"person\"\r\n\r\nanonymous\r\n--------------------------78eaa4a42a0548dd\r\nContent-Disposition: form-data; name=\"test\"; filename=\"test.txt\"\r\nContent-Type: text/plain\r\n\r\nthis is a test\n\nwith two lines in it\n\r\n--------------------------78eaa4a42a0548dd--\r\n"
+                 request {:headers {"Content-Type" "multipart/form-data; boundary=------------------------78eaa4a42a0548dd"}
+                          :body sample-body}]
+             (as-> (http/parse-multipart-body request) ?
+                   (map |(struct :name (get $ :name)
+                                 :content (get $ :content)
+                                 :filename (get $ :filename)
+                                 :size (get $ :size)
+                                 :content-type (get $ :content-type))
+                        ?))))))
