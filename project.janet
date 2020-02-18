@@ -9,7 +9,7 @@
                  {:repo "https://github.com/joy-framework/halo" :tag "a276646d269fc8a8df5336015579219300378ac2"}
                  {:repo "https://github.com/andrewchambers/janet-uri" :tag "d191ed238dc7c4966f121f9f4c40b19cc75e34ee"}
                  {:repo "https://git.sr.ht/~bakpakin/temple" :tag "ed7e83e8779e2a54e23bbbcc75366ade2dd5372a"}
-                 {:repo "https://github.com/joy-framework/tester" :tag "0.2.1"}]
+                 {:repo "https://github.com/joy-framework/tester"}]
   :author "Sean Walker"
   :license "MIT"
   :url "https://github.com/joy-framework/joy"
