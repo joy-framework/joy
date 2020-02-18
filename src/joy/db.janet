@@ -25,7 +25,7 @@
    Example:
 
    (import sqlite3)
-   (import joy/db)
+   (import joy)
 
    (db/with-connection "a-different-database.sqlite3"
      (sqlite3/eval "select 1;"))`
@@ -86,7 +86,7 @@
 
   Example:
 
-  (import joy/db)
+  (import joy)
 
   (db/query "select * from todos")
 
@@ -112,7 +112,7 @@
 
   Example:
 
-  (import joy/db)
+  (import joy)
 
   (db/execute "create table todo (id integer primary key, name text)")
 
@@ -137,7 +137,7 @@
 
   Example:
 
-  (import joy/db)
+  (import joy)
 
   (db/last-inserted "todo" 1)
 
@@ -170,7 +170,7 @@
 
   Example:
 
-  (import joy/db)
+  (import joy)
 
   (db/fetch [:todo 1])
 
@@ -190,7 +190,7 @@
 
   Example:
 
-  (import joy/db)
+  (import joy)
 
   (db/fetch-all [:todo 1 :tag] :order "tag_name asc")
 
@@ -210,7 +210,7 @@
 
   Example:
 
-  (import joy/db)
+  (import joy)
 
   (db/from :todo :where {:completed true} :order "name" :limit 2)
 
@@ -231,19 +231,19 @@
     (query sql params)))
 
 
-(defn find
+(defn find-by
   `Takes a table name and optional args
    and returns either nil or the first row from the query.
 
   Example:
 
-  (import joy/db)
+  (import joy)
 
-  (db/find :todo :where {:completed true} :order "name")
+  (db/find-by :todo :where {:completed true} :order "name")
 
   # or
 
-  (db/find :todo :where {:completed true} :order "name desc")
+  (db/find-by :todo :where {:completed true} :order "name desc")
 
   => {:id 1 name "name" :completed true}`
   [table-name & args]
@@ -254,6 +254,23 @@
     (get rows 0)))
 
 
+(defn find
+  `Takes a table name and optional args
+   and returns either nil or the first row by primary key.
+
+  Example:
+
+  (import joy)
+
+  (db/find :todo 1)
+
+  => {:id 1 name "name" :completed true}`
+  [table-name id]
+  (let [sql (sql/from table-name {:where {:id id} :limit 1})
+        rows (query sql {:id id})]
+    (get rows 0)))
+
+
 (defn insert
   `Takes an optional db connection, a table name and a dictionary,
   inserts the dictionary as rows/columns into the database
@@ -261,7 +278,7 @@
 
   Example:
 
-  (import joy/db)
+  (import joy)
 
   (db/insert :todo {:name "name3"})
 
@@ -279,7 +296,7 @@
 
   Example:
 
-  (import joy/db)
+  (import joy)
 
   (db/insert-all :todo [{:name "name4"} {:name "name5"}])
 
@@ -304,7 +321,7 @@
 
   Example:
 
-  (import joy/db)
+  (import joy)
 
   (db/update :todo 4 {:name "new name 4"})
 
@@ -331,7 +348,7 @@
 
   Example:
 
-  (import joy/db)
+  (import joy)
 
   (db/update-all :todo {:completed false} {:completed true})
 
@@ -358,7 +375,7 @@
 
   Example:
 
-  (import joy/db)
+  (import joy)
 
   (db/delete :todo {:id 1})
 
@@ -379,7 +396,7 @@
 
   Example:
 
-  (import joy/db)
+  (import joy)
 
   (db/delete-all :post :where {:draft true} :limit 1)
 

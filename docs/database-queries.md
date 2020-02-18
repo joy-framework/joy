@@ -7,7 +7,7 @@ Database queries in joy are very basic, they go a little something like this:
 Joy uses the `.env` file in your project dir (the one with the `project.janet` file in it) or your actual os environment variables and looks for `DATABASE_URL` or in joy `(env :database-url)` for the connection string.
 
 ```clojure
-(import joy/db)
+(import joy)
 
 (db/connect)
 ```
@@ -69,6 +69,18 @@ A more generic query
 
 ```clojure
 (db/from :account :where {:email "email@example.com"} :order "created_at desc" :limit 10)
+```
+
+Find row by primary key
+
+```clojure
+(db/find :account 1)
+```
+
+Find first row by query
+
+```clojure
+(db/first :account :where {:email "email@example.com"})
 ```
 
 ## Conventions

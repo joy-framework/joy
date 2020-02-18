@@ -1,10 +1,9 @@
 (import tester :prefix "" :exit true)
-(import "src/joy/db" :as db)
-(import "src/joy/helper" :as helper)
+(import "src/joy" :prefix "")
 (import cipher)
 
 # create a test .env file when this test is run
-(helper/with-file [f ".env" :w]
+(with-file [f ".env" :w]
   (file/write f (string/format "ENCRYPTION_KEY=%s\nJOY_ENV=development\nDATABASE_URL=test.sqlite3" (string (cipher/encryption-key)))))
 
 (db/connect)
@@ -44,6 +43,14 @@
       (= "new name" (as-> rows ?
                           (get ? 0)
                           (get ? :name)))))
+
+  (test "find"
+    (let [row (db/find :account (last-id))]
+      (= "new name" (get row :name))))
+
+  (test "find-by"
+    (let [row (db/find-by :account :where {:id (last-id)})]
+      (= "new name" (get row :name))))
 
   (test "delete"
     (let [account (db/delete :account (last-id))]
