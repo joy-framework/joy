@@ -2,15 +2,17 @@
 # parts of the code shamelessly stolen from https://github.com/brandonchartier/html
 
 (defn- escape [string-arg]
-  (let [struct-chars [["&" "&amp;"]
-                      ["<" "&lt;"]
-                      [">" "&gt;"]
-                      ["\"" "&quot;"]
-                      ["%" "&#37;"]]]
-    (var string-escaped string-arg)
-    (loop [[k v] :in struct-chars]
-      (set string-escaped (string/replace-all k v string-escaped)))
-    string-escaped))
+  (if (string? string-arg)
+    (let [struct-chars [["&" "&amp;"]
+                        ["<" "&lt;"]
+                        [">" "&gt;"]
+                        ["\"" "&quot;"]
+                        ["%" "&#37;"]]]
+      (var string-escaped string-arg)
+      (loop [[k v] :in struct-chars]
+        (set string-escaped (string/replace-all k v string-escaped)))
+      string-escaped)
+    string-arg))
 
 
 (defn raw [val]
