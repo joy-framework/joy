@@ -12,6 +12,7 @@
 
 
 (defn create [name &opt content]
+  (default content {})
   (os/mkdir "db")
   (os/mkdir "db/migrations")
   (when (string? name)
