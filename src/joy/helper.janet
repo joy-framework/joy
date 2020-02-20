@@ -202,3 +202,20 @@
    (rest [3 2 1]) => (2 1)`
   [indexed]
   ~(drop 1 ,indexed))
+
+
+(defn singular [str]
+  (let [patterns [["ies" "y"]
+                  ["tches" "tch"]
+                  ["esses" "ess"]
+                  ["sses" "ss"]
+                  ["es" "e"]
+                  ["s" ""]]]
+    (var s str)
+    (loop [[suffix subst] :in patterns]
+      (when (string/has-suffix? suffix s)
+        (do
+          (set s (string/trimr s suffix))
+          (set s (string s subst))
+          (break))))
+    s))

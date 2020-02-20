@@ -69,13 +69,14 @@
                  (string/replace-all "%td-elements%" td-elements)
                  (string/replace-all "%show-th-elements%" show-th-elements)
                  (string/replace-all "%show-td-elements%" show-td-elements)
-                 (string/replace-all "%form-elements%" (form-elements table-name not-sys-columns))
-                 (string/replace-all "%form-destructured-keys%" (form-destructured-keys not-sys-columns)))))))))
+                 (string/replace-all "%form-elements%" (form-elements (helper/singular table-name) not-sys-columns))
+                 (string/replace-all "%form-destructured-keys%" (form-destructured-keys not-sys-columns))
+                 (string/replace-all "%singular-name%" (helper/singular table-name)))))))))
 
 
 (defn route-def [table-name]
   (let [plural-name table-name
-        singular-name table-name
+        singular-name (helper/singular table-name)
         sys-path (dyn :syspath)]
     (helper/with-file [f (path/join sys-path "joy" "cli" "route-def.txt")]
       (let [str (file/read f :all)]

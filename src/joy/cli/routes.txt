@@ -2,7 +2,7 @@
 (import joy/db)
 
 
-(defn %table-name% [request]
+(defn %singular-name% [request]
   (let [id (get-in request [:params :id])]
     (db/fetch [:%table-name% id])))
 
@@ -34,8 +34,8 @@
 
 
 (defn show [request]
-  (let [%table-name% (%table-name% request)
-        {%destructured-keys%} %table-name%]
+  (let [%singular-name% (%singular-name% request)
+        {%destructured-keys%} %singular-name%]
     [:table
      [:tr
       %show-th-elements%]
@@ -50,8 +50,8 @@
 
 
 (defn form [request route]
-  (let [%table-name% (%table-name% request)]
-    (form-for [request route %table-name%]
+  (let [%singular-name% (%singular-name% request)]
+    (form-for [request route %singular-name%]
       %form-elements%)))
 
 
@@ -63,7 +63,7 @@
   (let [result (->> (params request)
                     (db/insert :%table-name%)
                     (rescue))
-        [errors %table-name%] result]
+        [errors %singular-name%] result]
     (if (nil? errors)
       (redirect-to :%table-name%/index)
       (new (put request :errors errors)))))
@@ -74,17 +74,17 @@
 
 
 (defn patch [request]
-  (let [%table-name% (%table-name% request)
+  (let [{:id id} (%singular-name% request)
         result (->> (params request)
-                    (db/update :%table-name% %table-name%)
+                    (db/update :%table-name% id)
                     (rescue))
-        [errors %table-name%] result]
+        [errors %singular-name%] result]
     (if (nil? errors)
       (redirect-to :%table-name%/index)
       (edit (put request :errors errors)))))
 
 
 (defn destroy [request]
-  (let [%table-name% (%table-name% request)]
-    (db/delete :%table-name% %table-name%)
+  (let [{:id id} (%singular-name% request)]
+    (db/delete :%table-name% id)
     (redirect-to :%table-name%/index)))
