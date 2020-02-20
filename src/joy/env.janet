@@ -11,10 +11,11 @@
 
 
 (defn- dotenv [key]
-  (helper/with-file [f ".env" :r]
-    (-> (file/read f :all)
-        (parse-dotenv)
-        (get key))))
+  (when (os/stat ".env")
+    (helper/with-file [f ".env" :r]
+      (-> (file/read f :all)
+          (parse-dotenv)
+          (get key)))))
 
 
 (defn env
