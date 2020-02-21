@@ -11,6 +11,7 @@
   Actions:
     help                                     - Print this usage information
     new <project-name>                       - Create a new folder with the name of your project
+    bundle [path]                            - Bundles css and js files
     create <db|route|table|migration> <name> - Generate a new thing
     migrate                                  - Migrates the database
     rollback                                 - Rolls back the most recent migration
@@ -32,4 +33,5 @@
     "rollback" (joy/rollback (joy/env :database-url))
     "server" (os/shell "jpm run server")
     "watch" (os/shell "jpm run watch")
-    "version" (print joy/version)))
+    "version" (print joy/version)
+    "bundle" (joy/bundle options)))

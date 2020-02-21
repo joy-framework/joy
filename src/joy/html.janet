@@ -1,5 +1,6 @@
 # html.janet
 # parts of the code shamelessly stolen from https://github.com/brandonchartier/html
+(import ./env :as env)
 
 (defn- escape [string-arg]
   (if (string? string-arg)
@@ -137,3 +138,24 @@
 
 (defn html [& args]
   (string/join (map create args) ""))
+
+
+(defn link [href]
+  [:link {:href href :rel "stylesheet"}])
+
+
+(defn script [src]
+  [:script {:src src}])
+
+
+(defn css [filenames]
+  (if env/development?
+    (map link filenames)
+    (link "/bundle.css")))
+
+
+(defn js [filenames]
+  (if env/development?
+    (map script filenames)
+    (script "/bundle.js")))
+
