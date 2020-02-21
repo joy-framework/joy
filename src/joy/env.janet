@@ -33,3 +33,8 @@
     (let [env-key (-> key string helper/snake-case string/ascii-upper)]
       (or (os/getenv env-key)
           (dotenv env-key)))))
+
+
+(def development? (= "development" (env :joy-env)))
+(def test? (= "test" (env :joy-env)))
+(def production? (= "production" (env :joy-env)))
