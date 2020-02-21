@@ -221,7 +221,7 @@
       (handler request)
       ([err fib]
        (debug/stacktrace fib err)
-       (if (= "development" (env/env :joy-env))
+       (if env/development?
          (responder/respond :html
            (dev-error-page request err)
            :status 500)
