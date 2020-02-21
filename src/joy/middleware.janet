@@ -254,7 +254,7 @@
   (fn [request]
     (let [{:uri uri} request
           query-string (http/parse-query-string uri)
-          request (put request :query-string query-string)]
+          request (merge request {:query-string query-string})]
       (handler request))))
 
 
