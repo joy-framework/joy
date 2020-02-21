@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 
-pkill -xf 'janet src/server.janet'
-janet src/server.janet &
+pkill -xf 'janet main.janet'
+janet main.janet &
