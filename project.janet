@@ -1,7 +1,7 @@
 (declare-project
   :name "joy"
   :description "A full stack janet web framework"
-  :dependencies [{:repo "https://github.com/janet-lang/json" :tag "fc59d46f06501569c21d18fff3df15e1494bf144"}
+  :dependencies ["https://github.com/janet-lang/json"
                  {:repo "https://github.com/janet-lang/sqlite3" :tag "a3a254003c605cf4e048963feda70a60537057d9"}
                  {:repo "https://github.com/janet-lang/path" :tag "d8619960d428c45ebb784600771a7c584ae49431"}
                  {:repo "https://github.com/joy-framework/cipher" :tag "0.2.0"}
