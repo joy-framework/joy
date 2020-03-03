@@ -81,12 +81,12 @@
 (defmacro rescue [f &opt id]
   ~(try
      [nil ,f]
-     ([err]
+     ([err fib]
       (if (and (dictionary? err)
             (or (truthy? (get err :id))
               (= ,id (get err :id))))
         [(get err :error) nil]
-        (error err)))))
+        (propagate err fib)))))
 
 
 (defmacro rescue-from [id f]
