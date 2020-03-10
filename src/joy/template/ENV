@@ -1,2 +1,0 @@
-NGINX_SERVER_NAME=%project-name%
-AUTO_RESTART=1
