@@ -282,3 +282,38 @@
           (file/close f))
         response)
       (handler request))))
+
+
+(defn route [{:method method :uri uri}]
+  [method uri])
+
+
+(defn auth [handler &opt options]
+  (default options {:email {:table "users"
+                            :sign-in {:uri "/sign-in" :get sessions/new :post sessions/create}
+                            :sign-up {:uri "/sign-up" :get users/new :post users/create}
+                            :sign-out {:delete sessions/destroy}}
+                    :magic-link {:table "users"
+                                 :sign-in {:uri "/sign-in" :get sessions/new :post sessions/create}
+                                 :sign-out {:delete sessions/destroy}}})
+  (let [sign-in (get-in options [:sign-in :uri])
+        sign-up (get-in options [:sign-up :uri])
+        new-session (get-in options [:sign-in :get])
+        create-session (get-in options [:sign-in :post])
+        new-user (get-in options [:sign-up :get])
+        create-user (get-in options [:sign-up :post])
+        delete-session (get-in options [:sign-out :delete])]
+    (fn [request]
+      (match (route request)
+        ["GET" sign-up]              (new-user  request)
+        ["POST" (string "/" table)]  (create-user request)
+
+        ["GET" sign-in]              (new-session request)
+        ["POST" "/sessions"]         (create-session request)
+
+        ["GET" "/forgot-password"]   (forgot-password request)
+        ["PATCH" (string "/" table)] (patch-user request)
+
+        ["DELETE" "/sessions"]       (delete-session request)
+
+        (handler request)))))
