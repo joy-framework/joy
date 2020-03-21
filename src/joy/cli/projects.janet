@@ -26,10 +26,4 @@
       (set tmp (->> (file/read f :all)
                     (string/replace-all "%encryption-key%" (cipher/encryption-key)))))
     (helper/with-file [f (path/join project-name ".env") :w]
-      (file/write f tmp))
-
-    (helper/with-file [f (path/join project-name "ENV") :r]
-      (set tmp (->> (file/read f :all)
-                    (string/replace-all "%project-name%" project-name))))
-    (helper/with-file [f (path/join project-name "ENV") :w]
       (file/write f tmp))))
