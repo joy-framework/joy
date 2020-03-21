@@ -148,14 +148,29 @@
   [:script {:src src}])
 
 
-(defn css [filenames]
-  (if env/development?
-    (map link filenames)
-    (link "/bundle.css")))
+(defn find-bundle [ext]
+  (let [bundle (as-> (os/dir "public") ?
+                     (filter |(string/has-prefix? "bundle" $) ?)
+                     (filter |(string/has-suffix? ext $) ?)
+                     (get ? 0))]
+    (if (nil? bundle)
+      (printf "Warning: JOY_ENV is set to production but there was no bundled %s file. Run joy bundle to fix this." ext)
+      bundle)))
 
 
-(defn js [filenames]
-  (if env/development?
-    (map script filenames)
-    (script "/bundle.js")))
+(defn css [& filenames]
+  (let [css-bundle (find-bundle ".css")]
+    (if env/development?
+      (map link filenames)
+      (if (nil? css-bundle)
+        (map link filenames)
+        (link (string "./" css-bundle))))))
 
+
+(defn js [& filenames]
+  (let [js-bundle (find-bundle ".js")]
+    (if env/development?
+      (map script filenames)
+      (if (nil? js-bundle)
+        (map script filenames)
+        (script (string "./" js-bundle))))))

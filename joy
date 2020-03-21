@@ -22,16 +22,18 @@
 (def action (get args 1))
 (def options (drop 2 args))
 
+(def database-url (joy/env :database-url))
+
 (if (or (nil? action)
-      (empty? action))
+        (empty? action))
   (print "joy" usage)
   (case action
     "create" (apply joy/generate options)
     "help" (print "joy" usage)
     "new" (joy/generate "project" ;options)
-    "migrate" (joy/migrate (joy/env :database-url))
-    "rollback" (joy/rollback (joy/env :database-url))
+    "migrate" (joy/migrate database-url)
+    "rollback" (joy/rollback database-url)
     "server" (os/shell "jpm run server")
     "watch" (os/shell "jpm run watch")
     "version" (print joy/version)
-    "bundle" (joy/bundle options)))
+    "bundle" (joy/bundle)))
