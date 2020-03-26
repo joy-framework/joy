@@ -153,7 +153,8 @@
                      (filter |(string/has-prefix? "bundle" $) ?)
                      (filter |(string/has-suffix? ext $) ?)
                      (get ? 0))]
-    (if (nil? bundle)
+    (if (and env/production?
+             (nil? bundle))
       (printf "Warning: JOY_ENV is set to production but there was no bundled %s file. Run joy bundle to fix this." ext)
       bundle)))
 
