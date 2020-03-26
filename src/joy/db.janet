@@ -10,7 +10,6 @@
     (setdyn :joy/connection (sqlite3/open database-url))
     (let [db (dyn :joy/connection)]
       (sqlite3/eval db "PRAGMA foreign_keys = 1;")
-      (sqlite3/eval db "PRAGMA journal_mode=WAL;")
       db)))
 
 
@@ -34,7 +33,6 @@
     ~(let [,$databaseurl ,database-url
            'db (connect ,$databaseurl)]
        (sqlite3/eval 'db "PRAGMA foreign_keys = 1;")
-       (sqlite3/eval 'db "PRAGMA journal_mode=WAL;")
        ,;body
        (sqlite3/close 'db)
        (setdyn :joy/connection (sqlite3/open (env :database-url))))))
