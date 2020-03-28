@@ -16,7 +16,6 @@
   [binding & body]
   ~(with [,(first binding) (,sqlite3/open ,(get binding 1)) ,sqlite3/close]
      (,sqlite3/eval ,(first binding) "PRAGMA foreign_keys = 1;")
-     (,sqlite3/eval ,(first binding) "PRAGMA journal_mode=WAL;")
      ,;body))
 
 
