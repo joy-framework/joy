@@ -8,7 +8,8 @@
 
 (db/connect)
 
-(db/delete-all :account)
+(db/execute "drop table account")
+(db/execute "create table if not exists account (id integer primary key, name text not null unique, email text not null unique, password text not null, updated_at integer, created_at integer not null default(strftime('%s', 'now')))")
 
 (defn last-id []
   (as-> (db/from :account :order "created_at desc" :limit 1) ?
