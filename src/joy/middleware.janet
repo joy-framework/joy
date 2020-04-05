@@ -83,7 +83,8 @@
         (decode-session ? key)))
 
 
-(defn session [handler]
+(defn session [handler &opt cookie-options]
+  (default cookie-options {})
   (let [key (env/env :encryption-key)]
     (fn [request]
       (let [request-session (or (session-from-request key request)
@@ -93,9 +94,12 @@
                               (get request-session :session))]
           (let [joy-session {:session session-value :csrf-token (get response :csrf-token)}]
             (when (truthy? response)
-              (put-in response [:headers "Set-Cookie"]
-                (http/cookie-string "id" (encode-session joy-session key)
-                  {"SameSite" "Strict" "HttpOnly" "" "Path" "/"}))))))))
+              (let [cookie (get-in response [:headers "Set-Cookie"])
+                    session-cookie (http/cookie-string "id" (encode-session joy-session key)
+                                     (merge {"SameSite" "Lax" "HttpOnly" "" "Path" "/"} cookie-options))]
+                (if (indexed? cookie)
+                  (update-in response [:headers "Set-Cookie"] array/push session-cookie)
+                  (put-in response [:headers "Set-Cookie"] session-cookie)))))))))
 
 
 (defn xor-byte-strings [str1 str2]
