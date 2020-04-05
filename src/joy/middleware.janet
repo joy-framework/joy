@@ -47,19 +47,6 @@
         (handler request)))))
 
 
-(defn set-cookie [handler cookie-name cookie-value &opt options]
-  (default options {"SameSite" "Strict"
-                    "HttpOnly" ""
-                    "Path" "/"})
-  (default cookie-name "id")
-  (default cookie-value "value")
-  (fn [request]
-    (let [response (handler request)]
-      (put-in response
-        [:headers "Set-Cookie"]
-        (http/cookie-string cookie-name cookie-value options)))))
-
-
 (defn- safe-unmarshal [val]
   (unless (or (nil? val) (empty? val))
     (unmarshal val)))
