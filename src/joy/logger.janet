@@ -30,7 +30,7 @@
 
 (defn- message [level msg &opt kv-pairs]
   (string "at=" (surround level) " msg=" (surround msg)
-    (if (tuple? kv-pairs)
+    (if (indexed? kv-pairs)
       (string " "
         (string/join
           (->> (partition 2 kv-pairs)
