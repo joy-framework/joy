@@ -102,68 +102,6 @@
                   (put-in response [:headers "Set-Cookie"] session-cookie)))))))))
 
 
-(defn xor-byte-strings [str1 str2]
-  (let [arr @[]
-        bytes1 (string/bytes str1)
-        bytes2 (string/bytes str2)]
-    (loop [i :range [0 32]]
-      (array/push arr (bxor (get bytes1 i) (get bytes2 i))))
-    (string/from-bytes ;arr)))
-
-
-(defn mask-token [request]
-  (let [pad (os/cryptorand 32)
-        csrf-token (get request :csrf-token)
-        masked-token (xor-byte-strings pad csrf-token)]
-    (base64/encode (string pad masked-token))))
-
-
-(defn session-csrf-token [request]
-  (or (get request :csrf-token)
-      (os/cryptorand 32)))
-
-
-(defn form-csrf-token [request]
-  (mask-token request))
-
-
-(defn csrf-tokens-equal? [form-token session-token]
-  (cipher/secure-compare form-token session-token))
-
-
-(defn multipart-csrf-token [request]
-  (as-> request ?
-        (get ? :multipart-body)
-        (filter |(= (get $ :name) "__csrf-token") ?)
-        (first ?)
-        (get ? :content)))
-
-
-(defn unmask-token [request]
-  (let [masked-token (or (get-in request [:body :__csrf-token])
-                         (multipart-csrf-token request))
-        _ (when (nil? masked-token)
-            (error "Required parameter __csrf-token not found"))
-        token (base64/decode masked-token)
-        pad (string/slice token 0 32)
-        csrf-token (string/slice token 32)]
-    (xor-byte-strings pad csrf-token)))
-
-
-(defn csrf-token [handler]
-  (fn [request]
-    (let [session-token (session-csrf-token request)]
-       (if (or (head? request) (get? request))
-         (when-let [response (handler request)]
-           (put response :csrf-token session-token))
-         (let [form-token (unmask-token request)]
-           (if (csrf-tokens-equal? form-token session-token)
-             (when-let [response (handler request)]
-               (put response :csrf-token session-token))
-             (-> (responder/render :text "Invalid CSRF Token" :status 403)
-                 (put :csrf-token session-token))))))))
-
-
 (defn x-headers [handler &opt options]
   (default options @{"X-Frame-Options" "SAMEORIGIN"
                      "X-XSS-Protection" "1; mode=block"

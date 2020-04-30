@@ -1,7 +1,6 @@
 (import ./router :as router)
-(import ./middleware :as middleware)
 (import ./helper :prefix "")
-
+(import ./csrf :prefix "")
 
 (defn- field [kind val key & attrs]
   [:input (merge {:type kind :name (string key) :value (get val key)} (table ;attrs))])
@@ -95,8 +94,7 @@
         action (apply router/action-for (drop 1 action-args))]
     [:form action
       body
-      (when (get request :csrf-token)
-        [:input {:type "hidden" :name "__csrf-token" :value (middleware/form-csrf-token request)}])
+      (csrf-field request)
       (when (truthy? (action :_method))
         (hidden-field action :_method))]))
 
@@ -133,12 +131,10 @@
                  {:action action}
                  (if (truthy? route)
                    (router/action-for ;(if (indexed? route) route [route]))
-                   {:action ""}))
-        options (select-keys options [:class :enctype :method])]
+                   {:action ""}))]
     [:form (merge options action)
       body
-      (when (get request :csrf-token)
-        [:input {:type "hidden" :name "__csrf-token" :value (middleware/form-csrf-token request)}])
+      (csrf-field request)
       (when (truthy? (get action :_method))
         (hidden-field action :_method))]))
 
@@ -169,4 +165,3 @@
    (submit "Save" :class "btn btn-submit")`
   [value & args]
   [:input (merge {:type "submit" :value value} (table ;args))])
-
