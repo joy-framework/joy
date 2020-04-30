@@ -2,18 +2,13 @@
 # parts of the code shamelessly stolen from https://github.com/brandonchartier/html
 (import ./env :as env)
 
-(defn- escape [string-arg]
-  (if (string? string-arg)
-    (let [struct-chars [["&" "&amp;"]
-                        ["<" "&lt;"]
-                        [">" "&gt;"]
-                        ["\"" "&quot;"]
-                        ["%" "&#37;"]]]
-      (var string-escaped string-arg)
-      (loop [[k v] :in struct-chars]
-        (set string-escaped (string/replace-all k v string-escaped)))
-      string-escaped)
-    string-arg))
+(defn escape [str]
+  (->> (string/replace-all "&" "&amp;" str)
+       (string/replace-all "<" "&lt;")
+       (string/replace-all ">" "&gt;")
+       (string/replace-all "%" "%%")
+       (string/replace-all "'" "&#x27;")
+       (string/replace-all "/" "&#x2F;")))
 
 
 (defn raw [val]
@@ -139,6 +134,7 @@
 (defn html [& args]
   (string/join (map create args) ""))
 
+(def encode html)
 
 (defn link [href]
   [:link {:href href :rel "stylesheet"}])
