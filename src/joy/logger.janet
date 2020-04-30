@@ -69,7 +69,7 @@
 
 
 (defn response-struct [request response start-seconds end-seconds]
-  (let [duration (string/format "%.0fms" (* 1000 (- end-seconds start-seconds)))
+  (let [duration (string/format "%.4fms" (- end-seconds start-seconds))
         {:status status} response
         {:method method :uri uri} request
         method (string/ascii-upper method)
@@ -84,10 +84,11 @@
 (defn logger [handler &opt options]
   (default options {:ignore-keys [:password :confirm-password]})
   (fn [request]
-    (let [start-seconds (os/clock)
-          response (handler request)
-          end-seconds (os/clock)]
-      (when response
-        (log (request-struct request options))
-        (log (response-struct request response start-seconds end-seconds)))
-      response)))
+    (def start-seconds (os/clock))
+    (log (request-struct request options))
+    (def response (handler request))
+    (def end-seconds (os/clock))
+    (when response
+      (log (response-struct request response start-seconds end-seconds)))
+
+    response))
