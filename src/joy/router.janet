@@ -87,9 +87,17 @@
     ~(set *route-table* (merge *route-table* (route-table ,;args)))))
 
 
+(defn present? [val]
+  (and (truthy? val)
+       (not (empty? val))))
+
+
 (defn namespace [val]
   (when (keyword? val)
-    (first (string/split "/" val))))
+    (let [arr (string/split "/" val)
+          len (dec (length arr))
+          ns-array (array/slice arr 0 len)]
+      (string/join ns-array "/"))))
 
 
 (defmacro defroutes [& args]
@@ -101,13 +109,13 @@
         files (as-> rest ?
                     (map |(get $ 2) ?)
                     (map namespace ?)
-                    (filter truthy? ?)
+                    (filter present? ?)
                     (distinct ?))
 
         # import all distinct file names from routes
         _ (loop [file :in files]
             (try
-              (import* (string "./routes/" file))
+              (import* (string "./routes/" file) :as file)
               ([err]
                (print (string "Route file src/routes/" file ".janet does not exist.")))))
 
