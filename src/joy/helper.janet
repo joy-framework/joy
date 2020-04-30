@@ -28,11 +28,11 @@
 
    (map-keys snake-case {:created_at "" :uploaded_by ""}) -> {:created-at "" :uploaded-by ""}
   `
-  [f struct-m]
+  [f dict]
   (let [acc @{}]
-    (loop [[k v] :in (pairs struct-m)]
+    (loop [[k v] :pairs dict]
       (put acc (f k) v))
-    (table/to-struct acc)))
+    acc))
 
 
 (defn map-vals [f struct-m]
