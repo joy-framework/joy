@@ -1,4 +1,5 @@
-# responder.janet
+(import json)
+(import ./html)
 
 (defn- content-type [k]
   (let [content-types {:html "text/html; charset=utf-8"
@@ -14,7 +15,9 @@
 
 (defn redirect [url]
   @{:status 302
-    :headers @{"Location" url}})
+    :body " "
+    :headers @{"Location" url
+               "Turbolinks-Location" url}})
 
 
 (defn respond [ct body & options]
@@ -29,3 +32,21 @@
 
 
 (def render respond)
+
+
+(defn text/plain [body]
+  @{:status 200
+    :body body
+    :headers @{"Content-Type" "text/plain"}})
+
+
+(defn application/json [body]
+  @{:status 200
+    :body (json/encode body)
+    :headers @{"Content-Type" "application/json"}})
+
+
+(defn text/html [& args]
+  @{:status 200
+    :body (html/encode ;args)
+    :headers @{"Content-Type" "text/html"}})
