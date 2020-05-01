@@ -2,7 +2,6 @@
 (import ./http :as http)
 (import ./logger :as logger)
 (import ./env :as env)
-(import ./db1 :as db)
 (import ./responder :as responder)
 (import ./html :as html)
 (import ./router :as router)
@@ -18,21 +17,6 @@
       (if (= 200 (get response :status))
         (layout-fn response)
         response))))
-
-
-(defn db [handler db-name]
-  (let [schema (db/with-db-connection [conn db-name]
-                 (->> (db/query conn `select sqlite_master.name as tbl,
-                                             pti.name as col
-                                      from sqlite_master
-                                      join pragma_table_info(sqlite_master.name) pti on sqlite_master.name != pti.name
-                                      order by pti.cid`)
-                      (filter |(= "updated_at" (get $ :col)))
-                      (map |(struct (get $ :tbl) (get $ :col)))
-                      (apply merge)))]
-    (fn [request]
-      (db/with-db-connection [conn db-name]
-        (handler (put request :db {:schema schema :connection conn}))))))
 
 
 (defn static-files [handler &opt root]

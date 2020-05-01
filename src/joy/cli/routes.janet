@@ -1,5 +1,5 @@
 (import ../helper :as helper)
-(import ../db1 :as db)
+(import db)
 (import ../env :as env)
 (import path)
 
@@ -31,14 +31,17 @@
 
 (defn route-string [table-name]
   (let [sys-path (dyn :syspath)]
+
+    (db/connect (env/env :database-url))
+
     (helper/with-file [f (path/join sys-path "joy" "cli" "routes.txt")]
       (let [template (file/read f :all)]
-        (db/with-db-connection [conn (env/env :database-url)]
-          (let [columns (->> (db/query conn `select pti.name as col
-                                             from sqlite_master
-                                             join pragma_table_info(sqlite_master.name) pti on sqlite_master.name != pti.name
-                                             where sqlite_master.name = :table order by pti.cid`
-                                            {:table table-name})
+        (db/with-transaction
+          (let [columns (->> (db/query `select pti.name as col
+                                        from sqlite_master
+                                        join pragma_table_info(sqlite_master.name) pti on sqlite_master.name != pti.name
+                                        where sqlite_master.name = :table order by pti.cid`
+                                       {:table table-name})
                              (map |(get $ :col)))
                 no-timestamp-columns (filter |(and (not= $ "created_at") (not= $ "updated_at"))
                                              columns)
@@ -71,7 +74,9 @@
                  (string/replace-all "%show-td-elements%" show-td-elements)
                  (string/replace-all "%form-elements%" (form-elements (helper/singular table-name) not-sys-columns))
                  (string/replace-all "%form-destructured-keys%" (form-destructured-keys not-sys-columns))
-                 (string/replace-all "%singular-name%" (helper/singular table-name)))))))))
+                 (string/replace-all "%singular-name%" (helper/singular table-name)))))))
+
+    (db/disconnect)))
 
 
 (defn route-def [table-name]
@@ -105,4 +110,3 @@
       (file/write f route-string))
     (helper/with-file [f1 "src/routes.janet" :w]
       (file/write f1 new-routes-text))))
-

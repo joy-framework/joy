@@ -9,6 +9,7 @@
                  "https://github.com/joy-framework/codec"
                  "https://github.com/joy-framework/halo"
                  "https://github.com/joy-framework/bundler"
+                 "https://github.com/joy-framework/db"
                  "https://github.com/joy-framework/tester"]
   :author "Sean Walker"
   :license "MIT"

@@ -1,6 +1,6 @@
 #!/usr/bin/env janet
 
-(import joy)
+(use joy)
 
 (def args (dyn :args))
 
@@ -22,18 +22,16 @@
 (def action (get args 1))
 (def options (drop 2 args))
 
-(def database-url (joy/env :database-url))
-
 (if (or (nil? action)
         (empty? action))
   (print "joy" usage)
   (case action
-    "create" (apply joy/generate options)
+    "create" (apply generate options)
     "help" (print "joy" usage)
-    "new" (joy/generate "project" ;options)
-    "migrate" (joy/migrate database-url)
-    "rollback" (joy/rollback database-url)
+    "new" (generate "project" ;options)
+    "migrate" (db/migrate (env :database-url))
+    "rollback" (db/rollback (env :database-url))
     "server" (os/shell "jpm run server")
     "watch" (os/shell "jpm run watch")
-    "version" (print joy/version)
-    "bundle" (joy/bundle)))
+    "version" (print version)
+    "bundle" (bundle)))
