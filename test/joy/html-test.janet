@@ -10,7 +10,7 @@
     (= "<div>hello world</div>" (html/html [:div "hello world"])))
 
   (test "empty div with special characters"
-    (= "<div>!@#$%^&amp;*()[]-_+=~`|\\:;&quot;&#x27;</div>" (html/html [:div "!@#$%^&*()[]-_+=~`|\\:;\"'"])))
+    (= "<div>!@#$&#37;^&amp;*()[]-_+=~`|\\:;&quot;&#x27;</div>" (html/html [:div "!@#$%^&*()[]-_+=~`|\\:;\"'"])))
 
   (test "empty div with attributes"
     (= `<div class="class"></div>` (html/html [:div {:class "class"}])))
