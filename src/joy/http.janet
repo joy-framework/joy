@@ -4,12 +4,33 @@
 (def url-decode uri/unescape)
 (def url-encode uri/escape)
 
+
+(defn- indexed-param? [str]
+  (string/has-suffix? "[]" str))
+
+
+(defn- body-table [all-pairs]
+  (var output @{})
+  (loop [[k v] :in all-pairs]
+    (let [k (uri/unescape k)
+          v (uri/unescape v)]
+      (cond
+        (indexed-param? k) (let [k (string/replace "[]" "" k)]
+                             (if (output k)
+                               (update output k array/concat v)
+                               (put output k @[v])))
+        :else (put output k v))))
+  output)
+
+
 (defn parse-body [str]
-  (as-> str ?
-        (string/split "+" ?)
-        (string/join ? "%20")
-        (uri/parse-query ?)
-        (helper/map-keys keyword ?)))
+  (when (string? str)
+    (as-> (string/replace-all "+" "%20" str) ?
+          (string/split "&" ?)
+          (filter |(not (empty? $)) ?)
+          (map |(string/split "=" $) ?)
+          (body-table ?)
+          (helper/map-keys keyword ?))))
 
 
 (defn cookie-pair [str]
