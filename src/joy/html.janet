@@ -52,7 +52,7 @@
 
 (defn- create-attrs
   [attrs]
-  (reduce attr-reducer "" (map (fn [[x y]] [x (escape y)]) (pairs attrs))))
+  (reduce attr-reducer "" (map (fn [[x y]] [x y]) (pairs attrs))))
 
 
 (defn- opening-tag
