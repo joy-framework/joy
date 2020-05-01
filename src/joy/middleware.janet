@@ -8,6 +8,7 @@
 (import ./base64 :as base64)
 (import cipher)
 (import path)
+(import json)
 
 
 (defn layout [handler layout-fn]
@@ -61,7 +62,7 @@
 
 
 (defn- session-from-request [key request]
-  (as-> (get-in request [:headers "Cookie"]) ?
+  (as-> (cookie request) ?
         (http/parse-cookie ?)
         (get ? "id")
         (decode-session ? key)))
@@ -104,8 +105,18 @@
     (let [{:body body} request]
       (if (and body
                (post? request)
-               (not (http/multipart? request)))
+               (form? request))
         (handler (merge request {:body (http/parse-body body)}))
+        (handler request)))))
+
+
+(defn json-body-parser [handler]
+  (fn [request]
+    (let [{:body body} request]
+      (if (and body
+               (post? request)
+               (json? request))
+        (handler (merge request {:body (json/decode body)}))
         (handler request)))))
 
 

@@ -1,4 +1,4 @@
-(import ./helper :as helper)
+(import ./helper :prefix "")
 
 (defn- timestamp
   "Get the current date nicely formatted"
@@ -56,8 +56,8 @@
   (let [{:uri uri :protocol proto
          :method method :params params
          :body body} request
-        params (helper/select-keys params (get options :ignore-keys))
-        body (helper/select-keys body (get options :ignore-keys))
+        params (select-keys params (get options :ignore-keys))
+        body (select-keys body (get options :ignore-keys))
         method (string/ascii-upper method)
         attrs @[:method method :url uri]
         attrs (if (empty? params) attrs (array/concat attrs [:params params]))
@@ -72,8 +72,7 @@
   (let [{:status status} response
         {:method method :uri uri :duration duration} request
         method (string/ascii-upper method)
-        content-type (or (get-in response [:headers "Content-Type"])
-                         (get-in response [:headers "content-type"]))]
+        content-type (content-type response)]
     {:ts (timestamp)
      :level "info"
      :msg (string/format "Finished %s %s" method uri)

@@ -1,4 +1,4 @@
-(import ./helper :as helper)
+(import ./helper :prefix "")
 (import uri)
 
 (def url-decode uri/unescape)
@@ -30,7 +30,7 @@
           (filter |(not (empty? $)) ?)
           (map |(string/split "=" $) ?)
           (body-table ?)
-          (helper/map-keys keyword ?))))
+          (map-keys keyword ?))))
 
 
 (defn cookie-pair [str]
@@ -66,16 +66,15 @@
 (defn parse-query-string [str]
   (when (string? str)
     (when-let [parsed (get (uri/parse str) :query)]
-      (helper/map-keys keyword parsed))))
+      (map-keys keyword parsed))))
 
 
 (defn multipart? [request]
-  (let [content-type (get-in request [:headers "Content-Type"])]
-    (string/has-prefix? "multipart/form-data" content-type)))
+  (string/has-prefix? "multipart/form-data" (content-type request)))
 
 
 (defn multipart-boundary [request]
-  (when-let [content-type (get-in request [:headers "Content-Type"])
+  (when-let [content-type (content-type request)
              index (string/find "boundary=" content-type)
              slice-index (+ index (length "boundary="))]
     (string/slice content-type slice-index)))
@@ -119,10 +118,11 @@
      :body body}))
 
 
-(defn save-part [{:headers headers :body body}]
-  (let [name (get headers :name)
+(defn save-part [request]
+  (let [{:headers headers :body body} request
+        name (get headers :name)
         filename (get headers :filename)
-        content-type (get headers "Content-Type")
+        content-type (content-type request)
         temp-file (when (truthy? filename) (file/temp))
         content (when (nil? temp-file) body)
         size (when (truthy? temp-file)

@@ -173,15 +173,33 @@
 (def delete? (partial method? "DELETE"))
 
 
+(defn headers [request]
+  (map-keys string/ascii-lower (or (request :headers) {})))
+
+
+(defn header [k request]
+  (get (headers request) (string k)))
+
+(def content-type (partial header :content-type))
+(def cookie (partial header :cookie))
+
+
 (defn xhr? [request]
-  (= "XMLHttpRequest" (get-in request [:headers "X-Requested-With"])))
+  (= "XMLHttpRequest" (header request :x-requested-with)))
 
 
 (defn body? [request]
   (truthy? (get request :body)))
 
 
-(def version "0.7.0")
+(defn form? [request]
+  (= "application/x-www-form-urlencoded"
+     (content-type request)))
+
+
+(defn json? [request]
+  (= "application/json"
+     (content-type request)))
 
 
 (defn drop-last [val]
@@ -219,3 +237,6 @@
           (set s (string s subst))
           (break))))
     s))
+
+
+(def version "0.7.2")
