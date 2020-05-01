@@ -5,10 +5,7 @@
 (defn escape [str]
   (->> (string/replace-all "&" "&amp;" str)
        (string/replace-all "<" "&lt;")
-       (string/replace-all ">" "&gt;")
-       (string/replace-all "%" "%%")
-       (string/replace-all "'" "&#x27;")
-       (string/replace-all "/" "&#x2F;")))
+       (string/replace-all ">" "&gt;")))
 
 
 (defn raw [val]

@@ -10,16 +10,16 @@
     (= "<div>hello world</div>" (html/html [:div "hello world"])))
 
   (test "empty div with special characters"
-    (= "<div>!@#$&#37;^&amp;*()[]-_+=~`|\\:;&quot;'</div>" (html/html [:div "!@#$%^&*()[]-_+=~`|\\:;\"'"])))
+    (= "<div>!@#$%^&amp;*()[]-_+=~`|\\:;\"'</div>" (html/html [:div "!@#$%^&*()[]-_+=~`|\\:;\"'"])))
 
   (test "empty div with attributes"
     (= `<div class="class"></div>` (html/html [:div {:class "class"}])))
 
   (test "special characters again"
-    (= "<div>special!!!!&#37;$#^&amp;*()[] characters</div>" (html/html [:div "special!!!!%$#^&*()[] characters"])))
+    (= "<div>&lt;script&gt;alert('hello xss!')&lt;/script&gt;</div>" (html/html [:div "<script>alert('hello xss!')</script>"])))
 
   (test "special characters some more"
-    (= "<input type=\"password\" value=\"&#37;\" />" (html/html [:input {:type "password" :value "%"}])))
+    (= "<input type=\"password\" value=\"%\" />" (html/html [:input {:type "password" :value "%"}])))
 
   (test "non-empty div without attributes"
     (= `<div>hello world</div>` (html/html [:div "hello world"])))
@@ -108,4 +108,3 @@
           (when false
             [:div "hello"])
           [:h1 "h1"]]]))))
-
