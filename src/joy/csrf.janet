@@ -1,5 +1,6 @@
 (import cipher)
 (import codec :as base64)
+(import ./helper :prefix "")
 
 
 (defn- xor-byte-strings [str1 str2]
@@ -45,8 +46,7 @@
     (let [session-token (session-token request)
           masked-token (mask-token session-token)
           request (put request :masked-token masked-token)]
-       (if (or (= "GET" (request :method))
-               (= "HEAD" (request :method)))
+       (if (or (get? request) (head? request))
          (when-let [response (handler request)]
            (put response :csrf-token session-token))
 
