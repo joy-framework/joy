@@ -182,10 +182,12 @@
 
 (def content-type (partial header :content-type))
 (def cookie (partial header :cookie))
+(def x-requested-with (partial header :x-requested-with))
+(def x-csrf-token (partial header :x-csrf-token))
 
 
 (defn xhr? [request]
-  (= "XMLHttpRequest" (header request :x-requested-with)))
+  (= "XMLHttpRequest" (x-requested-with request)))
 
 
 (defn body? [request]

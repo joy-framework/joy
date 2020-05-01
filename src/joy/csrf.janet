@@ -31,7 +31,7 @@
 
 (defn- request-token [request]
   (or (get-in request [:body :__csrf-token])
-      (header request :x-csrf-token)))
+      (x-csrf-token request)))
 
 
 (defn- unmask-token [masked-token]
