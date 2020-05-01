@@ -10,7 +10,7 @@
   (let [buf (buffer)]
     (setdyn :out buf)
     (test "logger"
-      (= {:status 200 :body ""}
-         ((logger/logger (fn [request] {:status 200 :body ""}))
-          {:method :get :uri "/hello"})))
+      (deep= @{:status 200 :body ""}
+             ((logger/logger (fn [request] @{:status 200 :body ""}))
+              @{:method :get :uri "/hello"})))
     (setdyn :out stdout)))
