@@ -69,9 +69,8 @@
 
 
 (defn response-struct [request response start-seconds end-seconds]
-  (let [duration (string/format "%.4fms" (- end-seconds start-seconds))
-        {:status status} response
-        {:method method :uri uri} request
+  (let [{:status status} response
+        {:method method :uri uri :duration duration} request
         method (string/ascii-upper method)
         content-type (or (get-in response [:headers "Content-Type"])
                          (get-in response [:headers "content-type"]))]
@@ -88,6 +87,7 @@
     (log (request-struct request options))
     (def response (handler request))
     (def end-seconds (os/clock))
+    (put request :duration (string/format "%.4fms" (- end-seconds start-seconds)))
     (when response
       (log (response-struct request response start-seconds end-seconds)))
 
