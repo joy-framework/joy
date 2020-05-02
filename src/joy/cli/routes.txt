@@ -1,5 +1,4 @@
 (import joy :prefix "")
-(import joy/db)
 
 
 (defn %singular-name% [request]
