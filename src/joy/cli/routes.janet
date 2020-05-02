@@ -36,7 +36,6 @@
 
     (helper/with-file [f (path/join sys-path "joy" "cli" "routes.txt")]
       (let [template (file/read f :all)]
-        (db/with-transaction
           (let [columns (->> (db/query `select pti.name as col
                                         from sqlite_master
                                         join pragma_table_info(sqlite_master.name) pti on sqlite_master.name != pti.name
@@ -74,9 +73,7 @@
                  (string/replace-all "%show-td-elements%" show-td-elements)
                  (string/replace-all "%form-elements%" (form-elements (helper/singular table-name) not-sys-columns))
                  (string/replace-all "%form-destructured-keys%" (form-destructured-keys not-sys-columns))
-                 (string/replace-all "%singular-name%" (helper/singular table-name)))))))
-
-    (db/disconnect)))
+                 (string/replace-all "%singular-name%" (helper/singular table-name))))))))
 
 
 (defn route-def [table-name]
