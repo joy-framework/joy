@@ -22,6 +22,6 @@
               (or port
                   (env :port)
                   "8000"))]
-    (db/connect)
+    (db/connect (env :database-url))
     (server app port) # stops listening on SIGINT
     (db/disconnect)))
