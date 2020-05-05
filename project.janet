@@ -21,3 +21,13 @@
 
 (declare-source
   :source @["src/joy" "src/joy.janet"])
+
+# symlink joy executable in /usr/local/bin for convenience
+(try
+  (do
+    (def JANET_BINPATH (or (os/getenv "JANET_BINPATH")
+                           (string (dyn :syspath) "/bin")))
+    (def joy-binscript (string (dyn :binpath JANET_BINPATH) "/joy"))
+    (os/link joy-binscript "/usr/local/bin/joy" true))
+  ([err]))
+   # purposely ignore any errors here
