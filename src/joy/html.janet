@@ -162,7 +162,7 @@
       (map link filenames)
       (if (nil? css-bundle)
         (map link filenames)
-        (link (string "./" css-bundle))))))
+        (link (string "/" css-bundle))))))
 
 
 (defn js [& filenames]
@@ -171,4 +171,4 @@
       (map script filenames)
       (if (nil? js-bundle)
         (map script filenames)
-        (script (string "./" js-bundle))))))
+        (script (string "/" js-bundle))))))
