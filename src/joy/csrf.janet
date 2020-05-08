@@ -96,8 +96,7 @@
 
 (defn csrf-field
   `
-  Takes a request dictionary and returns the masked token for use
-  in meta tags or hidden form fields
+  Takes a request dictionary and returns the tuple html for the hidden form field
 
   Example:
 
@@ -105,7 +104,7 @@
 
   (def request {:method :get :uri "/"})
 
-  (authenticity-token request) => "aGVsbG8gd29ybGQ="
+  (csrf-field request) => [:input {:type "hidden" :name "__csrf-token" :value "aGVsbG8gd29ybGQ="}]
   `
   [request]
   [:input {:type "hidden" :name "__csrf-token" :value (get request :masked-token)}])
