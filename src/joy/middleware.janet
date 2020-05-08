@@ -115,7 +115,7 @@
       (if (and body
                (post? request)
                (json? request))
-        (handler (merge request {:body (json/decode body)}))
+        (handler (merge request {:body (json/decode body true)}))
         (handler request)))))
 
 
