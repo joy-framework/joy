@@ -7,8 +7,12 @@
 
 
 (defn generate
-  `Responsible for creating boilerplate route and migration files
-  Ex.
+  `
+  Responsible for creating boilerplate route and migration files
+
+  Example:
+
+  (from the shell)
 
   joy create migration create-table-accounts
   joy create route accounts
@@ -16,7 +20,8 @@
   Or you can create a create table migration with
   some args for column names and types:
 
-  joy create table accounts 'name text not null unique' 'email text not null unique' 'password text not null'`
+  joy create table accounts 'name text not null unique' 'email text not null unique' 'password text not null'
+  `
   [& args]
   (let [[kind name] args]
     (case kind

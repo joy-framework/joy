@@ -41,7 +41,27 @@
     (xor-byte-strings pad csrf-token)))
 
 
-(defn csrf-token [handler]
+(defn csrf-token
+  `
+  Adds csrf protection to your web apps
+
+  Example:
+
+  (use joy)
+
+  (defn hello [req]
+    (text/plain "hello there!"))
+
+  (defroutes routes
+    [:get "/" hello])
+
+  (def app (-> (handler routes)
+               (csrf-token)
+               (session))) # You need sessions to store the token somewhere
+
+  (server app 9001)
+  `
+  [handler]
   (fn [request]
     (let [session-token (session-token request)
           masked-token (mask-token session-token)
@@ -57,9 +77,35 @@
              @{:status 403 :body "Invalid CSRF Token" :headers @{"Content-Type" "text/plain"}}))))))
 
 
-(defn authenticity-token [request]
+(defn authenticity-token
+  `
+  Takes a request dictionary and returns the masked token for use
+  in meta tags or hidden form fields
+
+  Example:
+
+  (use joy)
+
+  (def request {:method :get :uri "/"})
+
+  (authenticity-token request) => "aGVsbG8gd29ybGQ="
+  `
+  [request]
   (get request :masked-token))
 
 
-(defn csrf-field [request]
+(defn csrf-field
+  `
+  Takes a request dictionary and returns the masked token for use
+  in meta tags or hidden form fields
+
+  Example:
+
+  (use joy)
+
+  (def request {:method :get :uri "/"})
+
+  (authenticity-token request) => "aGVsbG8gd29ybGQ="
+  `
+  [request]
   [:input {:type "hidden" :name "__csrf-token" :value (get request :masked-token)}])

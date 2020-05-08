@@ -1,5 +1,13 @@
 (defn timestamp
-  "Get the current date nicely formatted"
+  `
+  Get the current date nicely formatted for migrations
+
+  Example:
+
+  (import joy/cli/migrations)
+
+  (migrations/timestamp) => 20200508165811
+  `
   []
   (let [date (os/date)
         M (+ 1 (date :month))
