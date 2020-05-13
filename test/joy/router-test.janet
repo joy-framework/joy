@@ -9,6 +9,10 @@
   {:status 200 :body (get-in request [:params :id])})
 
 
+(defn wildcard [request]
+  (request :wildcard))
+
+
 (defroutes test-routes
   [:get "/" home]
   [:get "/test" home :qs]
@@ -17,7 +21,8 @@
   [:get "/anchor" home :anchor]
   [:get "/anchor/:id" home :anchor-id]
   [:get "/accounts/:id/edit" identity :with-params]
-  [:patch "/accounts/:id" identity :accounts/patch])
+  [:patch "/accounts/:id" identity :accounts/patch]
+  [:get "/wildcard/*" wildcard])
 
 
 (deftest
@@ -57,4 +62,7 @@
   (test "action-for with a name and params"
     (= (freeze
         (action-for :accounts/patch {:id 100}))
-       {:_method :patch :method :post :action "/accounts/100"})))
+       {:_method :patch :method :post :action "/accounts/100"}))
+
+  (test "wildcard route"
+    (= "hello/world" ((handler test-routes) {:method :get :uri "/wildcard/hello/world"}))))

@@ -3,9 +3,13 @@
 
 (varglobal '*route-table* @{})
 
+
+(defn- route-param? [val]
+  (string/has-prefix? ":" val))
+
+
 (defn- route-param [val]
-  (if (and (string? val)
-        (string/has-prefix? ":" val))
+  (if (route-param? val)
     val
     (string ":" val)))
 
@@ -17,41 +21,50 @@
   mut-string-route)
 
 
-(defn- route-matches? [array-route1 dictionary-request]
-  (let [[route-method route-url] array-route1
-        {:method method :uri uri} dictionary-request
-        url (first (string/split "?" uri))]
-    (true? (and (= (string/ascii-lower method) (string/ascii-lower route-method))
-             (= route-url url)))))
+(defn- route-params [app-url uri]
+  (let [app-parts (string/split "/" app-url)
+        req-parts (string/split "/" uri)]
+    (as-> (interleave app-parts req-parts) ?
+          (partition 2 ?)
+          (filter (fn [[x y]] (route-param? x)) ?)
+          (map (fn [[x y]] @[(keyword (drop 1 x)) y]) ?)
+          (mapcat identity ?)
+          (table ;?))))
 
 
-(defn- route-params [string-route-url string-request-url]
-  (if (true?
-       (and (string? string-route-url)
-         (string? string-request-url)))
-    (let [route-url-segments (string/split "/" string-route-url)
-          request-url-segments (string/split "/" string-request-url)]
-      (if (= (length route-url-segments)
-            (length request-url-segments))
-        (as-> (interleave route-url-segments request-url-segments) %
-              (apply struct %)
-              (select-keys % (filter (fn [x] (string/has-prefix? ":" x)) route-url-segments))
-              (map-keys (fn [val] (-> (string/replace ":" "" val) (keyword))) %))
-        {}))
-    {}))
+(defn- wildcard-params [patt uri]
+  (def parts (string/split "*" patt))
+  (def arr (interpose '(<- (some (if-not "\0" 1))) parts))
+  (def p (freeze (array/insert arr 0 '*)))
+  (first (peg/match p uri)))
 
 
-(defn- find-route [indexed-routes dictionary-request]
-  (let [{:uri uri :method method} dictionary-request]
-    (or (get
-          (filter (fn [indexed-route]
-                    (let [[method url handler] indexed-route
-                          url (route-url url
-                                (route-params url uri))
-                          indexed-route [method url handler]]
-                      (route-matches? indexed-route dictionary-request)))
-            indexed-routes) 0)
-        [])))
+(defn- part? [[s1 s2]]
+  (or (= s1 s2)
+      (string/find ":" s1)))
+
+
+(defn- route? [app-route request]
+  (let [[app-method app-url] app-route
+        {:uri uri :method method} request
+        app-parts (string/split "/" app-url)
+        req-parts (string/split "/" uri)]
+    (and (= (string/ascii-lower method)
+            (string/ascii-lower app-method))
+         (or (= app-url uri)
+             (and (string/has-suffix? "*" app-url)
+                  (string/has-prefix? (string/trimr app-url "*") uri))
+             (and (= (length app-parts) (length req-parts))
+                  (string/find ":" app-url)
+                  (= (length app-parts)
+                     (as-> (interleave app-parts req-parts) ?
+                           (partition 2 ?)
+                           (filter part? ?)
+                           (length ?))))))))
+
+
+(defn- find-route [routes request]
+  (first (filter |(route? $ request) routes)))
 
 
 (defn- route-name [route]
@@ -71,8 +84,9 @@
     (let [{:uri uri} request
           route (find-route routes request)
           [route-method route-uri route-fn] route
+          wildcard (wildcard-params route-uri uri)
           params (route-params route-uri uri)
-          request (merge request {:params params})]
+          request (merge request {:params params :wildcard wildcard})]
       (when (function? route-fn)
         (route-fn request)))))
 
