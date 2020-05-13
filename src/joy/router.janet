@@ -1,5 +1,8 @@
 (import ./helper :prefix "")
 (import ./http :as http)
+(import ./middleware :prefix "")
+(import ./logger :prefix "")
+(import ./csrf :prefix "")
 
 (varglobal '*route-table* @{})
 
@@ -93,9 +96,75 @@
         (route-fn request)))))
 
 
-(defn app [& handlers]
+(defn handlers [& handler-fns]
   (fn [request]
-    (some |($ request) handlers)))
+    (some |($ request) handler-fns)))
+
+
+(defn- method [str]
+  (def part (last (string/split "/" str)))
+  (keyword
+    (or (find |(= $ part) ["post" "put" "patch" "delete" "head" "trace"])
+        "get")))
+
+
+(defn- to-route [str]
+  [(method str) (string str) (eval str) (string str)])
+
+
+(defn- auto-routes []
+  (def bindings (filter |(string/has-prefix? "/" $) (all-bindings (fiber/getenv (fiber/current)) true)))
+  (def function-routes (map to-route bindings))
+  (set *route-table* (merge *route-table* (route-table function-routes)))
+  function-routes)
+
+
+(defn- wrap-if [options handler k middleware]
+  (if (options k)
+    (middleware handler)
+    handler))
+
+
+(defn- wrap-with [options handler k middleware]
+  (if (options k)
+    (middleware handler (options k))
+    handler))
+
+
+(defn app [&opt opts]
+  (default opts {})
+  (def options {:routes (auto-routes)
+                :layout false
+                :extra-methods true
+                :query-string true
+                :body-parser true
+                :json-body-parser true
+                :logger true
+                :csrf-token true
+                :session {}
+                :x-headers true
+                :server-error true
+                :404 true
+                :static-files true})
+
+  (def options (merge options opts))
+
+  (def wrap-if (partial wrap-if options))
+  (def wrap-with (partial wrap-with options))
+
+  (-> (handler (options :routes))
+      (wrap-with :layout layout)
+      (wrap-if :logger logger)
+      (wrap-if :csrf-token csrf-token)
+      (wrap-with :session session)
+      (wrap-if :extra-methods extra-methods)
+      (wrap-if :query-string query-string)
+      (wrap-if :body-parser body-parser)
+      (wrap-if :json-body-parser json-body-parser)
+      (wrap-if :server-error server-error)
+      (wrap-if :x-headers x-headers)
+      (wrap-with :404 not-found)
+      (wrap-if :static-files static-files)))
 
 
 (defmacro routes [& args]
