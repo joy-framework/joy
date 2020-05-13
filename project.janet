@@ -10,7 +10,8 @@
                  "https://github.com/joy-framework/halo"
                  "https://github.com/joy-framework/bundler"
                  "https://github.com/joy-framework/db"
-                 "https://github.com/joy-framework/tester"]
+                 "https://github.com/joy-framework/tester"
+                 "https://github.com/joy-framework/dotenv"]
   :author "Sean Walker"
   :license "MIT"
   :url "https://github.com/joy-framework/joy"
