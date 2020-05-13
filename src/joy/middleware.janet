@@ -4,7 +4,6 @@
 (import ./env :as env)
 (import ./responder :as responder)
 (import ./html :as html)
-(import ./router :as router)
 (import ./base64 :as base64)
 (import cipher)
 (import path)
@@ -14,7 +13,8 @@
 (defn layout [handler layout-fn]
   (fn [request]
     (let [response (handler request)]
-      (if (indexed? response)
+      (if (and (function? layout-fn)
+               (indexed? response))
         (layout-fn @{:status 200 :body response :request request})
         response))))
 
