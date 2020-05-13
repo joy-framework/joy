@@ -47,6 +47,8 @@
 (defn- route? [app-route request]
   (let [[app-method app-url] app-route
         {:uri uri :method method} request
+        app-url (string/trimr app-url "/")
+        uri (string/trimr uri "/")
         app-parts (string/split "/" app-url)
         req-parts (string/split "/" uri)]
     (and (= (string/ascii-lower method)
