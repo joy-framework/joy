@@ -1,3 +1,5 @@
+(import dotenv)
+(dotenv/load)
 (import joy :prefix "")
 (import ./layout :as layout)
 (import ./routes :as routes)
@@ -18,10 +20,7 @@
 
 
 (defn start [port]
-  (let [port (scan-number
-              (or port
-                  (env :port)
-                  "8000"))]
+  (let [port (or port (env :port) "8000")]
     (db/connect (env :database-url))
     (server app port) # stops listening on SIGINT
     (db/disconnect)))

@@ -1,7 +1,8 @@
 (declare-project
   :name "%project-name%"
   :description ""
-  :dependencies ["https://github.com/joy-framework/joy"]
+  :dependencies ["https://github.com/joy-framework/joy"
+                 "https://github.com/joy-framework/dotenv"]
   :author ""
   :license ""
   :url ""
