@@ -137,13 +137,6 @@
 
 (def encode html)
 
-(defn link [href]
-  [:link {:href href :rel "stylesheet"}])
-
-
-(defn script [src]
-  [:script {:src src}])
-
 
 (defn find-bundle [ext]
   (let [bundle (as-> (os/dir "public") ?
@@ -156,19 +149,23 @@
       bundle)))
 
 
-(defn css [& filenames]
-  (let [css-bundle (find-bundle ".css")]
-    (if env/development?
-      (map link filenames)
-      (if (nil? css-bundle)
-        (map link filenames)
-        (link (string "/" css-bundle))))))
+(defn script [dict]
+  (def bundle (find-bundle ".js"))
+  (def src (if (indexed? (dict :src))
+             (dict :src)
+             [(dict :src)]))
+
+  (if (nil? bundle)
+    (map |(tuple :script (merge dict {:src $})) src)
+    [:script (merge dict {:src (string "/" bundle)})]))
 
 
-(defn js [& filenames]
-  (let [js-bundle (find-bundle ".js")]
-    (if env/development?
-      (map script filenames)
-      (if (nil? js-bundle)
-        (map script filenames)
-        (script (string "/" js-bundle))))))
+(defn link [dict]
+  (def bundle (find-bundle ".css"))
+  (def href (if (indexed? (dict :href))
+              (dict :href)
+              [(dict :href)]))
+
+  (if (nil? bundle)
+    (map |(tuple :link (merge dict {:href $ :rel "stylesheet"})) href)
+    [:link (merge dict {:href (string "/" bundle) :rel "stylesheet"})]))
