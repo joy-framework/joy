@@ -1,5 +1,5 @@
 # html.janet
-# parts of the code shamelessly stolen from https://github.com/brandonchartier/html
+# parts of the code shamelessly stolen from https://github.com/brandonchartier/janet-html
 (import ./env :as env)
 
 (defn escape [str]
