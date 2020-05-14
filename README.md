@@ -5,15 +5,10 @@ Joy is a full stack web framework written in [janet](https://github.com/janet-la
 ```clojure
 (use joy)
 
-(defn home [request]
+(defn / [request]
   (text/plain "You found joy!"))
 
-(defroutes routes
-  [:get "/" home])
-
-(def app (handler routes))
-
-(server app 8000)
+(server (app) 8000)
 ```
 
 ## Getting Started
