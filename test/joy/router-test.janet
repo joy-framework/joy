@@ -13,6 +13,10 @@
   (request :wildcard))
 
 
+(defn auth-code [request]
+  "auth-code")
+
+
 (defroutes test-routes
   [:get "/" home]
   [:get "/test" home :qs]
@@ -21,6 +25,7 @@
   [:get "/anchor" home :anchor]
   [:get "/anchor/:id" home :anchor-id]
   [:get "/accounts/:id/edit" identity :with-params]
+  [:get "/auth-code" auth-code]
   [:patch "/accounts/:id" identity :accounts/patch]
   [:get "/wildcard/*" wildcard])
 
@@ -65,4 +70,7 @@
        {:_method :patch :method :post :action "/accounts/100"}))
 
   (test "wildcard route"
-    (= "hello/world" ((handler test-routes) {:method :get :uri "/wildcard/hello/world"}))))
+    (= "hello/world" ((handler test-routes) {:method :get :uri "/wildcard/hello/world"})))
+
+  (test "query string route"
+    (= "auth-code" ((handler test-routes) {:method :get :uri "/auth-code?code=12345"}))))

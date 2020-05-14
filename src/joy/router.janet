@@ -39,7 +39,8 @@
   (def parts (string/split "*" patt))
   (def arr (interpose '(<- (some (if-not "\0" 1))) parts))
   (def p (freeze (array/insert arr 0 '*)))
-  (first (peg/match p uri)))
+  (or (first (peg/match p uri))
+      @[]))
 
 
 (defn- part? [[s1 s2]]
@@ -52,20 +53,21 @@
         {:uri uri :method method} request
         app-url (string/trimr app-url "/")
         uri (string/trimr uri "/")
+        uri (first (string/split "?" uri))
         app-parts (string/split "/" app-url)
         req-parts (string/split "/" uri)]
     (and (= (string/ascii-lower method)
             (string/ascii-lower app-method))
          (or (= app-url uri)
-             (and (string/has-suffix? "*" app-url)
-                  (string/has-prefix? (string/trimr app-url "*") uri))
              (and (= (length app-parts) (length req-parts))
                   (string/find ":" app-url)
                   (= (length app-parts)
                      (as-> (interleave app-parts req-parts) ?
                            (partition 2 ?)
                            (filter part? ?)
-                           (length ?))))))))
+                           (length ?))))
+             (and (string/has-suffix? "*" app-url)
+                  (string/has-prefix? (string/trimr app-url "*") uri))))))
 
 
 (defn- find-route [routes request]
@@ -86,12 +88,12 @@
   "Creates a handler function from routes. Returns nil when handler/route doesn't exist."
   [routes]
   (fn [request]
-    (let [{:uri uri} request
-          route (find-route routes request)
-          [route-method route-uri route-fn] route
-          wildcard (wildcard-params route-uri uri)
-          params (route-params route-uri uri)
-          request (merge request {:params params :wildcard wildcard})]
+    (when-let [{:uri uri} request
+               route (find-route routes request)
+               [route-method route-uri route-fn] route
+               wildcard (wildcard-params route-uri uri)
+               params (route-params route-uri uri)
+               request (merge request {:params params :wildcard wildcard})]
       (when (function? route-fn)
         (route-fn request)))))
 
@@ -114,6 +116,10 @@
 
 (defn- auto-routes []
   (def bindings (filter |(string/has-prefix? "/" $) (all-bindings (fiber/getenv (fiber/current)) true)))
+  # move wildcard routes to back
+  (def not-wildcards (filter |(not (string/has-suffix? "*" $)) bindings))
+  (def wildcards (filter |(string/has-suffix? "*" $) bindings))
+  (def bindings (array/concat not-wildcards wildcards))
   (def function-routes (map to-route bindings))
   (set *route-table* (merge *route-table* (route-table function-routes)))
   function-routes)
