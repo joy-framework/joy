@@ -148,7 +148,7 @@
                 :logger true
                 :csrf-token true
                 :session {}
-                :x-headers true
+                :x-headers {}
                 :server-error true
                 :404 true
                 :static-files true})
@@ -168,7 +168,7 @@
       (wrap-if :body-parser body-parser)
       (wrap-if :json-body-parser json-body-parser)
       (wrap-if :server-error server-error)
-      (wrap-if :x-headers x-headers)
+      (wrap-with :x-headers x-headers)
       (wrap-with :404 not-found)
       (wrap-if :static-files static-files)))
 

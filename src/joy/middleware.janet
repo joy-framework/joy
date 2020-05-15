@@ -86,13 +86,15 @@
                   (put-in response [:headers "Set-Cookie"] session-cookie)))))))))
 
 
-(defn x-headers [handler &opt options]
-  (default options @{"X-Frame-Options" "SAMEORIGIN"
-                     "X-XSS-Protection" "1; mode=block"
-                     "X-Content-Type-Options" "nosniff"
-                     "X-Download-Options" "noopen"
-                     "X-Permitted-Cross-Domain-Policies" "none"
-                     "Referrer-Policy" "strict-origin-when-cross-origin"})
+(defn x-headers [handler &opt opts]
+  (default opts @{})
+  (def options @{"X-Frame-Options" "SAMEORIGIN"
+                 "X-XSS-Protection" "1; mode=block"
+                 "X-Content-Type-Options" "nosniff"
+                 "X-Download-Options" "noopen"
+                 "X-Permitted-Cross-Domain-Policies" "none"
+                 "Referrer-Policy" "strict-origin-when-cross-origin"})
+  (def options (merge options opts))
   (fn [request]
     (let [response (handler request)]
       (when response
