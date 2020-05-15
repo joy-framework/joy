@@ -1,0 +1,11 @@
+version: "3"
+services:
+  joy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000" # exposes the default port
+    network_mode: "host" # needed because we run on localhost by default
+    volumes:
+      - ./:/var/app # this should be your root directory for your joy files
