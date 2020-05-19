@@ -7,8 +7,10 @@ Joy is a full stack web framework written in [janet](https://github.com/janet-la
 
 (defn / [request]
   (text/plain "You found joy!"))
+  
+(def app (app))
 
-(server (app) 8000)
+(server app 8000)
 ```
 
 ## Getting Started
