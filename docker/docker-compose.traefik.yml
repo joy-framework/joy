@@ -1,0 +1,36 @@
+version: "3"
+services:
+  joy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000" # exposes the default port
+    network_mode: "host" # needed because we run on localhost by default
+    volumes:
+      - ./:/var/app # this should be your root directory for your joy files
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.joy.rule=Host(`<your-website>`)" # you _must_ keep the backticks
+      - "traefik.http.routers.joy.entrypoints=websecure"
+      - "traefik.http.routers.joy.tls.certresolver=myresolver" # this uses the resolver defined on line 27 - 29
+  traefik:
+    image: "traefik:v2.0.0-rc3"
+    container_name: "traefik"
+    restart: unless-stopped
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=<your-email>"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - "./letsencrypt:/letsencrypt" # mount point expected for resolver so you have certs on your FS
+      - "/var/run/docker.sock:/var/run/docker.sock:ro" # use docker in the conaitner from the host

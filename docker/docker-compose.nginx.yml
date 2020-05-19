@@ -1,0 +1,20 @@
+version: "3"
+services:
+  joy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000" # exposes the default port
+    volumes:
+      - ./:/var/app # this should be your root directory for your joy files
+  image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+        - ./nginx.conf:/etc/nginx/nginx.conf
+        - ./certs/cert.pem:/etc/ssl/certs/cert.pem # you must have a folder with your cert in it
+        - ./certs/cert.pem:/etc/ssl/private/cert.pem # you must have a folder with your cert in it
+    links:
+      - joy
