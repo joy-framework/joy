@@ -86,7 +86,8 @@
     (log (request-struct request options))
     (def response (handler request))
     (def end-seconds (os/clock))
-    (put request :duration (string/format "%.4fms" (- end-seconds start-seconds)))
+    (def delta (- end-seconds start-seconds))
+    (put request :duration (string/format "%dms" (math/ceil (* delta 1000))))
     (when response
       (log (response-struct request response start-seconds end-seconds)))
 
