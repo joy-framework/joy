@@ -22,6 +22,14 @@
 (def action (get args 1))
 (def options (drop 2 args))
 
+(def actions ["create" "help" "new" "migrate" "rollback" "server" "watch" "version" "bundle"])
+
+(if (nil? (find |(= action $) actions))
+  (do
+    (print "`" action "' is not a supported action.\n")
+    (print "joy" usage)
+    (os/exit 1)))
+
 (if (or (nil? action)
         (empty? action))
   (print "joy" usage)
