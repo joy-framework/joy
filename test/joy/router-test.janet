@@ -17,6 +17,10 @@
   "auth-code")
 
 
+(defn auth-code-p [request]
+  (request :params))
+
+
 (defroutes test-routes
   [:get "/" home]
   [:get "/test" home :qs]
@@ -27,6 +31,7 @@
   [:get "/accounts/:id/edit" identity :with-params]
   [:get "/auth-code" auth-code]
   [:patch "/accounts/:id" identity :accounts/patch]
+  [:get "/auth-code/:id" auth-code-p]
   [:get "/wildcard/*" wildcard])
 
 
@@ -73,4 +78,7 @@
     (= "hello/world" ((handler test-routes) {:method :get :uri "/wildcard/hello/world"})))
 
   (test "query string route"
-    (= "auth-code" ((handler test-routes) {:method :get :uri "/auth-code?code=12345"}))))
+    (= "auth-code" ((handler test-routes) {:method :get :uri "/auth-code?code=12345"})))
+
+  (test "query string route with a param"
+    (deep= @{:id "1"} ((handler test-routes) {:method :get :uri "/auth-code/1?code=12345"}))))

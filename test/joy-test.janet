@@ -172,6 +172,14 @@
     (redirect-to :index)))
 
 
+(defn query-test [request]
+  @{:status 200 :body (request :query-string)})
+
+
+(defn query-test-with-param [request]
+  {:status 200 :body (merge (request :params) (request :query-string))})
+
+
 (defroutes routes
   [:get "/" home]
   [:get "/accounts" index]
@@ -183,7 +191,9 @@
   [:delete "/accounts/:id" destroy]
   [:get "/error-test" error-test]
   [:get "/uploads/new" new-upload]
-  [:post "/uploads" upload-test])
+  [:post "/uploads" upload-test]
+  [:get "/query-test" query-test]
+  [:get "/query-test/:id" query-test-with-param])
 
 
 (def app (-> (handler routes)
@@ -204,7 +214,17 @@
   (test "test the app"
     (= 200
        (let [response (app @{:uri "/" :method :get})]
-         (get response :status)))))
+         (get response :status))))
+
+  (test "query string params"
+    (deep= @{:test "true"}
+           (get (app @{:uri "/query-test?test=true" :method :get})
+                :body)))
+
+  (test "query string params with route param"
+    (deep= @{:test "true" :id "1"}
+           (get (app @{:uri "/query-test/1?test=true" :method :get})
+                :body))))
 
 
 (db/connect "test.sqlite3")

@@ -30,7 +30,7 @@
     (as-> (interleave app-parts req-parts) ?
           (partition 2 ?)
           (filter (fn [[x y]] (route-param? x)) ?)
-          (map (fn [[x y]] @[(keyword (drop 1 x)) y]) ?)
+          (map (fn [[x y]] @[(keyword (drop 1 x)) (first (string/split "?" y))]) ?)
           (mapcat identity ?)
           (table ;?))))
 
