@@ -81,12 +81,19 @@
     [acc child]
     (string acc (create child)))
 
+  (defn safely [children]
+    (if (< 1 (length children))
+      (do
+        (print "Warning - too many children for element:")
+        (pp children)))
+    (first-child children))
+
   (let [child (first-child children)]
     (cond
       (indexed? child) (reduce child-reducer "" children)
       (keyword? child) (create children)
-      (string? child) (escape child)
-      (number? child) (string child)
+      (string? child) (escape (safely children))
+      (number? child) (string (safely children))
       (nil? child) ""
       (empty? child) ""
       :else children)))
