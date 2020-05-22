@@ -56,9 +56,20 @@
         uri (first (string/split "?" uri))
         app-parts (string/split "/" app-url)
         req-parts (string/split "/" uri)]
+
+         # check methods match first
     (and (= (string/ascii-lower method)
             (string/ascii-lower app-method))
+
+             # check that the url isn't an exact match
          (or (= app-url uri)
+
+             # check for urls with params
+
+             # 1. same length
+             # 2. the route definition has a semicolon in it
+             # 3. the length of the parts are equal after
+             #    accounting for params
              (and (= (length app-parts) (length req-parts))
                   (string/find ":" app-url)
                   (= (length app-parts)
@@ -66,6 +77,8 @@
                            (partition 2 ?)
                            (filter part? ?)
                            (length ?))))
+
+             # wildcard params (still a work in progress)
              (and (string/has-suffix? "*" app-url)
                   (string/has-prefix? (string/trimr app-url "*") uri))))))
 
