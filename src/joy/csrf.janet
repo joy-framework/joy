@@ -65,15 +65,15 @@
   (fn [request]
     (let [session-token (session-token request)
           masked-token (mask-token session-token)
-          request (put request :masked-token masked-token)]
+          request (merge request {:masked-token masked-token})]
        (if (or (get? request) (head? request))
          (when-let [response (handler request)]
-           (put response :csrf-token session-token))
+           (merge response {:csrf-token session-token}))
 
          (let [form-token (unmask-token (request-token request))]
            (if (tokens-equal? form-token session-token)
              (when-let [response (handler request)]
-               (put response :csrf-token session-token))
+               (merge response {:csrf-token session-token}))
              @{:status 403 :body "Invalid CSRF Token" :headers @{"Content-Type" "text/plain"}}))))))
 
 
