@@ -1,0 +1,11 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: alpine:3.7
+    steps:
+      - run: apk add --no-cache build-base curl git
+      - run: git clone https://github.com/janet-lang/janet.git /tmp/janet && cd /tmp/janet && make all test install && rm -rf /tmp/janet
+      - checkout
+      - run: jpm install joy
+      - run: jpm test
