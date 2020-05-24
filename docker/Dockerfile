@@ -14,11 +14,9 @@ RUN addgroup -g $GID -S $GROUP
 RUN adduser -u $UID -S $USER -G $GROUP
 
 # Move to tmp and install janet
-RUN cd /tmp && \
-    git clone https://github.com/janet-lang/janet.git && \
-    cd janet && \
-    make all test install && \
-    rm -rf /tmp/janet
+RUN git clone https://github.com/janet-lang/janet.git /tmp/janet && \
+    cd /tmp/janet && \
+    make all test install
 
 RUN chmod 777 /usr/local/lib/janet
 

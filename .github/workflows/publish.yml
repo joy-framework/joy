@@ -1,0 +1,20 @@
+name: Publish
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      SHA8: ${GITHUB_SHA::8}
+    steps:
+    - uses: actions/checkout@v2
+    - name: log in, build, tag, push
+      run: |
+        docker login https://docker.pkg.github.com -u swlkr -p ${{ secrets.GITHUB_TOKEN }}
+        docker build -t joy-framework/joy:$SHA8 -f ./docker/Dockerfile .
+        docker tag joy-framework/joy:$SHA8 docker.pkg.github.com/joy-framework/joy:$SHA8
+        docker push docker.pkg.github.com/joy-framework/joy:$SHA8
+
