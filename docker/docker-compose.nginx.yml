@@ -1,9 +1,7 @@
 version: "3"
 services:
   joy:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: docker.pkg.github.com/joy-framework/joy/joy-web:latest
     ports:
       - "8000:8000" # exposes the default port
     volumes:

@@ -11,7 +11,6 @@ FROM alpine:3.7
 
 EXPOSE 8000
 
-# Add build tools, curl and git so jpm can work
 RUN apk add --no-cache build-base curl git
 
 # Create a non-root user to run the app as
@@ -24,11 +23,9 @@ RUN addgroup -g $GID -S $GROUP
 RUN adduser -u $UID -S $USER -G $GROUP
 
 # Move to tmp and install janet
-RUN cd /tmp && \
-    git clone https://github.com/janet-lang/janet.git && \
-    cd janet && \
-    make all test install && \
-    rm -rf /tmp/janet
+RUN git clone https://github.com/janet-lang/janet.git /tmp/janet && \
+    cd /tmp/janet && \
+    make all test install
 
 RUN chmod 777 /usr/local/lib/janet
 
@@ -44,15 +41,22 @@ RUN chown -R $USER:$GROUP /var/app
 
 USER $USER
 WORKDIR /var/app
+
 ```
 
 This file extends `alpine`, a super small light weight linux distro, installs Janet from source, and then installs Joy via [`jpm`](https://janet-lang.org/docs/jpm.html). We are doing this so that we leverage the same tools we indicate to use. This also serves as a nice way to test our `jpm` config and publishing process.
+
+We are currently creating and publishing the container for you under the tag `docker.pkg.github.com/joy-framework/joy/joy-web:latest`. You can pull that at anytime, or follow these instructions to make your own!
+
+## Use with docker compose
+
+All of our docker-compose configurations are assuming that you're placing them in the root of a repo you created with our template, `joy new my-joy-project`. The volume mounts are mapping in those files to your container and starting them!
 
 ## Using NGINX and docker compose
 
 NGINX is a great tool for simple and lightweight serving of sites. For HTTPS it's a bit more manual, but that is paid off by how incredibly lightweight it is. We have a base conifg, `docker-compose.nginx.yml` available in our `docker/` folder in the root. To use this file you need to do these steps:
 
-  1. Move `docker-compose.nginx.yml`, `ngingx.conf`, and the `Dockerfile` to the root of your repo
+  1. Move `docker-compose.nginx.yml` and `ngingx.conf` to your repo
   1. Replace all occurrences of `<your-website>` with your actual url
   1. Obtain an SSL cert, and place it in a folder called `./certs` and name it `cert.pem`
     * you can change these names and locations as long as you update the volume mount and conf file names
@@ -67,7 +71,7 @@ That will get everything all started up for you and allow you to view your site 
 
 Traefik is a great tool, though it's very heavy weight, it's feature set more than makes up for it. With this config you'll get SSL, a dashboard for container uptime, and more. It's also far simpler to use, to wit:
 
-  1. Move `docker-compose.traefik.yml` and the `Dockerfile` to the root of your repo
+  1. Move `docker-compose.traefik.yml` to the root of your repo
 
 After that simply:
 
