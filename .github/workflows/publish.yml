@@ -7,14 +7,14 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    env:
-      SHA8: ${GITHUB_SHA}
     steps:
     - uses: actions/checkout@v2
     - name: log in, build, tag, push
       run: |
         docker login https://docker.pkg.github.com -u swlkr -p ${{ secrets.GITHUB_TOKEN }}
         docker build -t joy:${GITHUB_SHA} -f ./docker/Dockerfile .
-        docker tag joy:${GITHUB_SHA} docker.pkg.github.com/joy-framework/joy:${GITHUB_SHA}
-        docker push docker.pkg.github.com/joy-framework/joy:${GITHUB_SHA}
+        docker tag joy:${GITHUB_SHA} docker.pkg.github.com/joy-framework/joy/joy-web:${GITHUB_SHA}
+        docker tag joy:${GITHUB_SHA} docker.pkg.github.com/joy-framework/joy/joy-web:latest
+        docker push docker.pkg.github.com/joy-framework/joy/joy-web:${GITHUB_SHA}
+        docker push docker.pkg.github.com/joy-framework/joy/joy-web:latest
 
