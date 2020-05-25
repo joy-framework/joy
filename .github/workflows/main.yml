@@ -1,0 +1,35 @@
+name: Test and Build
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: install backing for building janet
+      run: sudo apt install build-essential
+    - name: build janet, install joy
+      run: |
+        git clone https://github.com/janet-lang/janet.git /tmp/janet
+        cd /tmp/janet
+        sudo make all test install
+    - name: install joy
+      run: sudo jpm install joy
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: install backing for building janet
+      run: sudo apt install build-essential
+    - name: build janet, install joy
+      run: |
+        git clone https://github.com/janet-lang/janet.git /tmp/janet
+        cd /tmp/janet
+        sudo make all test install
+    - name: install joy
+      run: sudo jpm install joy
+    - name: run tests
+      run: sudo jpm test
