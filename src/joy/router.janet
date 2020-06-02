@@ -199,11 +199,6 @@
       (wrap-if :static-files static-files)))
 
 
-(defmacro routes [& args]
-  (do
-    ~(set *route-table* (merge *route-table* (route-table ,;args)))))
-
-
 (defn namespace [val]
   (when (keyword? val)
     (let [arr (string/split "/" val)
@@ -212,13 +207,11 @@
       (string/join ns-array "/"))))
 
 
-(defmacro defroutes [& args]
-  (let [name (first args)
-        rest (drop 1 args)
-        rest (map |(array ;$) rest)
+(defmacro routes [& args]
+  (let [args (map |(array ;$) args)
 
         # get the "namespaces" of the functions
-        files (as-> rest ?
+        files (as-> args ?
                     (map |(get $ 2) ?)
                     (map namespace ?)
                     (filter present? ?)
@@ -229,12 +222,18 @@
             (try
               (import* (string "./routes/" file) :as file)
               ([err]
-               (print (string "Route file src/routes/" file ".janet does not exist.")))))
+               (print (string "Route file ./routes/" file ".janet does not exist.")))))
 
-        rest (map |(update $ 2 symbol) rest)]
+        args (map |(update $ 2 symbol) args)]
 
-    (routes rest)
-    ~(def ,name :public ,rest)))
+    (set *route-table* (merge *route-table* (route-table args)))
+    args))
+
+
+(defmacro defroutes [& args]
+  (let [name (first args)
+        rest (drop 1 args)]
+    ~(def ,name :public (routes ,;rest))))
 
 
 (defn- query-string [m]
