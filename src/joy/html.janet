@@ -74,6 +74,13 @@
       children))
 
 
+(defn- valid-children?
+  [children]
+  (or (indexed? children)
+      (number? children)
+      (string? children)))
+
+
 (defn- create-children
   [create children]
 
@@ -85,18 +92,12 @@
     (cond
       (indexed? child) (reduce child-reducer "" children)
       (keyword? child) (create children)
-      (string? child) (escape child)
-      (number? child) (string child)
+      (all valid-children? children) (as-> children ?
+                                           (map |(if (indexed? $) (create $) (escape $)) ?)
+                                           (string/join ?))
       (nil? child) ""
       (empty? child) ""
       :else children)))
-
-
-(defn- valid-children?
-  [children]
-  (or (indexed? children)
-      (number? children)
-      (string? children)))
 
 
 (defn- validate-element
@@ -123,7 +124,7 @@
 (defn- create
   [element]
   (if (not (nil? element))
-    (if (every? (map indexed? element))
+    (if (all valid-children? element)
       (string/join (map create element) "")
       (let [[name attrs] element]
         (if (dictionary? attrs)

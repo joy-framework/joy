@@ -44,12 +44,12 @@
     (= `<div class="class"><span>span</span></div>` (html/html [:div {:class "class"}
                                                                 [:span "span"]])))
 
-  # (test "a link inside of some content"
-  #   (= `<div class="class">View the <a href="https://github.com/joy-framework/joy">joy</a> source</div>`
-  #      (print (html/html [:div {:class "class"}
-  #                          "View the "
-  #                          [:a {:href "https://github.com/joy-framework/joy"} "joy"]
-  #                          " source"]))))
+  (test "a link inside of some content"
+    (= `<div class="class">View the <a href="https://github.com/joy-framework/joy">joy</a> source</div>`
+       (html/html [:div {:class "class"}
+                    "View the "
+                    [:a {:href "https://github.com/joy-framework/joy"} "joy"]
+                    " source"])))
 
   (test "html/html with a nested node with attributes and content"
     (= `<div class="class"><span id="id">span</span></div>` (html/html [:div {:class "class"}
@@ -107,4 +107,16 @@
          [:body
           (when false
             [:div "hello"])
-          [:h1 "h1"]]]))))
+          [:h1 "h1"]]])))
+
+  (test "html with multiple strings"
+    (= "<div>helloworld</div>"
+       (html/html [:div "hello" "world"])))
+
+  (test "html with attrs and multiple strings"
+    (= "<div id=\"1\">helloworld</div>"
+       (html/html [:div {:id 1} "hello" "world"])))
+
+  (test "html with multiple indices"
+    (= "<div><p></p><br /></div>"
+       (html/html [:div [:p] [:br]]))))
