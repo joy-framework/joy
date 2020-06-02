@@ -6,6 +6,7 @@
 
 (varglobal '*route-table* @{})
 
+(def- parts '(some (* "/" '(any (+ :a :d (set ":-_.!~'()"))))))
 
 (defn- route-param? [val]
   (string/has-prefix? ":" val))
@@ -35,12 +36,24 @@
           (table ;?))))
 
 
+(defn- slash-suffix [p]
+  (if (keyword? (last p))
+    (put p (dec (length p)) :slash-param)
+    p))
+
+
 (defn- wildcard-params [patt uri]
-  (def parts (string/split "*" patt))
-  (def arr (interpose '(<- (some (if-not "\0" 1))) parts))
-  (def p (freeze (array/insert arr 0 '*)))
-  (or (first (peg/match p uri))
-      @[]))
+  (let [p (->> (string/split "*" patt)
+               (interpose :param)
+               (filter |(not (empty? $)))
+               (slash-suffix)
+               (freeze))
+
+        route-peg ~{:param (<- (some (+ :w (set "~_-."))))
+                    :slash-param (<- (some (+ :w (set "~_-./"))))
+                    :main (* ,;p)}]
+
+    (peg/match route-peg uri)))
 
 
 (defn- part? [[s1 s2]]
@@ -49,38 +62,38 @@
 
 
 (defn- route? [app-route request]
-  (let [[app-method app-url] app-route
+  (let [[route-method route-url] app-route
         {:uri uri :method method} request
-        app-url (string/trimr app-url "/")
-        uri (string/trimr uri "/")
-        uri (first (string/split "?" uri))
-        app-parts (string/split "/" app-url)
-        req-parts (string/split "/" uri)]
+        uri (first (string/split "?" uri))]
 
          # check methods match first
     (and (= (string/ascii-lower method)
-            (string/ascii-lower app-method))
+            (string/ascii-lower route-method))
 
              # check that the url isn't an exact match
-         (or (= app-url uri)
+         (or (= route-url uri)
 
              # check for urls with params
+             (let [uri-parts (peg/match parts uri)
+                   route-parts (peg/match parts route-url)]
 
-             # 1. same length
-             # 2. the route definition has a semicolon in it
-             # 3. the length of the parts are equal after
-             #    accounting for params
-             (and (= (length app-parts) (length req-parts))
-                  (string/find ":" app-url)
-                  (= (length app-parts)
-                     (as-> (interleave app-parts req-parts) ?
-                           (partition 2 ?)
-                           (filter part? ?)
-                           (length ?))))
+               # 1. same length
+               # 2. the route definition has a semicolon in it
+               # 3. the length of the parts are equal after
+               #    accounting for params
+               (and (= (length route-parts) (length uri-parts))
+                    (string/find ":" route-url)
+                    (= (length route-parts)
+                       (as-> (interleave route-parts uri-parts) ?
+                             (partition 2 ?)
+                             (filter part? ?)
+                             (length ?)))))
 
              # wildcard params (still a work in progress)
-             (and (string/has-suffix? "*" app-url)
-                  (string/has-prefix? (string/trimr app-url "*") uri))))))
+             (and (string/find "*" route-url)
+                  (let [idx (string/find "*" route-url)
+                        sub (string/slice route-url 0 idx)]
+                     (string/has-prefix? sub uri)))))))
 
 
 (defn- find-route [routes request]
@@ -101,12 +114,12 @@
   "Creates a handler function from routes. Returns nil when handler/route doesn't exist."
   [routes]
   (fn [request]
-    (when-let [{:uri uri} request
-               route (find-route routes request)
-               [route-method route-uri route-fn] route
-               wildcard (wildcard-params route-uri uri)
-               params (route-params route-uri uri)
-               request (merge request {:params params :wildcard wildcard})]
+    (let [{:uri uri} request
+          route (find-route routes request)
+          [route-method route-uri route-fn] route
+          wildcard (wildcard-params route-uri uri)
+          params (route-params route-uri uri)
+          request (merge request {:params params :wildcard wildcard})]
       (when (function? route-fn)
         (route-fn request)))))
 

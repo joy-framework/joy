@@ -32,10 +32,16 @@
   [:get "/auth-code" auth-code]
   [:patch "/accounts/:id" identity :accounts/patch]
   [:get "/auth-code/:id" auth-code-p]
-  [:get "/wildcard/*" wildcard])
+  [:get "/wildcard/*" wildcard]
+  [:get "/wild/*/card/*" wildcard]
+  [:get "/*" wildcard])
 
 
 (deftest
+  (test "root path"
+    (= {:status 200 :body ""}
+       ((handler test-routes) {:method :get :uri "/"})))
+
   (test "get handler from routes"
     (= {:status 200 :body ""}
        ((handler test-routes) {:method :get :uri "/accounts"})))
@@ -75,10 +81,25 @@
        {:_method :patch :method :post :action "/accounts/100"}))
 
   (test "wildcard route"
-    (= "hello/world" ((handler test-routes) {:method :get :uri "/wildcard/hello/world"})))
+    (deep= @["hello/world"]
+           ((handler test-routes) {:method :get :uri "/wildcard/hello/world"})))
 
   (test "query string route"
-    (= "auth-code" ((handler test-routes) {:method :get :uri "/auth-code?code=12345"})))
+    (= "auth-code"
+       ((handler test-routes) {:method :get :uri "/auth-code?code=12345"})))
 
   (test "query string route with a param"
-    (deep= @{:id "1"} ((handler test-routes) {:method :get :uri "/auth-code/1?code=12345"}))))
+    (deep= @{:id "1"}
+           ((handler test-routes) {:method :get :uri "/auth-code/1?code=12345"})))
+
+  (test "wildcard route with query string"
+    (deep= @["a/really/long/path"]
+           ((handler test-routes) {:method :get :uri "/a/really/long/path?test=true"})))
+
+  (test "wildcard route with static parts"
+    (deep= @["1" "2"]
+           ((handler test-routes) {:method :get :uri "/wild/1/card/2"})))
+
+  (test "wildcard route with static parts and a slashes at the end"
+    (deep= @["1" "a/really/long/url"]
+           ((handler test-routes) {:method :get :uri "/wild/1/card/a/really/long/url"}))))
