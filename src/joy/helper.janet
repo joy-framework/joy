@@ -241,4 +241,9 @@
     s))
 
 
+(defn present? [val]
+  (and (truthy? val)
+       (not (empty? val))))
+
+
 (def version "0.8.0")

@@ -191,11 +191,6 @@
     ~(set *route-table* (merge *route-table* (route-table ,;args)))))
 
 
-(defn present? [val]
-  (and (truthy? val)
-       (not (empty? val))))
-
-
 (defn namespace [val]
   (when (keyword? val)
     (let [arr (string/split "/" val)
