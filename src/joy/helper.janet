@@ -246,4 +246,15 @@
        (not (empty? val))))
 
 
+(defmacro foreach [binding & body]
+  ~(map (fn [val]
+          (let [,(first binding) val]
+            ,;body))
+        ,(get binding 1)))
+
+
+(defn blank? [val]
+  (or (nil? val) (empty? val)))
+
+
 (def version "0.8.0")

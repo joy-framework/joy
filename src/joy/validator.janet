@@ -9,11 +9,6 @@
   (< (length val) len))
 
 
-(defn- blank? [val]
-  (or (nil? val)
-    (empty? val)))
-
-
 (defn- matches-peg? [peg val]
   (peg/match peg val))
 
@@ -67,7 +62,7 @@
               (not (nil? uri)) (string "needs to be a valid uri " (string/format "%q" uri))
               :else "")
         predicate (cond
-                    (true? required) blank?
+                    (true? required) helper/blank?
                     (number? min-length) (partial min-length? min-length)
                     (number? max-length) (partial max-length? max-length)
                     (not (nil? email)) (comp not email?)
