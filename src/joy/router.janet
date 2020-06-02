@@ -6,7 +6,7 @@
 
 (varglobal '*route-table* @{})
 
-(def- parts '(some (* "/" '(any (+ :a :d (set ":-_.!~'()"))))))
+(def- parts '(some (* "/" '(any (+ :a :d (set ":%$-_.+!*'(),"))))))
 
 (defn- route-param? [val]
   (string/has-prefix? ":" val))
@@ -49,8 +49,8 @@
                (slash-suffix)
                (freeze))
 
-        route-peg ~{:param (<- (some (+ :w (set "~_-."))))
-                    :slash-param (<- (some (+ :w (set "~_-./"))))
+        route-peg ~{:param (<- (some (+ :w (set "%$-_.+!*'(),"))))
+                    :slash-param (<- (some (+ :w (set "%$-_.+!*'(),/"))))
                     :main (* ,;p)}]
 
     (peg/match route-peg uri)))
