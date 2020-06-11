@@ -4,7 +4,10 @@
 (import ./logger :prefix "")
 (import ./csrf :prefix "")
 
+(varglobal '*routes* @[])
 (varglobal '*route-table* @{})
+(varglobal '*before-filters* @[])
+(varglobal '*after-filters* @[])
 
 (def- parts '(some (* "/" '(any (+ :a :d (set ":%$-_.+!*'(),"))))))
 
@@ -119,9 +122,12 @@
           [route-method route-uri route-fn] route
           wildcard (wildcard-params route-uri uri)
           params (route-params route-uri uri)
-          request (merge request {:params params :wildcard wildcard})]
-      (when (function? route-fn)
-        (route-fn request)))))
+          request (merge request {:params params :wildcard wildcard})
+          f (if (function? route-fn)
+              route-fn
+              (eval (symbol route-fn)))]
+      (when f
+        (f request)))))
 
 
 (defn handlers [& handler-fns]
@@ -148,7 +154,29 @@
   (def bindings (array/concat not-wildcards wildcards))
   (def function-routes (map to-route bindings))
   (set *route-table* (merge *route-table* (route-table function-routes)))
-  function-routes)
+  (if (empty? function-routes)
+    *routes*
+    function-routes))
+
+
+(defn with-before-middleware [handler]
+  (fn [request]
+    (var req request)
+    (loop [[url fn-name] :in *before-filters*]
+      (when-let [wildcard-params (wildcard-params url (request :uri))
+                 f (eval fn-name)]
+        (set req (f req))))
+    (handler req)))
+
+
+(defn with-after-middleware [handler]
+  (fn [request]
+    (var res (handler request))
+    (loop [[url fn-name] :in *after-filters*]
+      (when-let [wildcard-params (wildcard-params url (request :uri))
+                 f (eval fn-name)]
+        (set res (f request res))))
+    res))
 
 
 (defn- wrap-if [options handler k middleware]
@@ -186,6 +214,8 @@
 
   (-> (handler (options :routes))
       (wrap-with :layout layout)
+      (with-before-middleware)
+      (with-after-middleware)
       (wrap-if :logger logger)
       (wrap-if :csrf-token csrf-token)
       (wrap-with :session session)
@@ -205,6 +235,18 @@
           len (dec (length arr))
           ns-array (array/slice arr 0 len)]
       (string/join ns-array "/"))))
+
+
+(defn route [method url handler-name &opt handler-alias]
+  (let [handler (if (function? handler-name)
+                  handler-name
+                  (symbol handler-name))
+        r (if handler-alias
+            [method url handler handler-alias]
+            [method url handler])]
+    (array/push *routes* r)
+    (put *route-table* (route-name r) r)
+    handler))
 
 
 (defmacro routes [& args]
@@ -276,3 +318,11 @@
   @{:status 302
     :body " "
     :headers @{"Location" (url-for route-keyword (or params {}))}})
+
+
+(defn before [url fn-name]
+  (array/push *before-filters* [url (symbol fn-name)]))
+
+
+(defn after [url fn-name]
+  (array/push *after-filters* [url (symbol fn-name)]))
