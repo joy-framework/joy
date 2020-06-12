@@ -46,7 +46,7 @@
     (= {:status 200 :body ""}
        ((handler test-routes) {:method :get :uri "/accounts"})))
 
-  (test "get handler from routes"
+  (test "get handler from routes 2"
       (= {:status 200 :body "1"}
          ((handler test-routes) {:method :get :uri "/accounts/1"})))
 
