@@ -56,7 +56,8 @@
                     :slash-param (<- (some (+ :w (set "%$-_.+!*'(),/"))))
                     :main (* ,;p)}]
 
-    (peg/match route-peg uri)))
+    (or (peg/match route-peg uri)
+        @[])))
 
 
 (defn- part? [[s1 s2]]
@@ -117,14 +118,14 @@
   "Creates a handler function from routes. Returns nil when handler/route doesn't exist."
   [routes]
   (fn [request]
-    (let [route (find-route routes request)
-          [route-method route-uri route-fn] route
-          wildcard (wildcard-params route-uri (request :uri))
-          params (route-params route-uri (request :uri))
-          request (merge request {:params params :wildcard wildcard})
-          f (if (function? route-fn)
-              route-fn
-              (eval (symbol route-fn)))]
+    (when-let [route (find-route routes request)
+               [route-method route-uri route-fn] route
+               wildcard (wildcard-params route-uri (request :uri))
+               params (route-params route-uri (request :uri))
+               request (merge request {:params params :wildcard wildcard})
+               f (if (function? route-fn)
+                   route-fn
+                   (eval (symbol route-fn)))]
       (when f
         (f request)))))
 
