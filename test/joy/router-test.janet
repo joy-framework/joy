@@ -37,6 +37,10 @@
   [:get "/*" wildcard])
 
 
+(defroutes test-routes-2
+  [:get "/" home])
+
+
 (deftest
   (test "root path"
     (= {:status 200 :body ""}
@@ -102,4 +106,7 @@
 
   (test "wildcard route with static parts and a slashes at the end"
     (deep= @["1" "a/really/long/url"]
-           ((handler test-routes) {:method :get :uri "/wild/1/card/a/really/long/url"}))))
+           ((handler test-routes) {:method :get :uri "/wild/1/card/a/really/long/url"})))
+
+  (test "404"
+    (nil? ((handler test-routes-2) {:method :get :uri "/what"}))))
