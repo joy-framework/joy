@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
 
-pkill -xf 'janet main.janet'
-janet main.janet &
+pkill -xf "janet app.janet"
+sleep .5
+janet app.janet &

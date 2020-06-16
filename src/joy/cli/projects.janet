@@ -10,10 +10,10 @@
     (os/shell
       (string/format "cp -r %s %s" template-path project-name))
 
-    (helper/with-file [f (path/join project-name "src" "layout.janet") :r]
+    (helper/with-file [f (path/join project-name "app.janet") :r]
       (set tmp (->> (file/read f :all)
                     (string/replace-all "%project-name%" project-name))))
-    (helper/with-file [f (path/join project-name "src" "layout.janet") :w]
+    (helper/with-file [f (path/join project-name "app.janet") :w]
       (file/write f tmp))
 
     (helper/with-file [f (path/join project-name "project.janet") :r]
@@ -24,6 +24,6 @@
 
     (helper/with-file [f (path/join project-name ".env") :r]
       (set tmp (->> (file/read f :all)
-                    (string/replace-all "%encryption-key%" (cipher/encryption-key)))))
+                    (string/replace-all "%encryption-key%" (string (cipher/encryption-key))))))
     (helper/with-file [f (path/join project-name ".env") :w]
       (file/write f tmp))))

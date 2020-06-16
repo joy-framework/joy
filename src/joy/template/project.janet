@@ -7,17 +7,8 @@
   :url ""
   :repo "")
 
-(declare-executable
-  :name "%project-name%"
-  :entry "main.janet")
-
 (phony "server" []
-  (do
-    (os/shell "pkill -xf 'janet main.janet'")
-    (os/shell "janet main.janet")))
+  (os/shell "janet app.janet"))
 
 (phony "watch" []
-  (do
-    (os/shell "pkill -xf 'janet main.janet'")
-    (os/shell "janet main.janet &")
-    (os/shell "fswatch -o src | xargs -n1 -I{} ./watch")))
+  (os/shell "fswatch -o . --exclude='.git' --exclude='.sqlite3' | xargs -n1 -I{} ./watch"))
