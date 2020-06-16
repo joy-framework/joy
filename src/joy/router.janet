@@ -274,8 +274,28 @@
 
 (defmacro defroutes [& args]
   (let [name (first args)
-        rest (drop 1 args)]
-    ~(def ,name :public (routes ,;rest))))
+        rest (drop 1 args)
+        rest (map |(array ;$) rest)
+
+        # get the "namespaces" of the functions
+        files (as-> rest ?
+                    (map |(get $ 2) ?)
+                    (map namespace ?)
+                    (filter present? ?)
+                    (distinct ?))
+
+        # import all distinct file names from routes
+        _ (loop [file :in files]
+            (try
+              (import* (string "./routes/" file) :as file)
+              ([err]
+               (print (string "Route file ./routes/" file ".janet does not exist.")))))
+
+        rest (map |(update $ 2 symbol) rest)]
+
+    (set *route-table* (merge *route-table* (route-table rest)))
+
+    ~(def ,name :public ,rest)))
 
 
 (defn- query-string [m]

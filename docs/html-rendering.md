@@ -67,26 +67,25 @@ How do you get things like re-use and layouts? Functions!
 ```clojure
 (import joy)
 
-(defn home [request])
-  [:div "home"]
+(defn home [request]
+  [:div "home"])
 
-(joy/defroutes web
+(joy/defroutes routes
   [:get "/" home])
 
-(defn layout [response])
+(defn layout [response]
   (let [{:body body} response]
-    (joy/respond :html
-      (joy/html
-       (joy/doctype :html5)
-       [:html {:lang "en"}
-        [:head
-         [:meta {:charset "utf-8"}]
-         [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
-         [:link {:href "/app.css" :rel "stylesheet"}]
-         [:title "title"]]
-        [:body
-         body
-         [:script {:src "/app.js"}]]]))))
+    (joy/text/html
+     (joy/doctype :html5)
+     [:html {:lang "en"}
+      [:head
+       [:meta {:charset "utf-8"}]
+       [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
+       [:link {:href "/app.css" :rel "stylesheet"}]
+       [:title "title"]]
+      [:body
+       body
+       [:script {:src "/app.js"}]]])))
 
 
 (def app (-> (joy/handler routes)
