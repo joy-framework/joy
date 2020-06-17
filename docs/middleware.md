@@ -3,12 +3,11 @@
 If you make a new joy app from the command line with `joy new` you'll notice `src/server.janet` has quite a few things hanging around that look like this:
 
 ```clojure
-(import joy :prefix)
+(import joy :prefix "")
 
 (def app (as-> routes/app ?
                (handler ?)
                (layout ? layout/app)
-               (logger ? )
                (csrf-token ?)
                (session ?)
                (extra-methods ?)
@@ -17,7 +16,8 @@ If you make a new joy app from the command line with `joy new` you'll notice `sr
                (server-error ?)
                (x-headers ?)
                (static-files ?)
-               (not-found ?)))
+               (not-found ?)
+               (logger ? )))
 ```
 
 Let's talk about middleware functions and why there are so many of them.
