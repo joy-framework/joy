@@ -327,7 +327,9 @@
   (default params {})
   (let [[method url] (get *route-table* route-keyword)
         action (route-url url params)
-        _method (when (not= :post method) method)
+        _method (when (and (not= :post method)
+                           (not= :get method))
+                  method)
         method (if (not= :get method) :post :get)]
     {:method method
      :_method _method

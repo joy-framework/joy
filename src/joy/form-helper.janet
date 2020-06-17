@@ -131,12 +131,13 @@
                  {:action action}
                  (if (truthy? route)
                    (router/action-for ;(if (indexed? route) route [route]))
-                   {:action ""}))]
-    [:form (merge options action)
+                   {:action ""}))
+        attrs (merge options action)]
+    [:form attrs
       body
       (csrf-field request)
-      (when (truthy? (get action :_method))
-        (hidden-field action :_method))]))
+      (when (truthy? (get attrs :_method))
+        (hidden-field attrs :_method))]))
 
 
 (defn label
