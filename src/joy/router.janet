@@ -216,7 +216,6 @@
       (wrap-with :layout layout)
       (with-before-middleware)
       (with-after-middleware)
-      (wrap-if :logger logger)
       (wrap-if :csrf-token csrf-token)
       (wrap-with :session session)
       (wrap-if :extra-methods extra-methods)
@@ -225,8 +224,9 @@
       (wrap-if :json-body-parser json-body-parser)
       (wrap-if :server-error server-error)
       (wrap-with :x-headers x-headers)
+      (wrap-if :static-files static-files)
       (wrap-with :404 not-found)
-      (wrap-if :static-files static-files)))
+      (wrap-if :logger logger)))
 
 
 (defn namespace [val]
