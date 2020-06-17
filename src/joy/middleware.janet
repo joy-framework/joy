@@ -207,3 +207,25 @@
           (file/close f))
         response)
       (handler request))))
+
+(defn cors [handler &opt opts]
+  `This middleware will allow CORS access. Both simple and
+   preflight OPTIONS requests are handled.
+
+   A set of minimal, sensible default CORS options are provided,
+   but can and should be customized by the user with their desired settings.
+
+   The defaults allow only GET and OPTIONS requests from all origins with a
+   24-hour max-age.`
+  (default opts @{})
+  (def default-options @{"Access-Control-Allow-Origin" "*"
+                         "Access-Control-Allow-Methods" "GET, OPTIONS"
+                         "Access-Control-Allow-Headers" "Content-Type"
+                         "Access-Control-Max-Age" 86400})
+  (def options (merge default-options opts))
+  (fn [request]
+    (if (= "OPTIONS" (get request :method))
+      @{:status 204 :body "" :headers options}
+      (let [response (handler request)]
+        (when response
+          (update response :headers merge options))))))
