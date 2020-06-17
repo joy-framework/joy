@@ -198,7 +198,6 @@
 
 (def app (-> (handler routes)
              (layout app-layout)
-             #(logger)
              (csrf-token)
              (session)
              (file-uploads)
@@ -207,7 +206,9 @@
              (body-parser)
              (server-error)
              (x-headers)
-             (static-files)))
+             (static-files)
+             (not-found)))
+             #(logger)
 
 
 (deftest
