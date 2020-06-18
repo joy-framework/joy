@@ -208,6 +208,7 @@
         response)
       (handler request))))
 
+
 (defn cors [handler &opt opts]
   `This middleware will allow CORS access. Both simple and
    preflight OPTIONS requests are handled.
