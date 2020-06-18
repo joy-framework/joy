@@ -180,6 +180,8 @@
 (defn header [k request]
   (get (headers request) (string k)))
 
+
+(def accept (partial header :accept))
 (def content-type (partial header :content-type))
 (def cookie (partial header :cookie))
 (def x-requested-with (partial header :x-requested-with))
