@@ -10,85 +10,52 @@
         HH (date :hours)
         MM (date :minutes)
         SS (date :seconds)]
-    (string/format "[%d-%.2d-%.2d %.2d:%.2d:%.2d]"
+    (string/format "%d-%.2d-%.2d %.2d:%.2d:%.2d"
                    Y M D HH MM SS)))
 
 
 (defn- surround [s]
-  (if (string/find " " s)
+  (if (and (string? s) (string/find " " s))
     (string `"` s `"`)
     s))
 
 
-(defn- format-key-value-pairs [[k v]]
-  (when (not (nil? v))
-    (let [val (if (string? v)
-                v
-                (string/format "%q" v))]
-      (string k "=" (surround val)))))
+(defn- logfmt [ind]
+  (as-> ind ?
+        (partition 2 ?)
+        (filter |(not (nil? (get $ 1))) ?)
+        (map (fn [[k v]] (string (surround k) "=" (surround v))) ?)
+        (string/join ? " ")))
 
 
-(defn- message [level msg &opt kv-pairs]
-  (string "at=" (surround level) " msg=" (surround msg)
-    (if (indexed? kv-pairs)
-      (string " "
-        (string/join
-          (->> (partition 2 kv-pairs)
-               (map format-key-value-pairs)
-               (filter |(not (nil? $))))
-          " "))
-      "")))
+(defn- responsefmt [request response]
+  [:method (request :method)
+   :uri (request :uri)
+   :content-type (content-type response)
+   :status (response :status)
+   :duration (string/format "%.1fms" (* (response :duration) 1000))])
 
 
-(defn log-string [options]
-  (let [{:level level :msg msg :attrs attrs :ts ts} options
-        ts (or ts (timestamp))]
-    (string ts " " (message level msg attrs))))
-
-
-(defn log [options]
-  (let [log-line (log-string options)]
-    (print log-line)
-    log-line))
-
-
-(defn request-struct [request options]
-  (let [{:uri uri :protocol proto
-         :method method :params params
-         :body body} request
-        params (select-keys params (get options :ignore-keys))
-        body (select-keys body (get options :ignore-keys))
-        method (string/ascii-upper method)
-        attrs @[:method method :url uri]
-        attrs (if (empty? params) attrs (array/concat attrs [:params params]))
-        attrs (if (empty? body) attrs (array/concat attrs [:body body]))]
-    {:level "info"
-     :msg (string/format "Started %s %s" method uri)
-     :ts (timestamp)
-     :attrs (freeze attrs)}))
-
-
-(defn response-struct [request response start-seconds end-seconds]
-  (let [{:status status} response
-        {:method method :uri uri :duration duration} request
-        method (string/ascii-upper method)
-        content-type (content-type response)]
-    {:ts (timestamp)
-     :level "info"
-     :msg (string/format "Finished %s %s" method uri)
-     :attrs [:method method :url uri :status status :duration duration :content-type content-type]}))
+(defn- log [str]
+  (printf "[%s] %s" (timestamp) str))
 
 
 (defn logger [handler &opt options]
-  (default options {:ignore-keys [:password :confirm-password]})
-  (fn [request]
-    (def start-seconds (os/clock))
-    (log (request-struct request options))
-    (def response (handler request))
-    (def end-seconds (os/clock))
-    (def delta (- end-seconds start-seconds))
-    (put request :duration (string/format "%dms" (math/ceil (* delta 1000))))
-    (when response
-      (log (response-struct request response start-seconds end-seconds)))
+  (def options* {:level "info"})
+  (default options {})
+  (def options (merge options* options))
 
-    response))
+  (fn [request]
+    (let [start-seconds (os/clock)
+          response (handler request)
+          end-seconds (os/clock)
+          level (get response :level (options :level))]
+
+      (when (= level (options :level))
+        (as-> response ?
+              (put ? :duration (- end-seconds start-seconds))
+              (responsefmt request ?)
+              (logfmt ?)
+              (log ?)))
+
+      response)))

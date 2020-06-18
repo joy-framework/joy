@@ -2,15 +2,22 @@
 (import "src/joy/logger" :as logger)
 
 (deftest
-  (test "log"
-    (let [ts "timestamp"]
-      (= (string ts ` at=info msg="Started GET /" method=GET`)
-         (logger/log-string {:ts ts :level "info" :msg "Started GET /" :attrs [:method "GET"]}))))
-
   (let [buf (buffer)]
     (setdyn :out buf)
     (test "logger"
-      (deep= @{:status 200 :body ""}
-             ((logger/logger (fn [request] @{:status 200 :body ""}))
-              @{:method :get :uri "/hello"})))
+      (let [response @{:status 200 :body "" :headers {"Content-Type" "application/json"}}]
+        (deep= response
+               ((logger/logger (fn [request] response))
+                @{:method :get :uri "/hello" :headers {"Content-Type" "text/plain"
+                                                       "Accept" "text/plain"}}))))
+    (setdyn :out stdout))
+
+  (let [buf (buffer)]
+    (setdyn :out buf)
+    (test "logger levels"
+      (let [response @{:status 200 :body "" :level "verbose" :headers {"Content-Type" "application/json"}}]
+        ((logger/logger (fn [request] response))
+         @{:method :get :uri "/levels" :headers {"Accept" "text/plain"}})
+
+        (empty? buf)))
     (setdyn :out stdout)))

@@ -207,25 +207,35 @@
              (server-error)
              (x-headers)
              (static-files)
-             (not-found)))
-             #(logger)
+             (not-found)
+             (logger)))
 
 
 (deftest
-  (test "test the app"
-    (= 200
-       (let [response (app @{:uri "/" :method :get})]
-         (get response :status))))
+  (let [buf @""]
+    (setdyn :out buf)
+    (test "test the app"
+      (= 200
+         (let [response (app @{:uri "/" :method :get})]
+           (get response :status))))
 
-  (test "query string params"
-    (deep= @{:test "true"}
-           (get (app @{:uri "/query-test?test=true" :method :get})
-                :body)))
+    (test "query string params"
+      (deep= @{:test "true"}
+             (get (app @{:uri "/query-test?test=true" :method :get})
+                  :body)))
 
-  (test "query string params with route param"
-    (deep= @{:test "true" :id "1"}
-           (get (app @{:uri "/query-test/1?test=true" :method :get})
-                :body))))
+    (test "query string params with route param"
+      (deep= @{:test "true" :id "1"}
+             (get (app @{:uri "/query-test/1?test=true" :method :get})
+                  :body)))
+    (setdyn :out stdout))
+
+  (let [buf @""]
+    (setdyn :out buf)
+    (test "static files log levels"
+      (do (app @{:uri "/test.css" :method :get})
+          (empty? buf)))
+    (setdyn :out stdout)))
 
 
 (db/connect "test.sqlite3")

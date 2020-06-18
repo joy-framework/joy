@@ -22,12 +22,12 @@
 (defn static-files [handler &opt root]
   (default root "./public")
   (fn [request]
-    (let [{:method method :uri uri} request
+    (let [{:uri uri} request
           filename (path/join root uri)]
-      (if (and (some (partial = method) ["GET" "HEAD"])
-            (path/ext filename)
-            (file-exists? filename))
-        {:file filename}
+      (if (and (or (get? request) (head? request))
+               (path/ext filename)
+               (file-exists? filename))
+        @{:file filename :level "verbose"}
         (handler request)))))
 
 
