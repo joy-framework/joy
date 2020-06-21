@@ -33,7 +33,7 @@
   [:patch "/accounts/:id" identity :accounts/patch]
   [:get "/auth-code/:id" auth-code-p]
   [:get "/wildcard/*" wildcard]
-  [:get "/wild/*/card/*" wildcard]
+  [:get "/wild/*/card/*" wildcard :wildcard-2]
   [:get "/*" wildcard])
 
 
@@ -68,6 +68,9 @@
   (test "url-for with url params an anchor string and a query string"
     (= (url-for :anchor-id {:id 1 :? {"a" "1"} "#" "anchor"})
        "/anchor/1?a=1#anchor"))
+
+  (test "url-for with wildcard routes"
+    (= "/wild/1/card/2" (url-for :wildcard-2 {:* [1 2]})))
 
   (test "redirect-to with a function"
     (= (freeze

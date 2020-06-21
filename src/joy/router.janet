@@ -24,7 +24,11 @@
 (defn- route-url [string-route struct-params]
   (var mut-string-route string-route)
   (loop [[k v] :in (pairs struct-params)]
-    (set mut-string-route (string/replace (route-param k) (string v) mut-string-route)))
+    (set mut-string-route (string/replace (route-param k) (string v) mut-string-route))
+    (when (and (= k :*)
+               (indexed? v))
+      (loop [wc* :in v]
+        (set mut-string-route (string/replace "*" (string wc*) mut-string-route)))))
   mut-string-route)
 
 
