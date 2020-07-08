@@ -203,7 +203,7 @@
                 :query-string true
                 :body-parser true
                 :json-body-parser true
-                :logger true
+                :logger {}
                 :csrf-token true
                 :session {}
                 :x-headers {}
@@ -230,7 +230,7 @@
       (wrap-with :x-headers x-headers)
       (wrap-if :static-files static-files)
       (wrap-with :404 not-found)
-      (wrap-if :logger logger)))
+      (wrap-with :logger logger)))
 
 
 (defn namespace [val]
