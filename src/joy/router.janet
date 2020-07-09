@@ -150,6 +150,16 @@
   [(method str) (string str) (eval str) (string str)])
 
 
+(defn resolve-route [[method url handler alias]]
+  (def handler (if (function? handler)
+                 handler
+                 (eval (symbol handler))))
+
+  (if alias
+    [method url handler alias]
+    [method url handler]))
+
+
 (defn- auto-routes []
   (def bindings (filter |(string/has-prefix? "/" $) (all-bindings (fiber/getenv (fiber/current)) true)))
   # move wildcard routes to back
@@ -159,7 +169,7 @@
   (def function-routes (map to-route bindings))
   (set *route-table* (merge *route-table* (route-table function-routes)))
   (if (empty? function-routes)
-    *routes*
+    (map resolve-route *routes*)
     function-routes))
 
 

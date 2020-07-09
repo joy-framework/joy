@@ -196,19 +196,19 @@
   [:get "/query-test/:id" query-test-with-param])
 
 
-(def app (-> (handler routes)
-             (layout app-layout)
-             (csrf-token)
-             (session)
-             (file-uploads)
-             (extra-methods)
-             (query-string)
-             (body-parser)
-             (server-error)
-             (x-headers)
-             (static-files)
-             (not-found)
-             (logger)))
+(def app1 (-> (handler routes)
+              (layout app-layout)
+              (csrf-token)
+              (session)
+              (file-uploads)
+              (extra-methods)
+              (query-string)
+              (body-parser)
+              (server-error)
+              (x-headers)
+              (static-files)
+              (not-found)
+              (logger)))
 
 
 (deftest
@@ -216,24 +216,24 @@
     (setdyn :out buf)
     (test "test the app"
       (= 200
-         (let [response (app @{:uri "/" :method :get})]
+         (let [response (app1 @{:uri "/" :method :get})]
            (get response :status))))
 
     (test "query string params"
       (deep= @{:test "true"}
-             (get (app @{:uri "/query-test?test=true" :method :get})
+             (get (app1 @{:uri "/query-test?test=true" :method :get})
                   :body)))
 
     (test "query string params with route param"
       (deep= @{:test "true" :id "1"}
-             (get (app @{:uri "/query-test/1?test=true" :method :get})
+             (get (app1 @{:uri "/query-test/1?test=true" :method :get})
                   :body)))
     (setdyn :out stdout))
 
   (let [buf @""]
     (setdyn :out buf)
     (test "static files log levels"
-      (do (app @{:uri "/test.css" :method :get})
+      (do (app1 @{:uri "/test.css" :method :get})
           (empty? buf)))
     (setdyn :out stdout)))
 
@@ -242,6 +242,18 @@
 
 (db/execute "create table if not exists account (id integer primary key, name text not null unique, email text not null unique, password text not null, created_at integer not null default(strftime('%s', 'now')))")
 
-#(server app 8000)
+# (server app1 9001)
+
+(route :get "/" :home)
+(defn home [request]
+  (text/plain "home"))
+
+(route :get "/hello" :hello)
+(defn hello [request]
+  (text/plain "hello"))
+
+(def app2 (app))
+
+# (server app2 9002)
 
 (db/disconnect)
