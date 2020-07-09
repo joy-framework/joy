@@ -173,24 +173,30 @@
     function-routes))
 
 
+(defn- resolve-filter [[url sym]]
+  [url (eval sym)])
+
+
 (defn with-before-middleware [handler]
-  (fn [request]
-    (var req request)
-    (loop [[url fn-name] :in *before-filters*]
-      (when-let [wildcard-params (wildcard-params url (request :uri))
-                 f (eval fn-name)]
-        (set req (f req))))
-    (handler req)))
+  (let [before-filters (map resolve-filter *before-filters*)]
+    (fn [request]
+      (var req request)
+      (loop [[url fn-name] :in before-filters]
+        (when-let [wildcard-params (wildcard-params url (request :uri))
+                   f (eval fn-name)]
+          (set req (f req))))
+      (handler req))))
 
 
 (defn with-after-middleware [handler]
-  (fn [request]
-    (var res (handler request))
-    (loop [[url fn-name] :in *after-filters*]
-      (when-let [wildcard-params (wildcard-params url (request :uri))
-                 f (eval fn-name)]
-        (set res (f request res))))
-    res))
+  (let [after-filters (map resolve-filter *after-filters*)]
+    (fn [request]
+      (var res (handler request))
+      (loop [[url fn-name] :in after-filters]
+        (when-let [wildcard-params (wildcard-params url (request :uri))
+                   f (eval fn-name)]
+          (set res (f request res))))
+      res)))
 
 
 (defn- wrap-if [options handler k middleware]
