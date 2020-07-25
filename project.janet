@@ -11,6 +11,7 @@
                  "https://github.com/joy-framework/bundler"
                  "https://github.com/joy-framework/db"
                  "https://github.com/joy-framework/dotenv"
+                 "https://github.com/pyrmont/musty"
                  "https://github.com/joy-framework/tester"]
   :author "Sean Walker"
   :license "MIT"
