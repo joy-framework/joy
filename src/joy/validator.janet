@@ -84,15 +84,30 @@
 
 
 (defn params
-  `Takes a list of validator dictionaries
-   and returns a function that either raises an error or returns the body`
-  [& args]
+  `Takes a table name and a list of validator dictionaries
+   and returns a function that either raises an error or returns the body
+
+   Example:
+
+   (def params
+     (params :accounts
+       (validates [:name :real-name] :required true)
+       (permit [:name :real-name])))
+
+   =>
+
+   (params {:name "hello"}) # error: real-name is required
+   (params {:name "hello" :real-name "real"}) => {:name "hello" :real-name "real" :db/table :accounts}`
+  [t & args]
   (fn [{:body body}]
+
     (->> (filter |(nil? (get $ :permit)) args)
          (map |(validate $ body))) # this raises if the validator isn't met
+
     (let [allowed-keys (-> (filter |(true? (get $ :permit)) args)
                            (get-in [0 :keys]))]
       (if (or (nil? allowed-keys)
-            (empty? allowed-keys))
-        body
-        (helper/select-keys body allowed-keys)))))
+              (empty? allowed-keys))
+        (merge body {:db/table t})
+        (merge (helper/select-keys body allowed-keys)
+               {:db/table t})))))

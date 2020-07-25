@@ -3,7 +3,7 @@
 (import "src/joy/helper" :prefix "")
 
 (def account-params
-  (params
+  (params :accounts
     (validates [:name :email :password] :required true)
     (validates :password :min-length 8)
     (validates :name :max-length 10)
@@ -12,8 +12,8 @@
 
 (deftest
   (test "params returns a valid dictionary when all required keys are present and not blank"
-    (= (account-params {:body {:name "name" :email "test@example.com" :password "password"}})
-       {:name "name" :email "test@example.com" :password "password"}))
+    (deep= (account-params {:body {:name "name" :email "test@example.com" :password "password"}})
+           @{:name "name" :email "test@example.com" :password "password" :db/table :accounts}))
 
   (test "params raises an error when a dictionary doesn't have all required keys"
     (= (->> (account-params {:body {:name ""}})
@@ -50,20 +50,18 @@
             (freeze))
        {:email "email needs to be an email"}))
 
-  (let [account-params (params
+  (let [account-params (params :accounts
                           (validates :name :required true :message "can't be blank"))]
     (test "params handles custom error messages"
-      (= (->> (account-params {:body {:name ""}})
-              (rescue-from :params)
-              (first)
-              (freeze))
-         {:name "name can't be blank"})))
+      (deep= (->> (account-params {:body {:name ""}})
+                  (rescue)
+                  (first))
+             @{:name "name can't be blank"})))
 
-  (let [test-params (params
+  (let [test-params (params :accounts
                       (validates :website :uri true))]
     (test "uri validator"
-      (= (-> (test-params {:body {:website "example.com"}})
-             (protect)
-             (last))
-         {:website "example.com"}))))
-
+      (deep= (-> (test-params {:body {:website "example.com"}})
+                 (rescue)
+                 (last))
+             @{:website "example.com" :db/table :accounts}))))
