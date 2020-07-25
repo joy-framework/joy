@@ -1,7 +1,0 @@
-  [:get "/%plural-name%" %plural-name%/index]
-  [:get "/%plural-name%/new" %plural-name%/new]
-  [:post "/%plural-name%" %plural-name%/create]
-  [:get "/%plural-name%/:id" %plural-name%/show]
-  [:get "/%plural-name%/:id/edit" %plural-name%/edit]
-  [:patch "/%plural-name%/:id" %plural-name%/patch]
-  [:delete "/%plural-name%/:id" %plural-name%/destroy])
