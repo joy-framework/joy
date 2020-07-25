@@ -8,7 +8,7 @@
   :repo "")
 
 (phony "server" []
-  (os/shell "janet app.janet"))
+  (os/shell "janet main.janet"))
 
 (phony "watch" []
-  (os/shell "fswatch -o . --exclude='.git' --exclude='.sqlite3' | xargs -n1 -I{} ./watch"))
+  (os/shell "find . -name '*.janet' | entr -r -d janet main.janet"))

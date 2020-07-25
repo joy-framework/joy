@@ -10,12 +10,13 @@
       [:meta {:charset "utf-8"}]
       [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
       [:meta {:name "csrf-token" :content (authenticity-token request)}]
-      [:link {:rel "stylesheet" :href "/app.css"}]
+      [:link {:href "/app.css" :rel "stylesheet"}]
       [:script {:src "/app.js" :defer ""}]]
      [:body
        body]]))
 
 
+(route :get "/" :home)
 (defn home [request]
   [:div {:class "tc"}
    [:h1 "You found joy!"]
@@ -27,11 +28,8 @@
     [:span janet/version]]])
 
 
-(def routes (routes [:get "/" home]))
+(def app (app {:layout layout}))
 
 
-(def app (app {:routes routes
-               :layout layout}))
-
-
-(server app (env :port))
+(defn main [& args]
+  (server app (env :port)))

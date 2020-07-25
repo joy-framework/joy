@@ -10,10 +10,10 @@
     (os/shell
       (string/format "cp -r %s %s" template-path project-name))
 
-    (helper/with-file [f (path/join project-name "app.janet") :r]
+    (helper/with-file [f (path/join project-name "main.janet") :r]
       (set tmp (->> (file/read f :all)
                     (string/replace-all "%project-name%" project-name))))
-    (helper/with-file [f (path/join project-name "app.janet") :w]
+    (helper/with-file [f (path/join project-name "main.janet") :w]
       (file/write f tmp))
 
     (helper/with-file [f (path/join project-name "project.janet") :r]

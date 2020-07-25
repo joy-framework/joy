@@ -1,5 +1,0 @@
-#!/usr/bin/env sh
-
-pkill -xf "janet app.janet"
-sleep .5
-janet app.janet &

@@ -1,2 +1,2 @@
-web: janet app.janet
+web: janet main.janet
 release: jpm deps
