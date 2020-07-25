@@ -84,9 +84,9 @@ Let's make a route file that corresponds to the table from earlier
 joy create route account
 ```
 
-Those commands have created another new file: `src/routes/account.janet` and updated your `src/routes.janet` file with a few helpful routes.
+Those commands have created another new file: `routes/account.janet` and updated your `main.janet` file with an import statement so the account routes get set up.
 
-Go ahead and check out the new `account` routes in the browser now: `http://localhost:8000/account`
+Go ahead and check out the new `account` routes in the browser now: `http://localhost:8000/accounts`
 
 Joy can do a lot more than that, [check out the docs here](https://github.com/joy-framework/joy/blob/master/docs/readme.md)
 
