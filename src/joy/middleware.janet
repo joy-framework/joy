@@ -105,7 +105,10 @@
   (fn [request]
     (let [{:body body} request]
       (if (and body
-               (post? request)
+               (or (post? request)
+                   (patch? request)
+                   (put? request)
+                   (delete? request))
                (form? request))
         (handler (merge request {:body (http/parse-body body)}))
         (handler request)))))
