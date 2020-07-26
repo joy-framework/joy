@@ -78,6 +78,10 @@
     @{}))
 
 
+(defmacro table/slice [dict arr]
+  ~(select-keys ,dict ,arr))
+
+
 (defmacro rescue [f &opt id]
   ~(try
      [nil ,f]
