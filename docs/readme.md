@@ -8,6 +8,7 @@ These are the joy docs. I tried to separate them by "useful unit of work" or com
 - [Database Migrations](database-migrations.md)
 - [HTML Rendering](html-rendering.md)
 - [Form Submission](form-submission.md)
+- [Form Validation](form-validation.md)
 - [Middleware](middleware.md)
 - [Sessions](sessions.md)
 - [Authentication](authentication.md)
