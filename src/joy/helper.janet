@@ -285,4 +285,4 @@
   (or (nil? val) (empty? val)))
 
 
-(def version "0.8.0")
+(def version "0.9.0")

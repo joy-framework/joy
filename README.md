@@ -5,12 +5,11 @@ Joy is a full stack web framework written in [janet](https://github.com/janet-la
 ```clojure
 (use joy)
 
+(route :get "/" :home)
 (defn home [request]
   (text/plain "You found joy!"))
 
-(def routes (routes [:get "/" home]))
-
-(def app (app {:routes routes}))
+(def app (app))
 
 (server app 9001)
 ```
@@ -81,10 +80,10 @@ In joy there are no ORMs, no classes, and no objects, just functions that take i
 Let's make a route file that corresponds to the table from earlier
 
 ```sh
-joy create route account
+joy create route accounts
 ```
 
-Those commands have created another new file: `routes/account.janet` and updated your `main.janet` file with an import statement so the account routes get set up.
+Those commands have created another new file: `routes/accounts.janet` and updated your `main.janet` file with an import statement so the account routes get set up.
 
 Go ahead and check out the new `account` routes in the browser now: `http://localhost:8000/accounts`
 
