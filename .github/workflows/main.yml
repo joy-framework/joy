@@ -14,7 +14,6 @@ jobs:
     - name: build janet, install joy
       run: |
         git clone https://github.com/janet-lang/janet.git /tmp/janet
-        git checkout 4cc680965cdc3c18d9d903766078f4ca79343c12
         cd /tmp/janet
         sudo make all test install
     - name: install joy
@@ -28,7 +27,6 @@ jobs:
     - name: build janet, install joy
       run: |
         git clone https://github.com/janet-lang/janet.git /tmp/janet
-        git checkout 4cc680965cdc3c18d9d903766078f4ca79343c12
         cd /tmp/janet
         sudo make all test install
     - name: install joy
