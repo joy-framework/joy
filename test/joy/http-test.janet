@@ -20,16 +20,16 @@
        (http/cookie-string "name" "value" {})))
 
   (test "cookie-string with samesite"
-    (= "name=value; SameSite=strict"
-       (http/cookie-string "name" "value" {"SameSite" "strict"})))
+    (deep= (sort (string/split ";" "name=value; SameSite=strict"))
+           (sort (string/split ";" (http/cookie-string "name" "value" {"SameSite" "strict"})))))
 
   (test "cookie-string with samesite and httponly"
-    (= "name=value; SameSite=Strict; HttpOnly"
-       (http/cookie-string "name" "value" {"SameSite" "Strict" "HttpOnly" ""})))
+    (deep= (sort (string/split ";" "name=value; SameSite=Strict; HttpOnly"))
+           (sort (string/split ";" (http/cookie-string "name" "value" {"SameSite" "Strict" "HttpOnly" ""})))))
 
   (test "cookie-string with samesite, httponly and path"
-    (= "name=value; SameSite=Strict; HttpOnly; Path=/"
-       (http/cookie-string "name" "value" {"SameSite" "Strict" "HttpOnly" "" "Path" "/"})))
+    (deep= (sort (string/split ";" "name=value; SameSite=Strict; HttpOnly; Path=/"))
+           (sort (string/split ";" (http/cookie-string "name" "value" {"SameSite" "Strict" "HttpOnly" "" "Path" "/"})))))
 
   (test "parse-query-string with nil"
     (nil? (http/parse-query-string nil)))
