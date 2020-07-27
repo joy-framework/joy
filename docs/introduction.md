@@ -15,10 +15,12 @@ Unlike most web frameworks, these four things are not opaque and entirely up to 
 (use joy)
 
 (defn hello [request]
-  (render :text (string "hello " (get-in request [:params :name]))))
+  (def params (request :params))
+
+  (text/plain (string "hello " (params :name))))
 ```
 
-This is a just a janet function, it takes a request dictionary and returns a response dictionary, the `(render)` function is just sugar for `{:status 200 :body "hello!"}` which is the janet dictionary literal.
+This is a just a janet function, it takes a request dictionary and returns a response dictionary, the `text/plain` function is just sugar for `{:status 200 :body "hello!" :headers {"Content-Type" "text/plain"}}` which is the janet dictionary literal.
 
 ## Routes
 
@@ -31,7 +33,7 @@ This is a just a janet function, it takes a request dictionary and returns a res
 
 Those are routes, they take any number of tuples in the form of
 
-`[:http-verb "/route/string" name-of-handler-function :optional-alias-of-function]`
+`[:http-verb "/route/string" name-of-function :optional-alias-of-function]`
 
 ## Middleware
 
