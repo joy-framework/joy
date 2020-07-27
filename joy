@@ -24,9 +24,10 @@
 
 (def actions ["create" "help" "new" "migrate" "rollback" "server" "watch" "version" "bundle"])
 
-(if (nil? (find |(= action $) actions))
+(if (and (nil? (find-index |(= action $) actions))
+         (not (nil? action)))
   (do
-    (print "`" action "' is not a supported action.\n")
+    (print "'" action "' is not a supported action.\n")
     (print "joy" usage)
     (os/exit 1)))
 
