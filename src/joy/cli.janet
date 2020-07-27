@@ -6,6 +6,16 @@
 (import ./env :as env)
 (import ./helper :as helper)
 
+(def usage
+  ```joy create [action]
+
+    Actions:
+      migration <name>    - Create a new database migration
+      db|database <name>  - Create a new sqlite or postgres database
+      controller <name>   - Create a new database backed routes file
+      page|route <name>   - Add a blank route to the pages route file
+      table <name>        - Create a new database migration with a create table statement
+  ```)
 
 (defn generate
   `
@@ -34,4 +44,5 @@
       "page" (route/create name)
       "table" (migrations/create (string "create-table-" name)
                 (tables/create (drop 1 args)))
-      "project" (projects/generate name))))
+      "project" (projects/generate name)
+      (print usage))))
