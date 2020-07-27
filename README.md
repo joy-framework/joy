@@ -24,7 +24,19 @@ Next, install the joy cli like this
 jpm install joy
 ```
 
-Hopefully the `joy` executable will be on your path and ready to roll. Now, run the following from your terminal
+Hopefully the `joy` executable will be on your path and ready to roll. If it isn't and you're like me and use home brew, add this to your `.zprofile`:
+
+```sh
+export PATH=/usr/local/Cellar/janet/<your janet version here>/bin:$PATH
+```
+
+Then make sure you reload the profile:
+
+```sh
+source ~/.zprofile
+```
+
+Now, run the following from your terminal
 
 ```sh
 joy new my-joy-project
