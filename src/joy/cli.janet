@@ -31,6 +31,7 @@
       "db" (helper/create-file (env/env :database-url))
       "controller" (controller/create name)
       "route" (route/create name)
+      "page" (route/create name)
       "table" (migrations/create (string "create-table-" name)
                 (tables/create (drop 1 args)))
       "project" (projects/generate name))))
