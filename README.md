@@ -85,14 +85,14 @@ joy migrate
 
 This will output what just happened to your database and create a new file `db/schema.sql`.
 
-### Create a route file
+### Generate helpful routes
 
 In joy there are no ORMs, no classes, and no objects, just functions that take in requests and return responses.
 
-Let's make a route file that corresponds to the table from earlier
+Let's generate a few routes for the table from earlier:
 
 ```sh
-joy create route account
+joy create controller account
 ```
 
 Those commands have created another new file: `routes/account.janet` and updated your `main.janet` file with an import statement so the account routes get set up.
