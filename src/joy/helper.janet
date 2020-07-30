@@ -289,4 +289,39 @@
   (or (nil? val) (empty? val)))
 
 
+(defn group-by
+  `Groups an indexed datastructure according to function f
+
+  Example:
+
+  (group-by |($ :tbl) [{:tbl "post" :col "id"} {:tbl "post" :col "created_at"}])
+
+  =>
+
+  @{"post" @[@{:tbl "post" :col "id"} @{:tbl "post" :col "created_at"}]}`
+  [f ind]
+  (reduce
+    (fn [ret x]
+      (let [k (f x)]
+        (put ret k (array/push (get ret k @[]) x))))
+    @{} ind))
+
+
+(defn contains?
+  `Finds a truthy value in an indexed or a dictionary's
+   keys
+
+   Example
+
+   (contains? :a [:a :b :c]) => true
+   (contains? :a {:a 1 :b 2 :c 3}) => true
+   (contains? :d {:a 1 :b 2 :c 3}) => false`
+  [val arr]
+  (when (or (indexed? arr)
+            (dictionary? arr))
+    (truthy?
+     (or (find |(= val $) arr)
+         (get arr val)))))
+
+
 (def version "0.9.0")
