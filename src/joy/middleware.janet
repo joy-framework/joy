@@ -111,7 +111,7 @@
                    (delete? request))
                (form? request))
         (handler (merge request {:body (http/parse-body body)}))
-        (handler request)))))
+        (handler (merge request {:body {}}))))))
 
 
 (defn json-body-parser [handler]
