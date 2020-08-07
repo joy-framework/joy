@@ -182,9 +182,10 @@
     (fn [request]
       (var req request)
       (loop [[url fn-name] :in before-filters]
-        (when-let [wildcard-params (wildcard-params url (request :uri))
-                   f (eval fn-name)]
-          (set req (f req))))
+        (def params* (wildcard-params url (request :uri)))
+        (when (any? params*)
+          (when-let [f (eval fn-name)]
+            (set req (f req)))))
       (handler req))))
 
 
@@ -193,9 +194,10 @@
     (fn [request]
       (var res (handler request))
       (loop [[url fn-name] :in after-filters]
-        (when-let [wildcard-params (wildcard-params url (request :uri))
-                   f (eval fn-name)]
-          (set res (f request res))))
+        (def params* (wildcard-params url (request :uri)))
+        (when (any? params*)
+          (when-let [f (eval fn-name)]
+            (set res (f request res)))))
       res)))
 
 
