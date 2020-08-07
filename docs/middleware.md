@@ -1,26 +1,32 @@
 # Middleware
 
-If you make a new joy app from the command line with `joy new` you'll notice `src/server.janet` has quite a few things hanging around that look like this:
+When you start a new joy project, the default middleware stack is abstracted away from you with the `app` function
 
 ```clojure
-(import joy :prefix "")
-
-(def app (as-> routes/app ?
-               (handler ?)
-               (layout ? layout/app)
-               (csrf-token ?)
-               (session ?)
-               (extra-methods ?)
-               (query-string ?)
-               (body-parser ?)
-               (server-error ?)
-               (x-headers ?)
-               (static-files ?)
-               (not-found ?)
-               (logger ? )))
+(def app (app {:layout layout}))
 ```
 
-Let's talk about middleware functions and why there are so many of them.
+If you need more control or you aren't afraid of sharp edges or debugging middleware order issues for a while, here is what the `app` function looks like under the covers:
+
+```clojure
+(use joy)
+
+(def app (-> (handler routes)
+             (layout)
+             (with-before-middleware)
+             (with-after-middleware)
+             (csrf-token)
+             (session)
+             (extra-methods)
+             (query-string)
+             (body-parser)
+             (json-body-parser)
+             (server-error)
+             (x-headers)
+             (static-files)
+             (not-found)
+             (logger)))
+```
 
 ## It's all functions
 
