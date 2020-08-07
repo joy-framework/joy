@@ -10,7 +10,42 @@
 (import json)
 
 
-(defn layout [handler layout-fn]
+(defn layout
+  `Wraps responses returning indexed datastructures (tuples or arrays) in the given layout-fn
+
+  Example:
+
+  (defn my-layout [{:body body :request request}]
+    (text/html
+      (doctype :html5)
+      [:html {:lang "en"}
+       [:head
+        [:title "title"]
+        [:meta {:charset "utf-8"}]
+        [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
+        [:meta {:name "csrf-token" :content (authenticity-token request)}]]
+       [:body body]]))
+
+  (defn home [req]
+    [:h1 "home"])
+
+  (defn crash-override [req]
+    (text/html [:h1 "home"]))
+
+  (defroutes routes
+    [:get "/" home]
+    [:get "/crash-override" crash-override])
+
+  (def app (handler routes))
+
+  (def app-with-layout (as-> (handler routes) ?
+                             (layout ?)))
+
+  (app {:method :get :uri "/"}) # => [:h1 "home"]
+  (app-with-layout {:method :get :uri "/"}) # => {:status 200 :body "<html>...</html>" ...}
+  (app-with-layout {:method :get :uri "/crash-override"}) # => {:status 200 :body "<h1>home</h1>" ...}
+  `
+  [handler layout-fn]
   (fn [request]
     (let [response (handler request)]
       (if (and (function? layout-fn)
