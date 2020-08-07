@@ -126,7 +126,7 @@
                [route-method route-uri route-fn] route
                wildcard (wildcard-params route-uri (request :uri))
                params (route-params route-uri (request :uri))
-               request (merge request {:params params :wildcard wildcard})
+               request (merge request {:params (or params @{}) :wildcard wildcard})
                f (if (function? route-fn)
                    route-fn
                    (eval (symbol route-fn)))]
