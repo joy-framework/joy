@@ -56,8 +56,8 @@
                (slash-suffix)
                (freeze))
 
-        route-peg ~{:param (<- (some (+ :w (set "%$-_.+!*'(),"))))
-                    :slash-param (<- (some (+ :w (set "%$-_.+!*'(),/"))))
+        route-peg ~{:param (<- (any (+ :w (set "%$-_.+!*'(),"))))
+                    :slash-param (<- (any (+ :w (set "%$-_.+!*'(),/"))))
                     :main (* ,;p)}]
 
     (or (peg/match route-peg uri)
@@ -183,7 +183,8 @@
       (var req request)
       (loop [[url fn-name] :in before-filters]
         (def params* (wildcard-params url (request :uri)))
-        (when (any? params*)
+        (when (or (any? params*)
+                  (= url (request :uri)))
           (when-let [f (eval fn-name)]
             (set req (f req)))))
       (handler req))))
@@ -195,7 +196,8 @@
       (var res (handler request))
       (loop [[url fn-name] :in after-filters]
         (def params* (wildcard-params url (request :uri)))
-        (when (any? params*)
+        (when (or (any? params*)
+                  (= url (request :uri)))
           (when-let [f (eval fn-name)]
             (set res (f request res)))))
       res)))
