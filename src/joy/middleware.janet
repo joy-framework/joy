@@ -79,8 +79,9 @@
           (let [joy-session {:session session-value :csrf-token (get response :csrf-token)}]
             (when (truthy? response)
               (let [cookie (get-in response [:headers "Set-Cookie"])
+                    secure-cookie (if env/production? {"Secure" ""} {})
                     session-cookie (http/cookie-string "id" (encode-session joy-session key)
-                                     (merge {"SameSite" "Lax" "HttpOnly" "" "Path" "/"} cookie-options))]
+                                     (merge {"SameSite" "Lax" "HttpOnly" "" "Path" "/"} secure-cookie cookie-options))]
                 (if (indexed? cookie)
                   (update-in response [:headers "Set-Cookie"] array/push session-cookie)
                   (put-in response [:headers "Set-Cookie"] session-cookie)))))))))
