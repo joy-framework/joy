@@ -201,13 +201,13 @@
 
 
 (defn form? [request]
-  (= "application/x-www-form-urlencoded"
-     (content-type request)))
+  (string/has-prefix? "application/x-www-form-urlencoded"
+                      (content-type request)))
 
 
 (defn json? [request]
-  (= "application/json"
-     (content-type request)))
+  (string/has-prefix? "application/json"
+                      (content-type request)))
 
 
 (defn drop-last [val]
