@@ -96,9 +96,8 @@
                  "Referrer-Policy" "strict-origin-when-cross-origin"})
   (def options (merge options opts))
   (fn [request]
-    (let [response (handler request)]
-      (when response
-        (update response :headers merge options)))))
+    (when-let [response (handler request)]
+      (update response :headers merge options))))
 
 
 (defn body-parser [handler]
