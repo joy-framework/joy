@@ -1,7 +1,7 @@
 (use joy)
 
 
-(defn layout [{:body body :request request}]
+(defn app-layout [{:body body :request request}]
   (text/html
     (doctype :html5)
     [:html {:lang "en"}
@@ -28,7 +28,7 @@
     [:span janet/version]]])
 
 
-(def app (app {:layout layout}))
+(def app (app {:layout app-layout}))
 
 
 (defn main [& args]
