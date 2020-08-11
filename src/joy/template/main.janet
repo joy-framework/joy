@@ -16,7 +16,6 @@
        body]]))
 
 
-(route :get "/" :home)
 (defn home [request]
   [:div {:class "tc"}
    [:h1 "You found joy!"]
@@ -28,7 +27,22 @@
     [:span janet/version]]])
 
 
-(def app (app {:layout app-layout}))
+(def routes (routes [:get "/" home]))
+
+
+(def app (-> (handler routes)
+             (layout app-layout)
+             (csrf-token)
+             (session)
+             (extra-methods)
+             (query-string)
+             (body-parser)
+             (json-body-parser)
+             (server-error)
+             (x-headers)
+             (static-files)
+             (not-found)
+             (logger)))
 
 
 (defn main [& args]
