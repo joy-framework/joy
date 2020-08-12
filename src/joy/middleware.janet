@@ -11,7 +11,7 @@
 
 
 (defn layout
-  `Wraps responses returning indexed datastructures (tuples or arrays) in the given layout-fn
+  `Wraps responses that are tuples, arrays or strings in the given layout-fn
 
   Example:
 
@@ -30,7 +30,8 @@
     [:h1 "home"])
 
   (defn crash-override [req]
-    (text/html [:h1 "home"]))
+    (text/html
+      [:h1 "home"]))
 
   (defroutes routes
     [:get "/" home]
@@ -49,7 +50,8 @@
   (fn [request]
     (let [response (handler request)]
       (if (and (function? layout-fn)
-               (indexed? response))
+               (or (indexed? response)
+                   (string? response)))
         (layout-fn @{:status 200 :body response :request request})
         response))))
 

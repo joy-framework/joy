@@ -1,5 +1,7 @@
 (import json)
 (import ./html)
+(import path)
+(import musty)
 
 (defn- content-type [k]
   (let [content-types {:html "text/html; charset=utf-8"
@@ -50,3 +52,21 @@
   @{:status 200
     :body (html/encode ;args)
     :headers @{"Content-Type" "text/html"}})
+
+
+(defmacro bind [name value]
+  ~(setdyn (symbol ,(string name)) ,value))
+
+
+(defn mustache-name [name]
+  (string (path/join "views" name) ".mustache"))
+
+
+(defn view [name]
+  (def mustache-name (mustache-name name))
+  (def replacements (as-> (filter (partial string/has-prefix? "@") (all-bindings)) ?
+                          (mapcat |(tuple (keyword $) (dyn $)) ?)
+                          (struct ;?)))
+
+  (when (os/stat mustache-name)
+    (musty/render (slurp mustache-name) replacements)))
