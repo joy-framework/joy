@@ -1,25 +1,27 @@
 $script = <<SCRIPT
-  echo "*** Updating packages"
+  echo "=== Updating packages"
 
-  sudo apk update
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y aptitude
+  sudo DEBIAN_FRONTEND=noninteractive aptitude update
+  sudo DEBIAN_FRONTEND=noninteractive aptitude -y safe-upgrade
 
-  echo "*** Installing system dependencies"
+  echo "=== Installing new packages"
 
-  sudo apk add --no-cache build-base curl-dev git vim
+  sudo DEBIAN_FRONTEND=noninteractive aptitude install -y build-essentials libcurl4-gnutls-dev curl git-core vim cmake
 
-  echo "*** Installing janet"
+  echo "=== Installing janet"
 
   sudo git clone https://github.com/janet-lang/janet.git /tmp/janet
   cd /tmp/janet
   sudo make all test install
   sudo chmod 777 /usr/local/lib/janet
 
-  echo "*** Installing joy"
+  echo "=== Installing joy"
 
   sudo jpm install joy
   sudo chown -R vagrant:vagrant /usr/local/lib/janet
 
-  echo "*** Setting default editor to vim"
+  echo "=== Setting default editor to vim"
   sudo echo "export EDITOR='vim'" >> /home/vagrant/.bashrc
   sudo chown vagrant:vagrant /home/vagrant/.bashrc
 
@@ -29,10 +31,9 @@ $script = <<SCRIPT
 SCRIPT
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "alpine/alpine64"
+  config.vm.box = "ubuntu/trusty64"
   config.vm.hostname = "joy"
   config.vm.network :forwarded_port, guest: 9001, host: 9001
 
   config.vm.provision "shell", inline: $script, privileged: false
-  config.vm.synced_folder ".", "/vagrant"
 end
