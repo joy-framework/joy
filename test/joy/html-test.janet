@@ -3,8 +3,12 @@
 
 
 (deftest
+  (test "element with class shorthand"
+    (is (= "<div class=\"bg-dark pa-m\"></div>"
+           (html/html [:div.bg-dark.pa-m]))))
+
   (test "empty div"
-    (= "<div></div>" (html/html [:div])))
+    (is (= "<div></div>" (html/html [:div]))))
 
   (test "empty div with spaces"
     (= "<div>hello world</div>" (html/html [:div "hello world"])))

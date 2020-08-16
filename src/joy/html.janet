@@ -57,14 +57,27 @@
   (reduce attr-reducer "" (map (fn [[x y]] [x y]) (pairs attrs))))
 
 
+(defn- element-name [name]
+  (->> (string/split "." name)
+       (first)))
+
+
 (defn- opening-tag
   [name attrs]
-  (string "<" name (create-attrs attrs) (if (void-element? name) " />" ">")))
+
+  (def classes (as-> (string/split "." name) ?
+                     (drop 1 ?)
+                     (string/join ? " ")))
+
+  (def attrs (merge {:class (when (any? classes) classes)}
+                    attrs))
+
+  (string "<" (element-name name) (create-attrs attrs) (if (void-element? name) " />" ">")))
 
 
 (defn- closing-tag
   [name]
-  (string "</" name ">"))
+  (string "</" (element-name name) ">"))
 
 
 (defn- first-child
