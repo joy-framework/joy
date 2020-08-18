@@ -7,6 +7,10 @@
     (is (= "<div class=\"bg-dark pa-m\"></div>"
            (html/html [:div.bg-dark.pa-m]))))
 
+  (test "element with class shorthand and class attribute working together in harmony"
+    (is (= "<div class=\"bg-dark pa-m class\"></div>"
+           (html/html [:div.bg-dark.pa-m {:class "class"}]))))
+
   (test "empty div"
     (is (= "<div></div>" (html/html [:div]))))
 

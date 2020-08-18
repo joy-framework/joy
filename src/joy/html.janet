@@ -69,8 +69,10 @@
                      (drop 1 ?)
                      (string/join ? " ")))
 
-  (def attrs (merge {:class (when (any? classes) classes)}
-                    attrs))
+  (def classes (-> (string/join [classes (get attrs :class "")] " ")
+                   (string/trim)))
+
+  (def attrs (merge attrs {:class (when (not (empty? classes)) classes)}))
 
   (string "<" (element-name name) (create-attrs attrs) (if (void-element? name) " />" ">")))
 
