@@ -7,6 +7,10 @@
   :url ""
   :repo "")
 
+(declare-executable
+  :name "%project-name%"
+  :entry "main.janet")
+
 (phony "server" []
   (os/shell "janet main.janet"))
 
