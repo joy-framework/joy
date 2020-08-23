@@ -53,7 +53,17 @@ If you aren't already in the `my-joy-project` directory, go ahead and get in the
 joy create db
 ```
 
-This creates a new empty database named `dev.sqlite3`. Let's fill it up.
+This creates a new empty database named `dev.sqlite3`. There's one other thing you need to do
+and that is connect to the database in the `main` function in `main.janet`. Change `main.janet` to this:
+
+```clojure
+; # main.janet
+
+(defn main [& args]
+  (db/connect (env :database-url))
+  (server app (env :port))
+  (db/disconnect))
+```
 
 ### Taking it for a spin
 
