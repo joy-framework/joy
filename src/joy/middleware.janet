@@ -53,7 +53,20 @@
         response))))
 
 
-(defn static-files [handler &opt root]
+(defn static-files
+  `Skips any handlers and returns static files if path is a head/get and matches
+   the given file + pathname.
+
+   Example:
+
+   (def routes (routes [:get "/" :home]))
+
+   (def app (as-> (handler routes)
+                  (static-files)))
+
+   (app {:get "/" :uri "/public/app.css"}) => {:status 200 :body ".red { color: red; }" :headers {"Content-Type" "text/css"}}
+  `
+  [handler &opt root]
   (default root "./public")
   (fn [request]
     (let [{:uri uri} request
