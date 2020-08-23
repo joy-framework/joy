@@ -46,4 +46,4 @@
     "watch" (os/shell "jpm run watch")
     "version" (print version)
     "bundle" (bundle)
-    "csrf-token-key" (print (cipher/encryption-key))))
+    "secret" (print (cipher/encryption-key))))
