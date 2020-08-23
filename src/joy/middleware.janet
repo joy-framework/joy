@@ -4,7 +4,6 @@
 (import ./env :as env)
 (import ./responder :as responder)
 (import ./html :as html)
-(import ./base64 :as base64)
 (import cipher)
 (import path)
 (import json)
