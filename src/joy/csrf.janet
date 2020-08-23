@@ -77,7 +77,7 @@
              @{:status 403 :body "Invalid CSRF Token" :headers @{"Content-Type" "text/plain"}}))))))
 
 
-(defn authenticity-token
+(defn csrf-token-value
   `
   Takes a request dictionary and returns the masked token for use
   in meta tags or hidden form fields
@@ -92,6 +92,8 @@
   `
   [request]
   (get request :masked-token))
+
+(def authenticity-token csrf-token-value)
 
 
 (defn csrf-field

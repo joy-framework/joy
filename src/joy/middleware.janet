@@ -104,7 +104,8 @@
 
 (defn session [handler &opt cookie-options]
   (default cookie-options {})
-  (let [key (env/env :encryption-key)]
+  (let [key (or (env/env :encryption-key)
+                (env/env :csrf-token-key))]
     (fn [request]
       (let [request-session (or (session-from-request key request)
                                 @{})

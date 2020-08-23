@@ -16,4 +16,4 @@
 
     (spit main-path (musty/render (slurp main-path) {:project-name project-name}))
     (spit project-path (musty/render (slurp project-path) {:project-name project-name}))
-    (spit env-path (musty/render (slurp env-path) {:encryption-key (cipher/encryption-key)}))))
+    (spit env-path (musty/render (slurp env-path) {:csrf-token-key (cipher/encryption-key)}))))

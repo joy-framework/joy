@@ -32,12 +32,12 @@ Of course this is vulnerable to CSRF so we should soup it up a little bit
   [:get "/" new])
 ```
 
-At this point you're going to need a `.env` file with an `ENCRYPTION_KEY` in it or set an `ENCRYPTION_KEY` in your os environment:
+At this point you're going to need a `.env` file with a `CSRF_TOKEN_KEY variable` in it or set a `CSRF_TOKEN_KEY` in your os environment:
 
 ```clojure
 (import cipher)
 
-(os/setenv "ENCRYPTION_KEY" (cipher/encryption-key))
+(os/setenv "CSRF_TOKEN_KEY" (cipher/encryption-key))
 ```
 
 This is looking much better, along with the rest of a few of joy's middleware functions this will send a csrf token along with the form:
