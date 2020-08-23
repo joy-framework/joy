@@ -59,15 +59,15 @@
          (get arr val)))))
 
 
-(defn select-keys
+(defn table/slice
   `Selects part of a dictionary based on arr of keys
    and returns a table.
 
    Example
 
-   (select-keys @{:a 1 :b 2 :c 3} [:a :b]) => @{:a 1 :b 2}
-   (select-keys @{:a 1 :b 2 :c 3} []) => @{}
-   (select-keys @{:a 1 :b 2 :c 3} [:a]) => @{:a 1}`
+   (table/slice {:a 1 :b 2 :c 3} [:a :b]) => @{:a 1 :b 2}
+   (table/slice {:a 1 :b 2 :c 3} []) => @{}
+   (table/slice {:a 1 :b 2 :c 3} [:a]) => @{:a 1}`
   [dict arr]
   (if (and (dictionary? dict)
         (indexed? arr))
@@ -77,9 +77,7 @@
          (apply table))
     @{}))
 
-
-(defmacro table/slice [dict arr]
-  ~(select-keys ,dict ,arr))
+(def select-keys table/slice)
 
 
 (defmacro rescue [f &opt id]
