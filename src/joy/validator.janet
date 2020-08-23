@@ -1,4 +1,4 @@
-(import ./helper :as helper)
+(import ./helper :prefix "")
 (import uri)
 
 (defn- max-length? [len val]
@@ -22,7 +22,7 @@
 (defn- uri? [val]
   (when (string? val)
     (->> (uri/parse val)
-         (helper/contains? :path))))
+         (contains? :path))))
 
 
 (defn- invalid-keys [ks dict pred]
@@ -62,7 +62,7 @@
               (not (nil? uri)) (string "needs to be a valid uri " (string/format "%q" uri))
               :else "")
         predicate (cond
-                    (true? required) helper/blank?
+                    (true? required) blank?
                     (number? min-length) (partial min-length? min-length)
                     (number? max-length) (partial max-length? max-length)
                     (not (nil? email)) (comp not email?)
@@ -73,7 +73,7 @@
       (if (empty? invalid-ks)
         body
         (-> (error-map invalid-ks (or message msg))
-            (helper/raise :params))))))
+            (raise :params))))))
 
 
 (defn permit
@@ -109,5 +109,5 @@
       (if (or (nil? allowed-keys)
               (empty? allowed-keys))
         (merge body {:db/table t})
-        (merge (helper/select-keys body allowed-keys)
+        (merge (table/slice body allowed-keys)
                {:db/table t})))))
