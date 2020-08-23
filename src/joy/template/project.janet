@@ -1,5 +1,5 @@
 (declare-project
-  :name "%project-name%"
+  :name "{{project-name}}"
   :description ""
   :dependencies ["https://github.com/joy-framework/joy"]
   :author ""
@@ -8,7 +8,7 @@
   :repo "")
 
 (declare-executable
-  :name "%project-name%"
+  :name "{{project-name}}"
   :entry "main.janet")
 
 (phony "server" []

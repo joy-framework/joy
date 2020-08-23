@@ -6,7 +6,7 @@
     (doctype :html5)
     [:html {:lang "en"}
      [:head
-      [:title "%project-name%"]
+      [:title "{{project-name}}"]
       [:meta {:charset "utf-8"}]
       [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
       [:meta {:name "csrf-token" :content (authenticity-token request)}]
