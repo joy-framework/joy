@@ -78,63 +78,6 @@
         (handler request)))))
 
 
-(defn- safe-unmarshal [val]
-  (unless (or (nil? val) (empty? val))
-    (unmarshal val)))
-
-
-(defn- decrypt-session [key str]
-  (when (string? str)
-    (try
-      (cipher/decrypt key str)
-      ([err]
-       (unless (= err "decryption failed")
-         (error err))))))
-
-
-(defn- decode-session [str key]
-  (when (and (string? str)
-             (truthy? key))
-    (as-> str ?
-          (decrypt-session key ?)
-          (safe-unmarshal ?))))
-
-
-(defn- encode-session [val key]
-  (when (truthy? key)
-    (->> (marshal val)
-         (string)
-         (cipher/encrypt key))))
-
-
-(defn- session-from-request [key request]
-  (as-> (cookie request) ?
-        (http/parse-cookie ?)
-        (get ? "id")
-        (decode-session ? key)))
-
-
-(defn session [handler &opt cookie-options]
-  (default cookie-options {})
-  (let [key (or (env/env :encryption-key)
-                (env/env :csrf-token-key))]
-    (fn [request]
-      (let [request-session (or (session-from-request key request)
-                                @{})
-            response (handler (merge request request-session))
-            session-value (or (get response :session)
-                              (get request-session :session))]
-          (let [joy-session {:session session-value :csrf-token (get response :csrf-token)}]
-            (when (truthy? response)
-              (let [cookie (get-in response [:headers "Set-Cookie"])
-                    secure-cookie (if env/production? {"Secure" ""} {})
-                    session-cookie (http/cookie-string "id" (encode-session joy-session key)
-                                     (merge {"SameSite" "Lax" "HttpOnly" "" "Path" "/"} secure-cookie cookie-options))]
-                (if (indexed? cookie)
-                  (update-in response [:headers "Set-Cookie"] array/push session-cookie)
-                  (put-in response [:headers "Set-Cookie"] session-cookie)))))))))
-
-
 (defn x-headers [handler &opt opts]
   (default opts @{})
   (def options @{"X-Frame-Options" "SAMEORIGIN"

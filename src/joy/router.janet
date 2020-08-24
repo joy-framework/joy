@@ -3,6 +3,7 @@
 (import ./middleware :prefix "")
 (import ./logger :prefix "")
 (import ./csrf :prefix "")
+(import ./session :prefix "")
 
 (varglobal '*routes* @[])
 (varglobal '*route-table* @{})
@@ -240,8 +241,8 @@
       (wrap-with :layout layout)
       (with-before-middleware)
       (with-after-middleware)
-      (wrap-if :csrf-token csrf-token)
-      (wrap-with :session session)
+      (wrap-if :csrf-token with-csrf-token)
+      (wrap-with :session with-session)
       (wrap-if :extra-methods extra-methods)
       (wrap-if :query-string query-string)
       (wrap-if :body-parser body-parser)
