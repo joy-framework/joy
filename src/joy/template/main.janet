@@ -32,8 +32,8 @@
 
 (def app (-> (handler routes)
              (layout app-layout)
-             (csrf-token)
-             (session)
+             (with-csrf-token)
+             (with-session)
              (extra-methods)
              (query-string)
              (body-parser)

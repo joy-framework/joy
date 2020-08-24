@@ -41,7 +41,7 @@
     (xor-byte-strings pad csrf-token)))
 
 
-(defn csrf-token
+(defn with-csrf-token
   `
   Adds csrf protection to your web apps
 
@@ -56,8 +56,8 @@
     [:get "/" hello])
 
   (def app (-> (handler routes)
-               (csrf-token)
-               (session))) # You need sessions to store the token somewhere
+               (with-csrf-token)
+               (with-session))) # You need sessions to store the token somewhere
 
   (server app 9001)
   `
@@ -75,6 +75,8 @@
              (when-let [response (handler request)]
                (merge response {:csrf-token session-token}))
              @{:status 403 :body "Invalid CSRF Token" :headers @{"Content-Type" "text/plain"}}))))))
+
+(def csrf-token with-csrf-token)
 
 
 (defn csrf-token-value
