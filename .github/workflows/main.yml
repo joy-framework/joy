@@ -13,7 +13,7 @@ jobs:
       run: sudo apt install build-essential
     - name: build janet, install joy
       run: |
-        git clone --depth 1 --branch v1.11.3 https://github.com/janet-lang/janet.git /tmp/janet
+        git clone --depth 1 --branch v1.12.1 https://github.com/janet-lang/janet.git /tmp/janet
         cd /tmp/janet
         sudo make all test install
     - name: install joy
@@ -26,7 +26,7 @@ jobs:
       run: sudo apt install build-essential
     - name: build janet, install joy
       run: |
-        git clone --depth 1 --branch v1.11.3 https://github.com/janet-lang/janet.git /tmp/janet
+        git clone --depth 1 --branch v1.12.1 https://github.com/janet-lang/janet.git /tmp/janet
         cd /tmp/janet
         sudo make all test install
     - name: install joy
