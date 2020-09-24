@@ -19,7 +19,7 @@
   (db/connect (env/env :database-url))
 
   (def columns (->> (get (db/schema) t)
-                    (map |(string/triml $ (string "." t)))
+                    (map |(string/replace (string t ".") "" $))
                     (map kebab-case)
                     (map |(table :name $))))
 
