@@ -1,7 +1,7 @@
 (import tester :prefix "" :exit true)
 (import "src/joy/responder" :as responder)
 
-(deftest
+(defsuite
   (test "get responder"
     (= {:status 200
         :body "response"
@@ -18,8 +18,8 @@
            :status 404))))
 
   (test "json"
-    (= {:status 200
-        :body {:a 1}
-        :headers {"Content-Type" "application/json"}}
-       (freeze
-         (responder/respond :json {:a 1})))))
+    (is (= {:status 200
+            :body {:a 1}
+            :headers {"Content-Type" "application/json"}}
+           (freeze
+             (responder/respond :json {:a 1}))))))
