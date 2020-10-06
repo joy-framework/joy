@@ -14,3 +14,4 @@
 (import bundler :prefix "" :export true)
 (import db :prefix "db/" :export true)
 (import halo :prefix "" :export true)
+(import ./joy/db :prefix "" :export true)

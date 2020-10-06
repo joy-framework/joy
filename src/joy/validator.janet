@@ -44,7 +44,9 @@
     (merge {:keys ks} opts)))
 
 
-(defn validate [validator body]
+(defn validate [validator body &opt raise?]
+  (default raise? true)
+
   (let [{:keys ks
          :required required
          :message message
@@ -72,15 +74,19 @@
     (let [invalid-ks (invalid-keys ks body predicate)]
       (if (empty? invalid-ks)
         body
-        (-> (error-map invalid-ks (or message msg))
-            (raise :params))))))
+        (if raise?
+          (-> (error-map invalid-ks (or message msg))
+              (raise :params))
+          (merge body {:errors (error-map invalid-ks (or message msg))}))))))
 
 
 (defn permit
   `Takes a list of keywords and returns a dictionary: {:keys [:a :b :c] :permits true}`
-  [key-or-keys]
-  (let [ks (if (indexed? key-or-keys) key-or-keys [key-or-keys])]
-    {:keys ks :permit true}))
+  [& args]
+  (if (and (one? (length args))
+           (indexed? (first args)))
+    {:keys (first args) :permit true}
+    {:keys args :permit true}))
 
 
 (defn params
@@ -111,3 +117,33 @@
         (merge body {:db/table t})
         (merge (table/slice body allowed-keys)
                {:db/table t})))))
+
+
+(defn body
+  `Takes a table name and a list of validator dictionaries
+   and returns the validator dictionaries as map
+
+   Example:
+
+   (def accounts/body
+     (body :accounts
+       (validates [:name :real-name] :required true)
+       (permit [:name :real-name])))
+
+   =>
+
+   (accounts/body {:name "hello"}) # {... :db/errors {:real-name "real-name is required"}}
+   (accounts/body {:name "hello" :real-name "real"}) => {:name "hello" :real-name "real" :db/table :accounts}`
+  [t & args]
+  (fn [request]
+    (let [bdy (get request :body @{})
+          {:errors errors} (->> (filter |(nil? (get $ :permit)) args)
+                                (map |(validate $ bdy false))
+                                (apply merge))
+
+          allowed-keys (-> (filter |(true? (get $ :permit)) args)
+                           (get-in [0 :keys]))]
+
+        (merge (table/slice bdy allowed-keys)
+               {:db/table t
+                :db/errors errors}))))

@@ -64,4 +64,16 @@
       (deep= (-> (test-params {:body {:website "example.com"}})
                  (rescue)
                  (last))
-             @{:website "example.com" :db/table :accounts}))))
+             @{:website "example.com" :db/table :accounts})))
+
+  (let [todo (body :todos
+               (validates :name :required true)
+               (permit :name :finished))]
+
+    (test "body returns errors"
+      (is (deep= @{:db/errors @{:name "name is required"} :db/table :todos}
+                 (todo {:body nil}))))
+
+    (test "body with permit restricts keys"
+      (is (deep= @{:db/table :todos :finished 1 :name "name"}
+                 (todo {:body {:finished 1 :name "name" :other "other"}}))))))
