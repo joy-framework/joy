@@ -16,21 +16,7 @@
        body]]))
 
 
-(defn home [request]
-  [:div {:class "tc"}
-   [:h1 "You found joy!"]
-   [:p {:class "code"}
-    [:b "Joy Version:"]
-    [:span (string " " version)]]
-   [:p {:class "code"}
-    [:b "Janet Version:"]
-    [:span janet/version]]])
-
-
-(def routes (routes [:get "/" home]))
-
-
-(def app (-> (handler routes)
+(def app (-> (handler (auto-routes))
              (layout app-layout)
              (with-csrf-token)
              (with-session)
