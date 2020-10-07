@@ -149,6 +149,7 @@
        (let [buf @""]
          (setdyn :err buf)
          (debug/stacktrace fib err)
+         (setdyn :err :stderr)
 
          (if env/development?
            (responder/respond :html
