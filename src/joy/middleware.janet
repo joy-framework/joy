@@ -114,7 +114,7 @@
         (handler request)))))
 
 
-(defn- dev-error-page [request err]
+(defn- dev-error-page [request err buf]
   (html/html
     (html/doctype :html5)
     [:html {:lang "en"}
@@ -126,11 +126,18 @@
       [:div {:style "background-color: #FF4136; padding: 20px"}
        [:strong {:style "color: hsla(3, 100%, 25%, 1.0)"} (string "Error at " (get request :uri))]
        [:div {:style "color: hsla(3, 100%, 25%, 1.0)"} err]]
+
       [:div {:style "padding: 20px"}
        [:strong "Request Information"]
        [:pre
         [:code
-         (string/format "%p" request)]]]]]))
+         (string/format "%m" request)]]]
+
+      [:div {:style "padding: 20px"}
+       [:strong "Stacktrace"]
+       [:pre {:style "white-space: pre-wrap"}
+        [:code
+         (string buf)]]]]]))
 
 
 (defn server-error [handler]
@@ -139,13 +146,17 @@
       (handler request)
       ([err fib]
        (debug/stacktrace fib err)
-       (if env/development?
-         (responder/respond :html
-           (dev-error-page request err)
-           :status 500)
-         @{:status 500
-           :body "Internal Server Error"
-           :headers @{"Content-Type" "text/plain"}})))))
+       (let [buf @""]
+         (setdyn :err buf)
+         (debug/stacktrace fib err)
+
+         (if env/development?
+           (responder/respond :html
+             (dev-error-page request err buf)
+             :status 500)
+           @{:status 500
+             :body "Internal Server Error"
+             :headers @{"Content-Type" "text/plain"}}))))))
 
 
 (defn not-found [handler &opt custom-fn]
