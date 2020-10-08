@@ -14,7 +14,8 @@
       (let [row (db/insert insert-attrs
                            :on-conflict :id
                            :do :update
-                           :set set-attrs)]
+                           :set set-attrs)
+            row (or row (merge set-attrs arg))]
          (merge row {:db/saved true})))))
 
 
