@@ -1,4 +1,4 @@
-FROM alpine:3.7
+FROM docker.io/alpine:3.11
 
 EXPOSE 8000
 
