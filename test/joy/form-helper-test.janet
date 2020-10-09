@@ -30,4 +30,10 @@
             []
             [:input {:type "hidden" :name "__csrf-token"}]
             [:input @{:type "hidden" :value :patch :name "_method"}]]
-           (form-with {} (action-for :hello2 {:id 2})))))
+           (form-with {} (action-for :hello2 {:id 2}))))
+
+  (test "checkbox-field"
+    (is (deep= [[:input @{:type "hidden" :name :finished :value 0}]
+                [:input @{:type "checkbox" :name :finished :value 1 :checked ""}]]
+
+               (checkbox-field {:finished 1} :finished)))))

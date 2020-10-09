@@ -76,6 +76,19 @@
   (partial field "file"))
 
 
+(defn checkbox-field [val key & attrs]
+  (let [checked (if (or (true? (get val key))
+                        (one? (get val key)))
+                  {:checked ""}
+                  {})]
+
+    [[:input (merge {:type "hidden" :name key :value (get attrs :false 0)}
+                    attrs)]
+     [:input (merge {:type "checkbox" :name key :value (get attrs :true 1)}
+                    checked
+                    attrs)]]))
+
+
 (defn form-for
   `Generates a <form> html element where action-args is a tuple
    of [request route-keyword route-arg1 route-arg2...] and
@@ -153,6 +166,12 @@
   [html-for body & args]
   [:label (merge {:for (string html-for)} (table ;args))
     body])
+
+
+(defn label-for [html-for & body]
+  [:label {:for html-for}
+   body])
+
 
 
 (defn submit
