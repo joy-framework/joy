@@ -1,4 +1,4 @@
-FROM alpine:3.7
+FROM docker.io/alpine:3.11
 
 EXPOSE 8000
 
@@ -9,12 +9,13 @@ ARG USER=app
 ARG GROUP=app
 ARG UID=1101
 ARG GID=1101
+ARG JANET=1.12.2
 
 RUN addgroup -g $GID -S $GROUP
 RUN adduser -u $UID -S $USER -G $GROUP
 
 # Move to tmp and install janet
-RUN git clone --depth 1 --branch v1.12.1 https://github.com/janet-lang/janet.git /tmp/janet && \
+RUN git clone --depth 1 --branch v$JANET https://github.com/janet-lang/janet.git /tmp/janet && \
     cd /tmp/janet && \
     make all test install
 
