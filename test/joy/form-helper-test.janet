@@ -33,7 +33,13 @@
            (form-with {} (action-for :hello2 {:id 2}))))
 
   (test "checkbox-field"
-    (is (deep= [[:input @{:type "hidden" :name :finished :value 0}]
+    (is (deep= [[:input {:type "hidden" :name :finished :value 0}]
                 [:input @{:type "checkbox" :name :finished :value 1 :checked ""}]]
 
-               (checkbox-field {:finished 1} :finished)))))
+               (checkbox-field {:finished 1} :finished))))
+
+  (test "checkbox-field"
+    (is (deep= [[:input {:type "hidden" :name :finished :value 0}]
+                [:input @{:type "checkbox" :name :finished :value 1 :checked "" :class "class1 class2"}]]
+
+               (checkbox-field {:finished 1} :finished :class "class1 class2")))))

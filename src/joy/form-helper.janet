@@ -76,14 +76,29 @@
   (partial field "file"))
 
 
-(defn checkbox-field [val key & attrs]
+(defn checkbox-field
+  `(checkbox-field val key & attrs)
+
+   Generates two inputs, one hidden and one checkbox
+   where val is a dictionary and key is the value html attribute of a key
+   in that val dictionary. The first checkbox input is hidden
+
+   Ex.
+
+   (checkbox-field {:enabled true} :enabled :class "a-class" :style "a-style")
+
+   =>
+
+   <input type="hidden" name="enabled" value="0" class="a-class" style="a-style" />
+   <input type="checkbox" name="enabled" value="1" checked="" class="a-class" style="a-style" />`
+  [val key & attrs]
   (let [checked (if (or (true? (get val key))
                         (one? (get val key)))
                   {:checked ""}
-                  {})]
+                  {})
+        attrs (struct ;attrs)]
 
-    [[:input (merge {:type "hidden" :name key :value (get attrs :false 0)}
-                    attrs)]
+    [[:input {:type "hidden" :name key :value (get attrs :false 0)}]
      [:input (merge {:type "checkbox" :name key :value (get attrs :true 1)}
                     checked
                     attrs)]]))
