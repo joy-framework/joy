@@ -1,6 +1,7 @@
 (use joy)
 
 
+# Layout
 (defn app-layout [{:body body :request request}]
   (text/html
     (doctype :html5)
@@ -16,7 +17,22 @@
        body]]))
 
 
-(def app (-> (handler (auto-routes))
+# Routes
+(route :get "/" :home)
+
+(defn home [request]
+  [:div {:class "tc"}
+   [:h1 "You found joy!"]
+   [:p {:class "code"}
+    [:b "Joy Version:"]
+    [:span (string " " version)]]
+   [:p {:class "code"}
+    [:b "Janet Version:"]
+    [:span janet/version]]])
+
+
+# Middleware
+(def app (-> (handler)
              (layout app-layout)
              (with-csrf-token)
              (with-session)
@@ -31,5 +47,6 @@
              (logger)))
 
 
+# Server
 (defn main [& args]
   (server app (env :port)))

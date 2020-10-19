@@ -119,27 +119,6 @@
        (apply table)))
 
 
-(defn handler
-  "Creates a handler function from routes. Returns nil when handler/route doesn't exist."
-  [routes]
-  (fn [request]
-    (when-let [route (find-route routes request)
-               [route-method route-uri route-fn] route
-               wildcard (wildcard-params route-uri (request :uri))
-               params (route-params route-uri (request :uri))
-               request (merge request {:params (or params @{}) :wildcard wildcard})
-               f (if (function? route-fn)
-                   route-fn
-                   (eval (symbol route-fn)))]
-      (when f
-        (f request)))))
-
-
-(defn handlers [& handler-fns]
-  (fn [request]
-    (some |($ request) handler-fns)))
-
-
 (defn- method [str]
   (def part (last (string/split "/" str)))
   (keyword
@@ -172,6 +151,29 @@
   (if (empty? function-routes)
     (map resolve-route *routes*)
     function-routes))
+
+
+(defn handler
+  "Creates a handler function from routes. Returns nil when handler/route doesn't exist."
+  [&opt routes]
+  (default routes (auto-routes))
+
+  (fn [request]
+    (when-let [route (find-route routes request)
+               [route-method route-uri route-fn] route
+               wildcard (wildcard-params route-uri (request :uri))
+               params (route-params route-uri (request :uri))
+               request (merge request {:params (or params @{}) :wildcard wildcard})
+               f (if (function? route-fn)
+                   route-fn
+                   (eval (symbol route-fn)))]
+      (when f
+        (f request)))))
+
+
+(defn handlers [& handler-fns]
+  (fn [request]
+    (some |($ request) handler-fns)))
 
 
 (defn- resolve-filter [[url sym]]
