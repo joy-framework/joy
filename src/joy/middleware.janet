@@ -52,6 +52,15 @@
         (layout-fn @{:status 200 :body response :request request})
         response))))
 
+(def content-types {".js" "application/json"
+                    ".css" "text/css"
+                    ".svg" "text/svg"
+                    ".html" "text/html"
+                    ".png" "image/png"
+                    ".jpg" "image/jpeg"
+                    ".jpeg" "image/jpeg"
+                    ".gif" "image/gif"
+                    ".ico" "image/x-icon"})
 
 (defn static-files
   `Skips any handlers and returns static files if path is a head/get and matches
@@ -70,11 +79,17 @@
   (default root "./public")
   (fn [request]
     (let [{:uri uri} request
-          filename (path/join root uri)]
+          filename (path/join root uri)
+          ext (path/ext filename)]
       (if (and (or (get? request) (head? request))
-               (path/ext filename)
+               ext
                (file-exists? filename))
-        @{:file filename :level "verbose"}
+        (let [contents (slurp filename)]
+          @{:status 200
+            :body contents
+            :headers {"Content-Type" (get content-types ext "text/plain")
+                      "Content-Length" (length contents)}
+            :level "verbose"})
         (handler request)))))
 
 
