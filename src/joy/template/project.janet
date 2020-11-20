@@ -1,18 +1,15 @@
 (declare-project
   :name "{{project-name}}"
   :description ""
-  :dependencies ["https://github.com/joy-framework/joy"]
+  :dependencies ["https://github.com/joy-framework/joy"
+                 "https://github.com/janet-lang/sqlite3"]
   :author ""
   :license ""
   :url ""
   :repo "")
 
-(declare-executable
-  :name "{{project-name}}"
-  :entry "main.janet")
-
 (phony "server" []
-  (os/shell "janet main.janet"))
-
-(phony "watch" []
-  (os/shell "find . -name '*.janet' | entr -r -d janet main.janet"))
+  (if (= "development" (os/getenv "JOY_ENV"))
+      # TODO check if entr exists
+    (os/shell "find . -name '*.janet' | entr janet main.janet")
+    (os/shell "janet main.janet")))
