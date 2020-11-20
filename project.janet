@@ -22,4 +22,4 @@
   :main "joy")
 
 (declare-source
-  :source @["src/joy" "src/joy.janet"])
+  :source @["src/"])
