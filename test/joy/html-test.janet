@@ -11,6 +11,10 @@
     (is (= "<div class=\"bg-dark pa-m class\"></div>"
            (html/html [:div.bg-dark.pa-m {:class "class"}]))))
 
+  (test "element with classes array working"
+    (is (= "<div class=\"bg-dark pa-m\"></div>"
+           (html/html [:div {:class '[bg-dark pa-m]}]))))
+
   (test "empty div"
     (is (= "<div></div>" (html/html [:div]))))
 

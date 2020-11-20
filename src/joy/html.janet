@@ -62,19 +62,21 @@
        (first)))
 
 
-(defn- opening-tag
-  [name attrs]
+(defn- opening-tag [name attrs]
+  (let [dot-classes (drop 1 (string/split "." name))
+        string-classes (let [class (get attrs :class)]
+                         (case (type class)
+                           :string (string/split " " class)
+                           :tuple class
+                           :array class
+                           []))
+        classes (string/trim (string/join [;dot-classes ;string-classes] " "))
 
-  (def classes (as-> (string/split "." name) ?
-                     (drop 1 ?)
-                     (string/join ? " ")))
+        attrs (if (empty? classes)
+                attrs
+                (merge attrs {:class classes}))]
 
-  (def classes (-> (string/join [classes (get attrs :class "")] " ")
-                   (string/trim)))
-
-  (def attrs (merge attrs {:class (when (not (empty? classes)) classes)}))
-
-  (string "<" (element-name name) (create-attrs attrs) (if (void-element? name) " />" ">")))
+    (string "<" (element-name name) (create-attrs attrs) (if (void-element? name) " />" ">"))))
 
 
 (defn- closing-tag
