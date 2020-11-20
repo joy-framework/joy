@@ -12,7 +12,6 @@
   Actions:
     help                                     - Print this usage information
     new <project-name>                       - Create a new folder with the name of your project
-    bundle [path]                            - Bundles css and js files
     create <db|route|table|migration> <name> - Generate a new thing
     migrate                                  - Migrates the database
     rollback                                 - Rolls back the most recent migration
@@ -24,7 +23,7 @@
 (def action (get args 1))
 (def options (drop 2 args))
 
-(def actions ["create" "help" "new" "migrate" "rollback" "server" "watch" "version" "bundle" "secret"])
+(def actions ["create" "help" "new" "migrate" "rollback" "server" "watch" "version" "secret"])
 
 (if (and (nil? (find-index |(= action $) actions))
          (not (nil? action)))
@@ -45,5 +44,4 @@
     "server" (os/shell "jpm run server")
     "watch" (os/shell "jpm run watch")
     "version" (print version)
-    "bundle" (bundle)
     "secret" (print (cipher/encryption-key))))
