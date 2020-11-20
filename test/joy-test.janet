@@ -1,259 +1,186 @@
 (import tester :prefix "" :exit true)
 (import "src/joy" :prefix "")
-(import path)
 (import cipher)
 
-
-(defn app-layout [response]
-  (let [{:body body} response]
-    (render :html
-      (html
-       (doctype :html5)
-       [:html {:lang "en"}
-        [:head
-         [:meta {:charset "utf-8"}]
-         [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
-         [:link {:rel "stylesheet" :href "/test.css"}]
-         [:title "joy test 1"]]
-        [:body body]]))))
+# turn off a bunch of middleware that isn't necessary for some of these tests
+(def basic-app {:logger false
+                :session false
+                :csrf-token false
+                :x-headers false})
 
 
-(defn account [request]
-  (let [id (get-in request [:params :id])]
-    (db/fetch [:account id])))
+(defsuite
+  (test "get request with no routes returns plain text 404"
+        (is (deep= @{:status 404
+                     :body "not found"
+                     :headers @{"Content-Type" "text/plain"}}
+
+                   (let [app (app basic-app)]
+                     (app {:method "GET" :uri "/"})))))
 
 
-(def params
-  (params
-    (validates [:name :email :password] :required true)
-    (permit [:name :email :password])))
+  (test "get request with a matching route with text/plain helper returns plain text 200"
+        (is (deep= @{:status 200
+                     :body "home"
+                     :headers @{"Content-Type" "text/plain"}}
+
+                   (let [# route functions
+                         home (fn [_] (text/plain "home"))
+
+                         # routes
+                         routes {:routes [[:get "/" home]]}
+
+                         # app with a bunch of middleware turned off
+                         app (app (merge basic-app routes))]
+
+                     (app {:method "GET"
+                           :uri "/"})))))
 
 
-(defn link-to [str route & args]
-  (let [options (table ;args)]
-    [:a (merge {:href (url-for route)} options)
-      str]))
+  (test "post request without csrf protection returns 302"
+        (is (deep= @{:status 302
+                     :body " "
+                     :headers @{"Turbolinks-Location" "/"
+                                "Location" "/"}}
+
+                   (let [# route functions
+                         post (fn [req] (redirect "/"))
+                         home (fn [req] (text/plain "home"))
+
+                         # routes
+                         routes {:routes [[:get "/" home]
+                                          [:post "/post" post]]}
+
+                         # app
+                         app (app (merge basic-app routes))]
+
+                     (app {:method "POST"
+                           :uri "/post"
+                           :headers {"Content-Type" "application/x-www-form-urlencoded"}
+                           :body "name=value"})))))
 
 
-(defn home [request]
-  [:div {:style "text-align: center"}
-    [:h1 {:class "test"} "You've found joy!"]
-    (link-to "Accounts" :index)])
+  (test "post request with csrf protection and no csrf token key returns 403"
+        (is (deep= @{:status 403
+                     :body "Invalid CSRF Token"
+                     :headers @{"Content-Type" "text/plain"}}
+
+                   (let [# route functions
+                         post (fn [req] (redirect "/"))
+                         home (fn [req] (text/plain "home"))
+
+                         # routes
+                         routes {:routes [[:get "/" home]
+                                          [:post "/post" post]]}
+
+                         # app
+                         app (app (merge basic-app routes {:session true
+                                                           :csrf-token true}))
+
+                         response (app {:method "POST"
+                                        :uri "/post"
+                                        :headers {"Content-Type" "application/x-www-form-urlencoded"}
+                                        :body "name=value"})]
+
+                     (update response :headers table/slice ["Content-Type"])))))
 
 
-(defn index [request]
-  (let [{:session session} request
-        accounts (db/fetch-all [:account])]
-    [:div
-     (link-to "New Account" :new)
-     [:table
-      [:thead
-       [:tr
-        [:th "id"]
-        [:th "name"]
-        [:th "email"]
-        [:th "password"]
-        [:th "updated-at"]
-        [:th "created-at"]
-        [:th]
-        (when session
-          [:th])]]
-      [:tbody
-       (map
-        (fn [{:id id :name name :email email :password password :updated-at updated-at :created-at created-at}]
-          [:tr
-           [:td id]
-           [:td name]
-           [:td email]
-           [:td password]
-           [:td updated-at]
-           [:td created-at]
-           [:td
-            [:a {:href (url-for :edit {:id id})}
-             "Edit"]]
-           (when (not (nil? session))
-             [:td
-              (form-for [request :destroy {:id id}]
-               [:input {:type "submit" :value "Delete"}])])])
-        accounts)]]]))
+  (test "post request with csrf protection and a csrf token key returns 302"
+        (is (deep= @{:status 302
+                     :body " "
+                     :headers @{"Turbolinks-Location" "/"
+                                "Location" "/"}}
+
+                   (let [_ (os/setenv "CSRF_TOKEN_KEY" (cipher/encryption-key))
+
+                         # route functions
+                         post (fn [req] (redirect "/"))
+                         form (fn [req] (text/plain (csrf-token-value req)))
+                         home (fn [req] (text/plain "home"))
+
+                         # routes
+                         routes {:routes [[:get "/" home]
+                                          [:post "/post" post]
+                                          [:get "/form" form]]}
+
+                         # app
+                         app (app (merge basic-app routes {:session true
+                                                           :csrf-token true}))
+
+                         # grab the session cookie and the csrf token
+                         {:body body :headers headers} (app {:method "GET"
+                                                             :uri "/form"})
+
+                         # set up headers with session cookie
+                         headers {"Content-Type" "application/x-www-form-urlencoded"
+                                  "Cookie" (get headers "Set-Cookie")}
+
+                         # send those headers and the csrf token to /post
+                         response (app {:method "POST"
+                                        :uri "/post"
+                                        :headers headers
+                                        :body (string "name=value&__csrf-token=" body)})]
+
+                      (-> (update response :headers table/slice ["Location" "Turbolinks-Location"])
+                          (table/slice [:status :body :headers]))))))
 
 
-(defn show [request]
-  (let [account (account request)
-        {:id id :name name :email email :password password :created-at created-at :updated-at updated-at} account]
-    [:table
-     [:tr
-      [:th "id"]
-      [:th "name"]
-      [:th "email"]
-      [:th "password"]
-      [:th "updated_at"]
-      [:th "created_at"]]
-     [:tr
-      [:td id]
-      [:td name]
-      [:td email]
-      [:td password]
-      [:td updated-at]
-      [:td created-at]]]))
+  (test "get request can return json"
+        (is (deep= @{:status 200
+                     :body @`{"array":[1,2,3],"name":"value"}`
+                     :headers @{"Content-Type" "application/json"}}
+
+                   (let [# route functions
+                         home (fn [_] (application/json {:name "value"
+                                                         :array [1 2 3]}))
+
+                         # routes
+                         routes {:routes [[:get "/" home]]}
+
+                         # app with a bunch of middleware turned off
+                         app (app (merge basic-app routes))]
+
+                     (app {:method "get"
+                           :uri "/"})))))
 
 
-(defn form [request account route]
-  (let [{:name name :email email :password password} account]
-    (form-for [request route account]
-      (label :name "name")
-      (text-field account :name)
+  (test "post can parse json body"
+        (is (deep= @{:status 200
+                     :body @`{"array":[1,2,3],"name":"value"}`
+                     :headers @{"Content-Type" "application/json"}}
 
-      (label :email "email")
-      (email-field account :email)
+                   (let [# route functions
+                         post (fn [req] (application/json (req :body)))
 
-      (label :password "password")
-      (password-field account :password)
+                         # routes
+                         routes {:routes [[:post "/post" post]]}
 
-      (submit "Save"))))
+                         # app with a bunch of middleware turned off
+                         app (app (merge basic-app routes))]
 
-
-(defn new [request]
-  (form request {} :create))
-
-
-(defn create [request]
-  (let [[errors account] (->> (params request)
-                              (db/insert :account)
-                              (rescue))]
-    (if (nil? errors)
-      (-> (redirect-to :index)
-          (put :session account))
-      (new (put request :errors errors)))))
+                     (app {:method :post
+                           :uri "/post"
+                           :headers {"Content-Type" "application/json"}
+                           :body `{"array":[1,2,3],"name":"value"}`})))))
 
 
-(defn edit [request]
-  (let [account (account request)]
-    (form request account :patch)))
+  (test "can parse application/x-www-form-urlencoded body"
+        (is (deep= @{:status 200
+                     :body `@{:name "value"}`
+                     :headers @{"Content-Type" "text/plain"}}
+
+                   (let [# route functions
+                         post (fn [req] (text/plain (string/format "%q" (req :body))))
+
+                         # routes
+                         routes {:routes [[:post "/post" post]]}
+
+                         # app with a bunch of middleware turned off
+                         app (app (merge basic-app routes))]
+
+                     (app {:method :post
+                           :uri "/post"
+                           :headers {"Content-Type" "application/x-www-form-urlencoded"}
+                           :body "name=value"}))))))
 
 
-(defn patch [request]
-  (let [account (account request)
-        [errors account] (->> (params request)
-                              (db/update :account (get account :id))
-                              (rescue))]
-    (if (nil? errors)
-      (redirect-to :index)
-      (edit (put request :errors errors)))))
-
-
-(defn destroy [request]
-  (let [account (account request)]
-    (db/delete :account account)
-    (redirect-to :index)))
-
-
-(defn error-test [request]
-  (error "test error"))
-
-
-(defn new-upload [request]
-  (form-with request {:route :upload-test :enctype "multipart/form-data"}
-
-    (label :filename "filename")
-    (file-field {} :filename)
-
-    (submit "Save")))
-
-
-(defn upload-test [request]
-  (let [upload (get-in request [:multipart-body 0])
-        temp-file (get upload :temp-file)
-        ext (path/ext (get upload :filename))
-        name (cipher/bin2hex (os/cryptorand 8))]
-    # copy tempfile over to another file
-    (with-file [f (string name ext) :wb]
-      (file/write f (file/read temp-file :all)))
-    (redirect-to :index)))
-
-
-(defn query-test [request]
-  @{:status 200 :body (request :query-string)})
-
-
-(defn query-test-with-param [request]
-  {:status 200 :body (merge (request :params) (request :query-string))})
-
-
-(defroutes routes
-  [:get "/" home]
-  [:get "/accounts" index]
-  [:get "/accounts/new" new]
-  [:post "/accounts" create]
-  [:get "/accounts/:id" show]
-  [:get "/accounts/:id/edit" edit]
-  [:patch "/accounts/:id" patch]
-  [:delete "/accounts/:id" destroy]
-  [:get "/error-test" error-test]
-  [:get "/uploads/new" new-upload]
-  [:post "/uploads" upload-test]
-  [:get "/query-test" query-test]
-  [:get "/query-test/:id" query-test-with-param])
-
-
-(def app1 (-> (handler routes)
-              (layout app-layout)
-              (csrf-token)
-              (session)
-              (file-uploads)
-              (extra-methods)
-              (query-string)
-              (body-parser)
-              (server-error)
-              (x-headers)
-              (static-files)
-              (not-found)
-              (logger)))
-
-
-(deftest
-  (let [buf @""]
-    (setdyn :out buf)
-    (test "test the app"
-      (= 200
-         (let [response (app1 @{:uri "/" :method :get})]
-           (get response :status))))
-
-    (test "query string params"
-      (deep= @{:test "true"}
-             (get (app1 @{:uri "/query-test?test=true" :method :get})
-                  :body)))
-
-    (test "query string params with route param"
-      (deep= @{:test "true" :id "1"}
-             (get (app1 @{:uri "/query-test/1?test=true" :method :get})
-                  :body)))
-    (setdyn :out stdout))
-
-  (let [buf @""]
-    (setdyn :out buf)
-    (test "static files log levels"
-      (do (app1 @{:uri "/test.css" :method :get})
-          (empty? buf)))
-    (setdyn :out stdout)))
-
-
-(db/connect "test.sqlite3")
-
-(db/execute "create table if not exists account (id integer primary key, name text not null unique, email text not null unique, password text not null, created_at integer not null default(strftime('%s', 'now')))")
-
-# (server app1 9001)
-
-(route :get "/" :home)
-(defn home [request]
-  (text/plain "home"))
-
-(route :get "/hello" :hello)
-(defn hello [request]
-  (text/plain "hello"))
-
-(def app2 (app))
-
-# (server app2 9002)
-
-(db/disconnect)
