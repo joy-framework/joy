@@ -1,27 +1,27 @@
 (import cipher)
-(import codec :as base64)
 (import ./helper :prefix "")
 
+(def PADLENGTH 32)
 
 (defn- xor-byte-strings [str1 str2]
   (let [arr @[]
         bytes1 (string/bytes str1)
         bytes2 (string/bytes str2)]
-    (when (= (length bytes2) (length bytes1) 32)
-      (loop [i :range [0 32]]
+    (when (= (length bytes2) (length bytes1) PADLENGTH)
+      (loop [i :range [0 PADLENGTH]]
         (array/push arr (bxor (get bytes1 i) (get bytes2 i))))
       (string/from-bytes ;arr))))
 
 
 (defn- session-token [request]
   (or (get request :csrf-token)
-      (os/cryptorand 32)))
+      (os/cryptorand PADLENGTH)))
 
 
 (defn- mask-token [unmasked-token]
-  (let [pad (os/cryptorand 32)
+  (let [pad (os/cryptorand PADLENGTH)
         masked-token (xor-byte-strings pad unmasked-token)]
-    (base64/encode (string pad masked-token))))
+    (cipher/bin2hex (string pad masked-token))))
 
 
 (defn- tokens-equal? [form-token session-token]
@@ -35,10 +35,11 @@
 
 
 (defn- unmask-token [masked-token]
-  (when-let [token (base64/decode masked-token)
-             pad (string/slice token 0 32)
-             csrf-token (string/slice token 32)]
-    (xor-byte-strings pad csrf-token)))
+  (when masked-token
+    (let [token (cipher/hex2bin masked-token)
+          pad (string/slice token 0 PADLENGTH)
+          csrf-token (string/slice token PADLENGTH)]
+      (xor-byte-strings pad csrf-token))))
 
 
 (defn with-csrf-token
@@ -57,7 +58,7 @@
 
   (def app (-> (handler routes)
                (with-csrf-token)
-               (with-session))) # You need sessions to store the token somewhere
+               (with-session))) # You need sessions to store the token in the cookie
 
   (server app 9001)
   `
@@ -66,6 +67,7 @@
     (let [session-token (session-token request)
           masked-token (mask-token session-token)
           request (merge request {:masked-token masked-token})]
+
        (if (or (get? request) (head? request))
          (when-let [response (handler request)]
            (merge response {:csrf-token session-token}))
@@ -90,7 +92,7 @@
 
   (def request {:method :get :uri "/"})
 
-  (authenticity-token request) => "aGVsbG8gd29ybGQ="
+  (csrf-token-value request) => "aGVsbG8gd29ybGQ="
   `
   [request]
   (get request :masked-token))
