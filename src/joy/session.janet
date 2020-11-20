@@ -93,7 +93,9 @@
   {:status 302 :body " " :session {:user {:email "test@example.com"}}}
   `
   [handler &opt cookie-options]
-  (default cookie-options {})
+  (def cookie-options (if (dictionary? cookie-options)
+                         cookie-options
+                         {}))
 
   (def session-cookie-options {"SameSite" "Lax"
                                "HttpOnly" ""
