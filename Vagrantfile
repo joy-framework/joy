@@ -7,7 +7,13 @@ $script = <<SCRIPT
 
   echo "=== Installing new packages"
 
-  sudo DEBIAN_FRONTEND=noninteractive aptitude install -y build-essentials libcurl4-gnutls-dev curl git-core vim cmake
+  sudo DEBIAN_FRONTEND=noninteractive aptitude install -y build-essentials libcurl4-gnutls-dev curl vim cmake
+
+  echo "=== Installing latest git"
+
+  sudo DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:git-core/ppa
+  sudo DEBIAN_FRONTEND=noninteractive aptitude update
+  sudo DEBIAN_FRONTEND=noninteractive aptitude install -y git
 
   echo "=== Installing janet"
 
