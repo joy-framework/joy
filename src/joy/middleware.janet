@@ -86,9 +86,9 @@
                (file-exists? filename))
         (let [contents (slurp filename)]
           @{:status 200
-            :body contents
+            :body (string contents)
             :headers {"Content-Type" (get content-types ext "text/plain")
-                      "Content-Length" (length contents)}
+                      "Content-Length" (string (length contents))}
             :level "verbose"})
         (handler request)))))
 
