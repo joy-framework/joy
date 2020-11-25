@@ -41,17 +41,17 @@
 
 
 (defn logger [handler &opt options]
-  (def options* {:level "info"})
-  (default options {})
-  (def options (merge options* options))
+  (def options (if (dictionary? options)
+                 (merge {:level "info"} options)
+                 {:level "info"}))
 
   (fn [request]
     (let [start-seconds (os/clock)
           response (handler request)
           end-seconds (os/clock)
-          level (get response :level (options :level))]
+          level (get response :level (get options :level))]
 
-      (when (= level (options :level))
+      (when (= level (get options :level))
         (as-> response ?
               (put ? :duration (- end-seconds start-seconds))
               (responsefmt request ?)
