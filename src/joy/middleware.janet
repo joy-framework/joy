@@ -250,3 +250,9 @@
       (let [response (handler request)]
         (when response
           (update response :headers merge options))))))
+
+
+(defn json-response [handler]
+  (fn [request]
+    (let [body (handler request)]
+      (responder/application/json body))))

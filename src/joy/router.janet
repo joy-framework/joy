@@ -218,6 +218,21 @@
     handler))
 
 
+(def json-api {:layout false
+               :extra-methods true
+               :query-string true
+               :body-parser true
+               :json-body-parser true
+               :json-response true
+               :logger {}
+               :csrf-token false
+               :session false
+               :x-headers false
+               :server-error false
+               :404 false
+               :static-files false})
+
+
 (defn app [&opt opts]
   (default opts {})
   (def options {:routes (auto-routes)
@@ -225,6 +240,7 @@
                 :extra-methods true
                 :query-string true
                 :body-parser true
+                :json-response false
                 :json-body-parser true
                 :logger {}
                 :csrf-token true
@@ -253,6 +269,7 @@
       (wrap-with :x-headers x-headers)
       (wrap-if :static-files static-files)
       (wrap-with :404 not-found)
+      (wrap-if :json-response json-response)
       (wrap-with :logger logger)))
 
 
