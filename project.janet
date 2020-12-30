@@ -6,7 +6,7 @@
                  {:repo "https://github.com/janet-lang/path" :tag "0ae7b60b8aaaa7f80f84692b7efb8e46b7d38eb3"}
                  {:repo "https://github.com/pyrmont/musty" :tag "e1a821940072a5ae5ddc9d3cb2ae6d1bdba41468"}
                  "https://github.com/joy-framework/cipher"
-                 "https://github.com/joy-framework/halo"
+                 "https://github.com/joy-framework/halo2"
                  "https://github.com/joy-framework/tester"
                  "https://github.com/joy-framework/db"]
   :author "Sean Walker"

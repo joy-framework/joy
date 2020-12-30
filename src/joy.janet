@@ -13,4 +13,4 @@
 (import ./joy/session :prefix "" :export true)
 (import db :prefix "db/" :export true)
 (import ./joy/db :prefix "" :export true)
-(import halo :prefix "" :export true)
+(import halo2 :prefix "" :export true)
