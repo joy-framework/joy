@@ -95,12 +95,7 @@
 (defn body-parser [handler]
   (fn [request]
     (let [{:body body} request]
-      (if (and body
-               (or (post? request)
-                   (patch? request)
-                   (put? request)
-                   (delete? request))
-               (form? request))
+      (if (and body (form? request))
         (handler (merge request {:body (http/parse-body body)}))
         (handler request)))))
 
