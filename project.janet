@@ -8,7 +8,8 @@
                  "https://github.com/joy-framework/cipher"
                  "https://github.com/joy-framework/halo2"
                  "https://github.com/joy-framework/tester"
-                 "https://github.com/joy-framework/db"]
+                 "https://github.com/joy-framework/db"
+                 "https://github.com/janet-lang/sqlite3"]
   :author "Sean Walker"
   :license "MIT"
   :url "https://github.com/joy-framework/joy"
