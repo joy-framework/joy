@@ -27,6 +27,17 @@ joy create db
 
 This creates a new empty database named `dev.sqlite3`. Let's fill it up.
 
+Note, the default template doesn't assume you want a database so you'll need to connect to it in `main.janet`:
+
+```clojure
+; # main.janet
+
+(defn main [& args]
+  (db/connect (env :database-url))
+  (server app (env :port))
+  (db/disconnect))
+```
+
 ### Taking it for a spin
 
 Alright now that we have a project and a sqlite database set up, it's time to test it out in the browser:
@@ -35,7 +46,7 @@ Alright now that we have a project and a sqlite database set up, it's time to te
 joy server
 ```
 
-This should start an http server that's listening at http://localhost:8000.
+This should start an http server that's listening at http://localhost:9001.
 
 ### Create a database table
 
@@ -57,16 +68,18 @@ joy migrate
 
 This will output what just happened to your database and create a new file `db/schema.sql`.
 
-### Create a route file
+### Generate helpful routes
 
-In joy there are no ORMs, no classes, and no objects, just functions that take in requests and return responses.
+In joy there are no ORMs, no classes, and no objects, just functions that take requests and return responses.
 
-Let's make a route file that corresponds to the table from earlier
+Let's generate a few routes for the table from earlier:
 
 ```sh
-joy create route account
+joy create controller account
 ```
 
-Those commands have created another new file: `src/routes/account.janet` and updated your `src/routes.janet` file with a few helpful routes.
+Those commands have created another new file: `routes/account.janet` and updated your `main.janet` file with an import statement so the account routes get set up.
 
-Go ahead and check out the new `account` routes in the browser now: `http://localhost:8000/account`
+Go ahead and check out the new `account` routes in the browser now: `http://localhost:9001/accounts`
+
+Joy can do a lot more than that, [check out the docs here](https://github.com/joy-framework/joy/blob/master/docs/readme.md)
