@@ -121,11 +121,11 @@
 (defn- validate-element
   [name attrs children]
   (unless (keyword? name)
-          (error "name must be a keyword"))
+          (error "tag name must be a keyword, such as :a, :div or :h3"))
   (unless (dictionary? attrs)
-          (error "attributes must be a dictionary"))
+          (error "tag attributes must be a dictionary, such as {:class \"code\" }"))
   (unless (valid-children? children)
-          (error "children must be a string, number, or index")))
+          (error "tag children must be a string, number, array, or tuple")))
 
 
 (defn- create-element
