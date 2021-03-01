@@ -49,4 +49,6 @@
 
 # Server
 (defn main [& args]
-  (server app (env :port)))
+  (let [port (get args 1 (os/getenv "PORT" "9001"))
+        host (get args 2 "localhost")]
+    (server app port host)))
