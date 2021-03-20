@@ -1,5 +1,5 @@
 (import tester :prefix "" :exit true)
-(import "src/joy/helper" :prefix "")
+(import ../../src/joy/helper :prefix "")
 
 
 (deftest

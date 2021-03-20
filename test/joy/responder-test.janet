@@ -1,5 +1,5 @@
 (import tester :prefix "" :exit true)
-(import "src/joy/responder" :as responder)
+(import ../../src/joy/responder :as responder)
 
 (defsuite
   (test "get responder"

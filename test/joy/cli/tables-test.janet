@@ -1,5 +1,5 @@
 (import tester :prefix "" :exit true)
-(import "src/joy/cli/tables" :as tables)
+(import ../../../src/joy/cli/tables :as tables)
 
 (deftest
   (test "basic create test"

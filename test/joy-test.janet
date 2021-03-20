@@ -1,5 +1,5 @@
 (import tester :prefix "" :exit true)
-(import "src/joy" :prefix "")
+(import ../src/joy :prefix "")
 (import cipher)
 
 # turn off a bunch of middleware that isn't necessary for some of these tests

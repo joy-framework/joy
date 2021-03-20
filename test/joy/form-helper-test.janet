@@ -1,6 +1,6 @@
 (import tester :prefix "" :exit true)
-(import "src/joy/form-helper" :prefix "")
-(import "src/joy/router" :prefix "")
+(import ../../src/joy/form-helper :prefix "")
+(import ../../src/joy/router :prefix "")
 
 
 (defn hello [request])

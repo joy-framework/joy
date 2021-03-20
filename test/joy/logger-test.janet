@@ -1,5 +1,5 @@
 (import tester :prefix "" :exit true)
-(import "src/joy/logger" :as logger)
+(import ../../src/joy/logger :as logger)
 
 (deftest
   (let [buf (buffer)]

@@ -1,5 +1,5 @@
 (import tester :prefix "" :exit true)
-(import "src/joy/router" :prefix "")
+(import ../../src/joy/router :prefix "")
 
 
 (def ok {:status 200 :body ""})

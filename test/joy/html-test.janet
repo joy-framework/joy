@@ -1,5 +1,5 @@
 (import tester :prefix "" :exit true)
-(import "src/joy/html" :as html)
+(import ../../src/joy/html :as html)
 
 
 (deftest

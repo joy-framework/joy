@@ -1,6 +1,6 @@
 (import tester :prefix "" :exit true)
-(import "src/joy/validator" :prefix "")
-(import "src/joy/helper" :prefix "")
+(import ../../src/joy/validator :prefix "")
+(import ../../src/joy/helper :prefix "")
 
 (def account-params
   (params :accounts
