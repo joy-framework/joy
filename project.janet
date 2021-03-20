@@ -9,6 +9,7 @@
                  "https://github.com/joy-framework/halo2"
                  "https://github.com/joy-framework/tester"
                  "https://github.com/joy-framework/db"
+                 "https://github.com/swlkr/janet-html"
                  "https://github.com/janet-lang/sqlite3"]
   :author "Sean Walker"
   :license "MIT"

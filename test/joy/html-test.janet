@@ -128,4 +128,10 @@
 
   (test "html with multiple indices"
     (= "<div><p></p><br /></div>"
-       (html/html [:div [:p] [:br]]))))
+       (html/html [:div [:p] [:br]])))
+
+  (test "html with mixed strings and elements"
+        (let [name "some name"
+              proj {:description "some description" :url "http://example.com"}]
+          (= "<li><a href=\"http://example.com\">some name</a>-some description</li>"
+             (html/html [:li [:a {:href (proj :url)} name] (string "-" (proj :description))])))))
