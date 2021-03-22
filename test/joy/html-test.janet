@@ -133,5 +133,5 @@
   (test "html with mixed strings and elements"
         (let [name "some name"
               proj {:description "some description" :url "http://example.com"}]
-          (= "<li><a href=\"http://example.com\">some name</a>-some description</li>"
-             (html/html [:li [:a {:href (proj :url)} name] (string "-" (proj :description))])))))
+          (= "<li><a href=\"http://example.com\">some name</a> - some description</li>"
+             (html/html [:li [:a {:href (proj :url)} name] " - " (proj :description)])))))
