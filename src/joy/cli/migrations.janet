@@ -23,8 +23,8 @@
   (default content {})
   (os/mkdir "db")
   (os/mkdir "db/migrations")
-  (when (string? name)
-    (let [{:up up :down down} content]
-      (with [f (file/open (string "db/migrations/" (timestamp) "-" name ".sql") :w)]
-        (file/write f
-          (string "-- up\n" (or up "") "\n\n-- down\n" (or down "")))))))
+  (let [name (if name (string "-" name) "")
+        {:up up :down down} content]
+    (with [f (file/open (string "db/migrations/" (timestamp) name ".sql") :w)]
+      (file/write f
+        (string "-- up\n" (or up "") "\n\n-- down\n" (or down ""))))))
