@@ -18,7 +18,8 @@ Don't forget to migrate!
 Open up your janet repl and type this in
 
 ```clojure
-(import cipher) (cipher/password-key)
+(import cipher)
+(cipher/password-key)
 ```
 
 Copy and paste the output to your `.env` file like this:
@@ -40,15 +41,14 @@ For this next bit you're going to need another library in your `project.janet` f
 
 *src/routes/account.janet*
 ```clojure
-(import joy :prefix "")
-(import joy/db)
+(use joy)
 (import cipher)
 
 
-(def params
-  (params
-    (validates [:email :password] :required true)
-    (permit [:email :password])))
+(def account-params
+     (params :account
+             (validates [:email :password] :required true)
+             (permit [:email :password])))
 
 
 (defn new [request]
@@ -74,10 +74,9 @@ For this next bit you're going to need another library in your `project.janet` f
 
 
 (defn create [request]
-  (let [result (as-> request ?
-                     (params ?)
+  (let [result (as-> (account-params request) ?
                      (hash-password ?)
-                     (db/insert :account ?)
+                     (db/insert ?)
                      (rescue-from :params ?))
         [errors account] result
         account (select-keys account [:email])]
@@ -120,13 +119,12 @@ In case you didn't catch it before, this is the bit where we hash passwords. It'
 *src/routes/session.janet*
 
 ```clojure
-(import joy :prefix "")
-(import joy/db)
+(use joy)
 (import cipher)
 
 
-(def params
-  (params
+(def account-params
+  (params :account
     (validates [:email :password] :required true)
     (permit [:email :password])))
 
@@ -154,9 +152,7 @@ In case you didn't catch it before, this is the bit where we hash passwords. It'
 
 
 (defn create [request]
-  (let [[_ account-params] (as-> request ?)
-                                 (params ?)
-                                 (rescue ?))
+  (let [[_ account-params] (rescue (account-params request))
         email (get account-params :email)
         account (-> (db/from :account :where {:email email} :limit 1)
                     (get 0))]
@@ -192,9 +188,9 @@ Don't forget to wire up those routes:
       (put :session {})))
 ```
 
-One day soon this will all be a bad dream and you'll be able to stick one line of authentication middleware in there and have working email/password auth (and possibly google/apple auth as well).
+One day this will all be a bad dream and you'll be able to stick one line of authentication middleware in there and have working email/password auth (and possibly google/apple auth as well).
 
-Oh, don't forget to update the routes again 😅
+Oh, don't forget to update the routes again
 
 
 ```clojure
