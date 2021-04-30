@@ -1,4 +1,6 @@
 (import ./joy/env :prefix "" :export true)
+# set env vars from .env
+(setenv)
 (import ./joy/logger :prefix "" :export true)
 (import ./joy/responder :prefix "" :export true)
 (import ./joy/helper :prefix "" :export true)

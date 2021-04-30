@@ -42,6 +42,15 @@
           (dotenv env-key)))))
 
 
+(defn setenv []
+  (when (os/stat ".env")
+    (with [f (file/open ".env")]
+      (as-> (file/read f :all) ?
+            (parse-dotenv ?)
+            (eachp [k v] ?
+              (os/setenv k v))))))
+
+
 (def development? (= "development" (env :joy-env)))
 (def test? (= "test" (env :joy-env)))
 (def production? (= "production" (env :joy-env)))
