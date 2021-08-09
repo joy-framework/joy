@@ -57,8 +57,8 @@
          :uri uri} validator
         msg (cond
               (true? required) "is required"
-              (number? min-length) (string "needs to be more than " min-length " characters")
-              (number? max-length) (string "needs to be less than " max-length " characters")
+              (number? min-length) (string "needs to be at least " min-length " characters")
+              (number? max-length) (string "needs to be at most " max-length " characters")
               (not (nil? email)) "needs to be an email"
               (not (nil? matches)) (string "needs to match " (string/format "%q" matches))
               (not (nil? uri)) (string "needs to be a valid uri " (string/format "%q" uri))
