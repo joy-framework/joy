@@ -27,14 +27,14 @@
             (rescue-from :params)
             (first)
             (freeze))
-       {:password "password needs to be more than 8 characters"}))
+       {:password "password needs to be at least 8 characters"}))
 
   (test "params raises an error when max-length isn't met"
     (= (->> (account-params {:body {:name "this is too long" :email "test@example.com" :password "correct horse battery staple"}})
             (rescue-from :params)
             (first)
             (freeze))
-       {:name "name needs to be less than 10 characters"}))
+       {:name "name needs to be at most 10 characters"}))
 
   (test "params raises an error when a peg doesn't match"
     (= (->> (account-params {:body {:name "na" :email "test@example.com" :password "correct horse battery staple"}})
