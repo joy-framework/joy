@@ -9,8 +9,9 @@
   :repo "")
 
 (phony "server" []
-  (if (= "development" (os/getenv "JOY_ENV"))
-      # TODO check if entr exists
+  (if (and
+       (= "development" (os/getenv "JOY_ENV"))
+       (zero? (os/shell "which entr &> /dev/null")))
     (os/shell "find . -name '*.janet' | entr janet main.janet")
     (os/shell "janet main.janet")))
 
