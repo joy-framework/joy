@@ -5,7 +5,7 @@
 (import ./responder :as responder)
 (import ./html :as html)
 (import cipher)
-(import path)
+(import spork/path)
 (import spork/json)
 
 

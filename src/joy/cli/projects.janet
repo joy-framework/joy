@@ -1,5 +1,5 @@
 (import ../helper :prefix "")
-(import path)
+(import spork/path)
 (import cipher)
 (import musty)
 
