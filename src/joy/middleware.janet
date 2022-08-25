@@ -6,7 +6,7 @@
 (import ./html :as html)
 (import cipher)
 (import path)
-(import json)
+(import spork/json)
 
 
 (defn layout
