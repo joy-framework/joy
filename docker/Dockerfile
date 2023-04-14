@@ -19,12 +19,12 @@ RUN git clone --depth 1 --branch v$JANET https://github.com/janet-lang/janet.git
     cd /tmp/janet && \
     make all test install
 
-RUN chmod 777 /usr/local/lib/janet
-
 # Install jpm
 RUN git clone --depth 1 https://github.com/janet-lang/jpm.git /tmp/jpm && \
     /tmp/jpm && \
     janet bootstrap.janet
+
+RUN chmod 777 /usr/local/lib/janet
 
 # Use jpm to install joy
 
