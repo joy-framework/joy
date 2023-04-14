@@ -9,7 +9,7 @@ ARG USER=app
 ARG GROUP=app
 ARG UID=1101
 ARG GID=1101
-ARG JANET=1.12.2
+ARG JANET=1.27.0
 
 RUN addgroup -g $GID -S $GROUP
 RUN adduser -u $UID -S $USER -G $GROUP
@@ -20,6 +20,11 @@ RUN git clone --depth 1 --branch v$JANET https://github.com/janet-lang/janet.git
     make all test install
 
 RUN chmod 777 /usr/local/lib/janet
+
+# Install jpm
+RUN git clone --depth 1 https://github.com/janet-lang/jpm.git /tmp/jpm && \
+    /tmp/jpm && \
+    janet bootstrap.janet
 
 # Use jpm to install joy
 
