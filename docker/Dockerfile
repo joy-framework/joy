@@ -9,7 +9,7 @@ ARG USER=app
 ARG GROUP=app
 ARG UID=1101
 ARG GID=1101
-ARG JANET=1.12.2
+ARG JANET=1.27.0
 
 RUN addgroup -g $GID -S $GROUP
 RUN adduser -u $UID -S $USER -G $GROUP
@@ -18,6 +18,11 @@ RUN adduser -u $UID -S $USER -G $GROUP
 RUN git clone --depth 1 --branch v$JANET https://github.com/janet-lang/janet.git /tmp/janet && \
     cd /tmp/janet && \
     make all test install
+
+# Install jpm
+RUN git clone --depth 1 https://github.com/janet-lang/jpm.git /tmp/jpm && \
+    cd /tmp/jpm && \
+    janet bootstrap.janet
 
 RUN chmod 777 /usr/local/lib/janet
 
