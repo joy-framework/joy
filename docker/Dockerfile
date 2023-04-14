@@ -21,7 +21,7 @@ RUN git clone --depth 1 --branch v$JANET https://github.com/janet-lang/janet.git
 
 # Install jpm
 RUN git clone --depth 1 https://github.com/janet-lang/jpm.git /tmp/jpm && \
-    /tmp/jpm && \
+    cd /tmp/jpm && \
     janet bootstrap.janet
 
 RUN chmod 777 /usr/local/lib/janet
