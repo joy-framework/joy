@@ -16,6 +16,7 @@ jobs:
         git clone --depth 1 --branch v1.27.0 https://github.com/janet-lang/janet.git /tmp/janet
         cd /tmp/janet
         sudo make all test install
+        sudo janet bootstrap.janet
     - name: install joy
       run: sudo jpm install joy
   test:
