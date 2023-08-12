@@ -34,7 +34,7 @@ or if you don't like not being able to find `defroutes` with ctags:
                  [:get "/accounts/:id" accounts/show]
                  [:post "/accounts" accounts/create]
                  [:patch "/accounts/:id" accounts/patch]
-                 [:delete "/accounts/:id" accounts/destroy])
+                 [:delete "/accounts/:id" accounts/destroy]))
 ```
 
 There really is no trade off here except that you have to define functions and then define the routes separately, typically in another file or another place in the same file. Not the best for moving quickly, if you have a small app.
