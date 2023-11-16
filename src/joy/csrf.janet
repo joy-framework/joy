@@ -31,6 +31,9 @@
 
 (defn- request-token [request]
   (or (get-in request [:body :__csrf-token])
+      (as-> (get request :multipart-body []) ?
+            (some |(if (= "__csrf-token" (get $ :name)) $ nil) ?)
+            (get ? :content))
       (x-csrf-token request)))
 
 

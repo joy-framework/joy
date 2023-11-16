@@ -107,4 +107,30 @@
                                  :filename (get $ :filename)
                                  :size (get $ :size)
                                  :content-type (get $ :content-type))
+                        ?)))))
+
+  (test "parse-multipart-body, trimming bug"
+    (deep= @[{:name "number" :content "1"}]
+           (let [sample-body "--------------------------1\r\nContent-Disposition: form-data; name=\"number\"\r\n\r\n1\r\n--------------------------1--\r\n"
+                 request {:headers {"Content-Type" "multipart/form-data; boundary=------------------------1"}
+                          :body sample-body}]
+             (as-> (http/parse-multipart-body request) ?
+                   (map |(struct :name (get $ :name)
+                                 :content (get $ :content)
+                                 :filename (get $ :filename)
+                                 :size (get $ :size)
+                                 :content-type (get $ :content-type))
+                        ?)))))
+
+  (test "parse-multipart-body, handling wrong suffix to trim"
+    (deep= @[{:name "number" :content "1"}]
+           (let [sample-body "--------------------------1\r\nContent-Disposition: form-data; name=\"number\"\r\n\r\n1\r\n"
+                 request {:headers {"Content-Type" "multipart/form-data; boundary=------------------------1"}
+                          :body sample-body}]
+             (as-> (http/parse-multipart-body request) ?
+                   (map |(struct :name (get $ :name)
+                                 :content (get $ :content)
+                                 :filename (get $ :filename)
+                                 :size (get $ :size)
+                                 :content-type (get $ :content-type))
                         ?))))))

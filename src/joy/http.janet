@@ -143,8 +143,12 @@
 (defn parse-multipart-body [request]
   (let [boundary (multipart-boundary request)
         splitter (string "--" boundary "\r\n")
+        suffix (string "\r\n--" boundary "--\r\n")
         body (as-> (get request :body) ?
-                   (string/trimr ? (string boundary "--\r\n")))]
+                   (if (string/has-suffix? suffix ?)
+                     (string/slice ? 0 (- (+ 1 (length suffix))))
+                     ?))]
+
     (as-> (string/split splitter body) ?
           (filter |(not (empty? $)) ?)
           (map multipart ?)
