@@ -116,7 +116,7 @@ Joy can do a lot more than that, [check out the docs here](https://github.com/jo
 
 ## Why?
 
-I wanted something that felt like [coast](https://coastonclojure.com) but took so little resources (memory + cpu) I could run dozens (if not hundreds) of websites on a cheap [VPS](https://www.vultr.com/?ref=7614094).
+I wanted something that felt like [coast](https://coast.swlkr.com) but took so little resources (memory + cpu) I could run dozens (if not hundreds) of websites on a cheap [VPS](https://www.vultr.com/?ref=7614094).
 
 ## Docker/Docker Compose
 
