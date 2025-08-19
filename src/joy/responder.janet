@@ -1,4 +1,4 @@
-(import json)
+(import spork/json)
 (import ./html)
 
 (defn- content-type [k]
