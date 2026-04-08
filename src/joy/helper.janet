@@ -305,21 +305,4 @@
     @{} ind))
 
 
-(defn contains?
-  `Finds a truthy value in an indexed or a dictionary's
-   keys
-
-   Example
-
-   (contains? :a [:a :b :c]) => true
-   (contains? :a {:a 1 :b 2 :c 3}) => true
-   (contains? :d {:a 1 :b 2 :c 3}) => false`
-  [val arr]
-  (when (or (indexed? arr)
-            (dictionary? arr))
-    (truthy?
-     (or (find |(= val $) arr)
-         (get arr val)))))
-
-
 (def version "0.9.0")
