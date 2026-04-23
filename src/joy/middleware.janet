@@ -5,8 +5,8 @@
 (import ./responder :as responder)
 (import ./html :as html)
 (import cipher)
-(import path)
-(import json)
+(import spork/path)
+(import spork/json)
 
 
 (defn layout

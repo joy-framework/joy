@@ -53,7 +53,7 @@ I waved away some of the complexity that's associated with generating that token
 
 ```clojure
 (import joy)
-(import json)
+(import spork/json)
 
 (defn create [{:body body}]
   (let [name (get body :username)]
