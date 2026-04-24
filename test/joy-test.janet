@@ -127,7 +127,7 @@
 
   (test "get request can return json"
         (is (deep= @{:status 200
-                     :body @`{"array":[1,2,3],"name":"value"}`
+                     :body @`{"name":"value","array":[1,2,3]}`
                      :headers @{"Content-Type" "application/json"}}
 
                    (let [# route functions
